@@ -1,0 +1,248 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { formatDistanceToNow } from 'date-fns';
+import { 
+  Bell, 
+  MessageSquare, 
+  Users, 
+  Star, 
+  Briefcase, 
+  AlertTriangle,
+  ChevronRight,
+  ThumbsUp,
+  MessageCircle
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { ApiNotification } from '@/services/notificationApi';
+
+interface LinkedInNotificationItemProps {
+  notification: ApiNotification;
+  onRead: (id: string) => void;
+}
+
+export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotificationItemProps) => {
+  const navigate = useNavigate();
+  const [isHovered, setIsHovered] = useState(false);
+  
+  const handleClick = () => {
+    if (!notification.is_read) {
+      onRead(notification._id);
+    }
+    
+    if (notification.link) {
+      navigate(notification.link);
+    }
+  };
+  
+  const getIcon = () => {
+    switch (notification.type) {
+      case 'task':
+        return <Briefcase className="h-4 w-4 text-blue-600" />;
+      case 'chat':
+        return <MessageSquare className="h-4 w-4 text-green-600" />;
+      case 'linkups':
+        return <Users className="h-4 w-4 text-purple-600" />;
+      case 'score':
+        return <Star className="h-4 w-4 text-yellow-500" />;
+      case 'comment':
+        return <MessageCircle className="h-4 w-4 text-blue-600" />;
+      case 'alert':
+        return <AlertTriangle className="h-4 w-4 text-red-500" />;
+      case 'system':
+        return <Bell className="h-4 w-4 text-gray-500" />;
+      default:
+        return <Bell className="h-4 w-4 text-blue-600" />;
+    }
+  };
+
+  const getTimeAgo = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+      
+      if (diffInHours < 24) {
+        return formatDistanceToNow(date, { addSuffix: false });
+      } else {
+        const diffInDays = Math.floor(diffInHours / 24);
+        if (diffInDays === 1) return '1d';
+        if (diffInDays < 7) return `${diffInDays}d`;
+        if (diffInDays < 30) return `${Math.floor(diffInDays / 7)}w`;
+        return `${Math.floor(diffInDays / 30)}m`;
+      }
+    } catch {
+      return 'now';
+    }
+  };
+
+  const getActionText = () => {
+    switch (notification.type) {
+      case 'score':
+        return `rated your post ${notification.reference_id?.score || ''} stars`;
+      case 'comment':
+        return 'commented on your post';
+      case 'linkups':
+        return 'linked up with you';
+      case 'task':
+        return 'accepted your task';
+      default:
+        return notification.message;
+    }
+  };
+
+  const senderName = notification.sender_id 
+    ? `${notification.sender_id.first_name} ${notification.sender_id.last_name}`
+    : 'BeemByte';
+    
+  return (
+    <div
+      className={cn(
+        "p-4 hover:bg-gray-50/80 cursor-pointer transition-all border-b border-gray-100 group",
+        !notification.is_read && "bg-blue-50/30",
+        "relative"
+      )}
+      onClick={handleClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="flex items-start gap-3">
+        {/* Sender Avatar */}
+        <div className="relative flex-shrink-0">
+          {notification.sender_id ? (
+            <Avatar className="h-12 w-12 border-2 border-white shadow-sm">
+              <AvatarImage 
+                src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(notification.sender_id.first_name)}`}
+                alt={senderName}
+              />
+              <AvatarFallback className="text-sm bg-gradient-to-br from-blue-500 to-purple-600 text-white font-medium">
+                {notification.sender_id.first_name?.[0]}
+                {notification.sender_id.last_name?.[0]}
+              </AvatarFallback>
+            </Avatar>
+          ) : (
+            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-sm">
+              {getIcon()}
+            </div>
+          )}
+          
+          {/* Type indicator badge */}
+          <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full border-2 border-white shadow-sm flex items-center justify-center">
+            {getIcon()}
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between">
+            <div className="flex-1 pr-2">
+              {/* Main message */}
+              <div className="mb-2">
+                <span className={cn(
+                  "text-sm leading-relaxed",
+                  !notification.is_read ? "font-medium text-gray-900" : "text-gray-700"
+                )}>
+                  <span className="font-semibold text-gray-900">{senderName}</span>
+                  {notification.sender_id && (
+                    <>
+                      {notification.type === 'linkups' && (
+                        <> and <span className="font-medium">1 other</span></>
+                      )}
+                    </>
+                  )}
+                  <span className="text-gray-700"> {getActionText()}</span>
+                </span>
+              </div>
+
+              {/* Reference content preview */}
+              {notification.reference_id?.post_id && (
+                <div className="bg-gray-50 rounded-lg p-3 mb-3 border border-gray-200">
+                  <div className="flex items-start gap-2">
+                    {notification.reference_id.post_id.images?.length > 0 && (
+                      <div className="w-12 h-12 bg-gray-200 rounded flex-shrink-0 overflow-hidden">
+                        <img 
+                          src={notification.reference_id.post_id.images[0]} 
+                          alt="Post preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 line-clamp-1">
+                        {notification.reference_id.post_id.title}
+                      </p>
+                      {notification.reference_id.post_id.description && (
+                        <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                          {notification.reference_id.post_id.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Comment content preview */}
+              {notification.type === 'comment' && notification.reference_id?.content && (
+                <div className="bg-gray-50 rounded-lg p-3 mb-3 border border-gray-200">
+                  <p className="text-sm text-gray-700 italic">
+                    "{notification.reference_id.content}"
+                  </p>
+                </div>
+              )}
+
+              {/* Score display */}
+              {notification.type === 'score' && notification.reference_id?.score && (
+                <div className="flex items-center gap-1 mb-2">
+                  {[...Array(5)].map((_, i) => (
+                    <Star 
+                      key={i} 
+                      className={cn(
+                        "h-4 w-4",
+                        i < notification.reference_id.score 
+                          ? "text-yellow-500 fill-current" 
+                          : "text-gray-300"
+                      )} 
+                    />
+                  ))}
+                  <span className="text-sm text-gray-600 ml-1">
+                    {notification.reference_id.score}/5
+                  </span>
+                </div>
+              )}
+
+              {/* Action buttons for specific types */}
+              {notification.type === 'linkups' && (
+                <div className="flex items-center gap-2 mt-2">
+                  <Button size="sm" variant="outline" className="h-8 px-4 text-xs">
+                    View profile
+                  </Button>
+                </div>
+              )}
+
+              {/* Bottom row */}
+              <div className="flex items-center justify-between mt-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500">
+                    {getTimeAgo(notification.created_at)}
+                  </span>
+                  {!notification.is_read && (
+                    <div className="h-2 w-2 rounded-full bg-blue-600"></div>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            {/* Arrow indicator */}
+            <div className={cn(
+              "flex-shrink-0 transition-opacity",
+              isHovered ? "opacity-100" : "opacity-0"
+            )}>
+              <ChevronRight className="h-4 w-4 text-gray-400" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
