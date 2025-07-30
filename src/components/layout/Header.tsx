@@ -17,13 +17,14 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/hooks/useAuth"
 import { UserIcon } from "lucide-react"
+import { useNotifications } from "@/hooks/useNotifications"
 import type { User as UserType } from "@/types"
 
 export const Header = () => {
   const navigate = useNavigate()
   const { isLoading: userLoading, loggedInUser, logout } = useAuth()
   const [user, setUser] = useState<UserType>(null)
-  const [unreadNotifications, setUnreadNotifications] = useState(3) // Mock unread count
+  const { unreadCount } = useNotifications()
 
   useEffect(() => {
     let isMounted = true
@@ -109,12 +110,12 @@ export const Header = () => {
                 className="relative hover:bg-gray-100"
               >
                 <Bell className="h-5 w-5" />
-                {unreadNotifications > 0 && (
+                {unreadCount > 0 && (
                   <Badge
                     variant="destructive"
                     className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
                   >
-                    {unreadNotifications > 9 ? "9+" : unreadNotifications}
+                    {unreadCount > 9 ? "9+" : unreadCount}
                   </Badge>
                 )}
               </Button>
@@ -240,12 +241,12 @@ export const Header = () => {
                         >
                           <Bell className="h-4 w-4" />
                           Notifications
-                          {unreadNotifications > 0 && (
+                          {unreadCount > 0 && (
                             <Badge
                               variant="destructive"
                               className="h-4 w-4 flex items-center justify-center p-0 text-xs"
                             >
-                              {unreadNotifications > 9 ? "9+" : unreadNotifications}
+                              {unreadCount > 9 ? "9+" : unreadCount}
                             </Badge>
                           )}
                         </button>

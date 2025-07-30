@@ -43,11 +43,13 @@ import { useFeed } from "@/hooks/useFeed"
 import { ExperienceModal } from "@/components/profile/ExperienceModal"
 import { EducationModal } from "@/components/profile/EducationModal"
 import { AchievementModal } from "@/components/profile/AchievementModal"
+import { ActivityFeed } from "@/components/profile/ActivityFeed"
 import { profileApiService } from "@/services/profileApi"
 import { toast } from "sonner"
 import { userApiService } from "@/services/userApi"
 import { API_BASE_URL } from "@/config/env"
 import { useSingleFileUpload } from "@/hooks/useSingleFileUpload"
+import { useNotifications } from "@/hooks/useNotifications"
 
 const Profile = () => {
   const navigate = useNavigate()
@@ -65,6 +67,7 @@ const Profile = () => {
   const { loggedInUser } = useAuth()
   const { getSuggestedPostsByUser } = useFeed()
   const { uploadFile, isUploading: isUploadingFile } = useSingleFileUpload()
+  const { activities } = useNotifications()
 
   // Check if viewing own profile or other user's profile
   const isOwnProfile = !userId
@@ -975,20 +978,7 @@ const Profile = () => {
           {/* Right sidebar - User Activity */}
           <div className="lg:col-span-3 space-y-4 sm:space-y-6">
             {isOwnProfile && (
-              <Card className="shadow-sm border-0 bg-white">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm sm:text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <Activity className="h-4 w-4 sm:h-5 sm:w-5" />
-                    Recent Activity
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-center py-8">
-                    <div className="text-gray-400 text-4xl mb-3">📊</div>
-                    <p className="text-gray-600 text-sm">No recent activity</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <ActivityFeed activities={activities} />
             )}
 
             <Card className="shadow-sm border-0 bg-white">
