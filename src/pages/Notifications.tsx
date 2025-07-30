@@ -1,24 +1,17 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import {
-  Bell,
-  Filter,
-  Settings,
-  Check,
-} from "lucide-react"
+import { useEffect } from "react"
+import { Bell, Settings, Filter } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { NotificationsList } from "@/components/notifications/NotificationsList"
+import { ActivityFeed } from "@/components/profile/ActivityFeed"
 import { useNotifications } from "@/hooks/useNotifications"
 
-
 const Notifications = () => {
-  const navigate = useNavigate()
   const { 
     notifications, 
+    activities,
     isLoading, 
     unreadCount, 
     markNotificationAsRead, 
@@ -32,17 +25,15 @@ const Notifications = () => {
 
   const handleNotificationClick = (id: string) => {
     markNotificationAsRead(id)
-    // Navigation will be handled by the NotificationItem component
   }
-
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-6 max-w-4xl">
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-gray-500">Loading notifications...</p>
+            <p className="text-muted-foreground">Loading notifications...</p>
           </div>
         </div>
       </div>
@@ -50,48 +41,56 @@ const Notifications = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-6 max-w-4xl">
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Bell className="h-6 w-6" />
-              Notifications
-              {unreadCount > 0 && (
-                <Badge variant="destructive" className="ml-2">
-                  {unreadCount}
-                </Badge>
-              )}
-            </h1>
-            <p className="text-gray-600 mt-1">Stay updated with your latest activities</p>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <Bell className="h-8 w-8 text-foreground" />
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">Notifications</h1>
+              <p className="text-muted-foreground mt-1">Stay updated with your latest activities</p>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
-              <Filter className="h-4 w-4 mr-2" />
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" className="gap-2">
+              <Filter className="h-4 w-4" />
               Filter
             </Button>
-            <Button variant="outline" size="sm">
-              <Settings className="h-4 w-4 mr-2" />
+            <Button variant="outline" size="sm" className="gap-2">
+              <Settings className="h-4 w-4" />
               Settings
             </Button>
-            {unreadCount > 0 && (
-              <Button onClick={markAllAsRead} size="sm">
-                <Check className="h-4 w-4 mr-2" />
-                Mark all read
-              </Button>
-            )}
           </div>
         </div>
 
-        {/* Notifications List */}
-        <Card className="shadow-sm border-0 bg-white">
-          <NotificationsList
-            notifications={notifications}
-            onMarkAllAsRead={markAllAsRead}
-            onReadNotification={handleNotificationClick}
-          />
-        </Card>
+        {/* Two Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left: Notifications */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-foreground">Notifications</h2>
+              {unreadCount > 0 && (
+                <Badge variant="secondary" className="px-3 py-1">
+                  {unreadCount} unread
+                </Badge>
+              )}
+            </div>
+            <div className="bg-card rounded-lg border shadow-sm">
+              <NotificationsList
+                notifications={notifications}
+                onMarkAllAsRead={markAllAsRead}
+                onReadNotification={handleNotificationClick}
+              />
+            </div>
+          </div>
+
+          {/* Right: Activity Feed */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-foreground">Activity</h2>
+            <ActivityFeed activities={activities} />
+          </div>
+        </div>
       </div>
     </div>
   )

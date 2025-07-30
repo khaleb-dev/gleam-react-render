@@ -103,95 +103,50 @@ export const ActivityFeed = ({ activities }: ActivityFeedProps) => {
         <p className="text-sm text-gray-600 mt-1">Your recent activities and interactions</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="border-b border-gray-100 px-6">
-          <TabsList className="grid w-full grid-cols-5 bg-transparent h-auto p-0">
-            <TabsTrigger 
-              value="all" 
-              className="text-sm py-3 px-0 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 rounded-none"
-            >
-              All
-              <Badge variant="secondary" className="ml-2 text-xs px-2 py-0.5 h-5">
-                {activities.length}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="posts" 
-              className="text-sm py-3 px-0 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 rounded-none"
-            >
-              Posts
-            </TabsTrigger>
-            <TabsTrigger 
-              value="comments" 
-              className="text-sm py-3 px-0 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 rounded-none"
-            >
-              Comments
-            </TabsTrigger>
-            <TabsTrigger 
-              value="tasks" 
-              className="text-sm py-3 px-0 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 rounded-none"
-            >
-              Tasks
-            </TabsTrigger>
-            <TabsTrigger 
-              value="social" 
-              className="text-sm py-3 px-0 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 rounded-none"
-            >
-              Social
-            </TabsTrigger>
-          </TabsList>
-        </div>
-
-        <TabsContent value={activeTab} className="mt-0">
-          <div className="max-h-96 overflow-y-auto">
-            {filteredActivities.length > 0 ? (
-              <div className="divide-y divide-gray-100">
-                {filteredActivities.map((activity) => (
-                  <div key={activity._id} className="p-4 hover:bg-gray-50 transition-colors">
-                    <div className="flex items-start gap-3">
-                      <div className={cn(
-                        "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center",
-                        getTypeColor(activity.type)
-                      )}>
-                        {getIcon(activity.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-900 leading-relaxed">
-                          {activity.message}
-                        </p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge 
-                            variant="outline" 
-                            className={cn("text-xs capitalize", getTypeColor(activity.type))}
-                          >
-                            {activity.type}
-                          </Badge>
-                          <span className="text-xs text-gray-500">
-                            {getTimeAgo(activity.created_at)}
-                          </span>
-                        </div>
-                      </div>
+      <div className="max-h-96 overflow-y-auto">
+        {activities.length > 0 ? (
+          <div className="divide-y divide-border">
+            {activities.map((activity) => (
+              <div key={activity._id} className="p-4 hover:bg-accent/50 transition-colors">
+                <div className="flex items-start gap-3">
+                  <div className={cn(
+                    "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center",
+                    getTypeColor(activity.type)
+                  )}>
+                    {getIcon(activity.type)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-foreground leading-relaxed">
+                      {activity.message}
+                    </p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Badge 
+                        variant="outline" 
+                        className={cn("text-xs capitalize", getTypeColor(activity.type))}
+                      >
+                        {activity.type}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {getTimeAgo(activity.created_at)}
+                      </span>
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="p-8 text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <ActivityIcon className="h-8 w-8 text-gray-400" />
                 </div>
-                <h4 className="text-lg font-medium text-gray-900 mb-2">No activities yet</h4>
-                <p className="text-gray-600 text-sm">
-                  {activeTab === 'all' 
-                    ? "Start interacting to see your activities here" 
-                    : `No ${activeTab} activities yet`
-                  }
-                </p>
               </div>
-            )}
+            ))}
           </div>
-        </TabsContent>
-      </Tabs>
+        ) : (
+          <div className="p-8 text-center">
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+              <ActivityIcon className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h4 className="text-lg font-medium text-foreground mb-2">No activities yet</h4>
+            <p className="text-muted-foreground text-sm">
+              Start interacting to see your activities here
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

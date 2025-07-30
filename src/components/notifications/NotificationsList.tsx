@@ -40,58 +40,51 @@ export const NotificationsList = ({
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
-    <div className="w-full max-w-md bg-white rounded-lg shadow-lg border border-gray-200">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-100">
-        <h3 className="font-semibold text-lg text-gray-900">Notifications</h3>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-            <Settings className="h-4 w-4 text-gray-500" />
+    <div className="w-full bg-card">
+      {hasUnread && (
+        <div className="flex justify-end p-4 border-b border-border">
+          <Button 
+            onClick={onMarkAllAsRead}
+            variant="ghost" 
+            size="sm"
+            className="text-xs h-8 px-3 text-primary hover:bg-accent"
+          >
+            <CheckCheck className="h-4 w-4 mr-1" />
+            Mark all read
           </Button>
-          {hasUnread && (
-            <Button 
-              onClick={onMarkAllAsRead}
-              variant="ghost" 
-              size="sm"
-              className="text-xs h-8 px-3 text-blue-600 hover:bg-blue-50"
-            >
-              <CheckCheck className="h-4 w-4 mr-1" />
-              Mark all read
-            </Button>
-          )}
         </div>
-      </div>
+      )}
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="border-b border-gray-100 px-4 pt-2">
+        <div className="border-b border-border px-4 pt-2">
           <TabsList className="grid w-full grid-cols-4 bg-transparent h-auto p-0">
             <TabsTrigger 
               value="all" 
-              className="text-sm py-2 px-3 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 rounded-none"
+              className="text-sm py-3 px-3 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none border-b-2 border-transparent"
             >
               All
               {notifications.length > 0 && (
-                <Badge variant="secondary" className="ml-1 text-xs px-1.5 py-0.5 h-5">
+                <Badge variant="secondary" className="ml-2 text-xs px-2 py-0.5 h-5 bg-primary/10 text-primary">
                   {notifications.length}
                 </Badge>
               )}
             </TabsTrigger>
             <TabsTrigger 
               value="comments" 
-              className="text-sm py-2 px-3 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 rounded-none"
+              className="text-sm py-3 px-3 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none border-b-2 border-transparent"
             >
               Comments
             </TabsTrigger>
             <TabsTrigger 
               value="scores" 
-              className="text-sm py-2 px-3 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 rounded-none"
+              className="text-sm py-3 px-3 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none border-b-2 border-transparent"
             >
               Scores
             </TabsTrigger>
             <TabsTrigger 
               value="linkups" 
-              className="text-sm py-2 px-3 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 rounded-none"
+              className="text-sm py-3 px-3 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none border-b-2 border-transparent"
             >
               Linkups
             </TabsTrigger>
@@ -99,7 +92,7 @@ export const NotificationsList = ({
         </div>
 
         <TabsContent value={activeTab} className="mt-0">
-          <ScrollArea className="h-[500px] md:h-[400px]">
+          <ScrollArea className="h-[600px]">
             {filteredNotifications.length > 0 ? (
               <div>
                 {filteredNotifications.map((notification) => (
@@ -112,11 +105,11 @@ export const NotificationsList = ({
               </div>
             ) : (
               <div className="p-8 text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCheck className="h-8 w-8 text-gray-400" />
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCheck className="h-8 w-8 text-muted-foreground" />
                 </div>
-                <h4 className="text-lg font-medium text-gray-900 mb-2">All caught up!</h4>
-                <p className="text-gray-600 text-sm">
+                <h4 className="text-lg font-medium text-foreground mb-2">All caught up!</h4>
+                <p className="text-muted-foreground text-sm">
                   {activeTab === 'all' 
                     ? "You have no notifications" 
                     : `No ${activeTab} notifications`
