@@ -11,7 +11,8 @@ export const LinkupCount: React.FC<LinkupCountProps> = ({ userId, className = ''
 
   return (
     <div className={`text-xs text-gray-500 ${className}`}>
-      {counts.linkedUpCount + counts.linkedMeCount} linkups
+      <span className="mr-2">{counts.linkedUpCount} linkups</span>
+      <span>{counts.linkedMeCount} followers</span>
     </div>
   );
 };

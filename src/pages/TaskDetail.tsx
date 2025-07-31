@@ -215,7 +215,11 @@ const TaskDetail = () => {
                 <h2 className="text-sm font-semibold mb-3">Assigned to</h2>
                 <div className="flex items-center gap-3">
                   <Avatar className="h-12 w-12">
-                    <AvatarImage src={task.responder.profile_image ? task.responder.profile_image : `https://robohash.org/${encodeURIComponent(task.responder.first_name)}?set=set4&size=200x200`} alt={task.responder.first_name || 'Responder'} />
+                    <AvatarImage 
+                      src={task.responder.profile_avatar || task.responder.profile_image || `https://robohash.org/${encodeURIComponent(task.responder.first_name)}?set=set4&size=200x200`} 
+                      alt={task.responder.first_name || 'Responder'}
+                      className="object-cover"
+                    />
                     <AvatarFallback>{task.responder.first_name ? task.responder.first_name.substring(0, 2).toUpperCase() : 'RS'}</AvatarFallback>
                   </Avatar>
                   <div>
@@ -223,6 +227,7 @@ const TaskDetail = () => {
                     <div className="flex items-center gap-2 text-xs mt-1">
                       <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">Active</Badge>
                       {task.responder.is_verified && <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">Verified</Badge>}
+                      {task.responder.rank && <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200">Rank {task.responder.rank}</Badge>}
                     </div>
                   </div>
                 </div>

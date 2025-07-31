@@ -38,6 +38,7 @@ import { Progress } from "@/components/ui/progress"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { LinkupCount } from "@/components/feed/LinkupCount"
+import { LinkupButton } from "@/components/feed/LinkupButton"
 import { useAuth } from "@/hooks/useAuth"
 import { useFeed } from "@/hooks/useFeed"
 import { ExperienceModal } from "@/components/profile/ExperienceModal"
@@ -434,6 +435,12 @@ const Profile = () => {
                       userId={displayUser.user_id}
                       className="text-primary hover:underline cursor-pointer font-medium"
                     />
+                    {!isOwnProfile && (
+                      <LinkupButton
+                        userId={displayUser.user_id}
+                        className="text-xs"
+                      />
+                    )}
                   </div>
                   <div className="flex items-center gap-3 text-xs sm:text-sm mb-4">
                     <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500" />
@@ -1001,10 +1008,10 @@ const Profile = () => {
                   <span className="text-gray-600">Profile views</span>
                   <span className="font-medium">0</span>
                 </div>
-                <div className="flex justify-between text-xs sm:text-sm">
-                  <span className="text-gray-600">Linkups</span>
-                  <span className="font-medium">0</span>
-                </div>
+                <LinkupCount
+                  userId={displayUser.user_id}
+                  className="flex justify-between text-xs sm:text-sm"
+                />
               </CardContent>
             </Card>
           </div>

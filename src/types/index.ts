@@ -100,7 +100,9 @@ export type Responder = {
   total_earned?: number;
   average_rating?: number;
   profile_image?: string;
+  profile_avatar?: string;
   bio?: string;
+  rank?: number;
 };
 
 export interface IUserEducation {

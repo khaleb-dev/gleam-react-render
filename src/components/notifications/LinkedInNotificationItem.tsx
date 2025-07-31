@@ -113,17 +113,24 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
         {/* Sender Avatar with status indicator */}
         <div className="relative flex-shrink-0">
           {notification.sender_id ? (
-            <Avatar className={`${isMobile ? "h-12 w-12" : "h-12 w-12"} border-2 border-white shadow-sm`}>
-              <AvatarImage
-                src={notification.sender_id.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(notification.sender_id.first_name)}`}
-                alt={senderName}
-                className="object-cover"
-              />
-              <AvatarFallback className="text-sm bg-gradient-to-br from-blue-500 to-purple-600 text-white font-medium">
-                {notification.sender_id.first_name?.[0]}
-                {notification.sender_id.last_name?.[0]}
-              </AvatarFallback>
-            </Avatar>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                navigate(`/profile/${notification.sender_id.user_id || notification.sender_id._id}`)
+              }}
+            >
+              <Avatar className={`${isMobile ? "h-12 w-12" : "h-12 w-12"} border-2 border-white shadow-sm`}>
+                <AvatarImage
+                  src={notification.sender_id.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(notification.sender_id.first_name)}`}
+                  alt={senderName}
+                  className="object-cover"
+                />
+                <AvatarFallback className="text-sm bg-gradient-to-br from-blue-500 to-purple-600 text-white font-medium">
+                  {notification.sender_id.first_name?.[0]}
+                  {notification.sender_id.last_name?.[0]}
+                </AvatarFallback>
+              </Avatar>
+            </button>
           ) : (
             <div
               className={`${isMobile ? "h-12 w-12" : "h-12 w-12"} rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-sm`}
@@ -150,9 +157,17 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
                     !notification.is_read ? "font-medium text-gray-900" : "text-gray-700",
                   )}
                 >
-                  <span className="font-semibold text-gray-900 hover:text-blue-600 hover:underline cursor-pointer">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (notification.sender_id) {
+                        navigate(`/profile/${notification.sender_id.user_id || notification.sender_id._id}`)
+                      }
+                    }}
+                    className="font-semibold text-gray-900 hover:text-blue-600 hover:underline"
+                  >
                     {senderName}
-                  </span>
+                  </button>
                   {notification.sender_id && notification.type === "linkups" && (
                     <>
                       {" "}

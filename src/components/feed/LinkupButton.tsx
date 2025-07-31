@@ -14,6 +14,7 @@ export const LinkupButton: React.FC<LinkupButtonProps> = ({ userId, className = 
   const { status, linkup, unlinkup } = useLinkup(userId)
   const { loggedInUser } = useAuth()
   const [currentUser, setCurrentUser] = React.useState<any>(null)
+  const [isLoading, setIsLoading] = React.useState(false)
 
   React.useEffect(() => {
     const fetchUser = async () => {
@@ -34,16 +35,21 @@ export const LinkupButton: React.FC<LinkupButtonProps> = ({ userId, className = 
 
   const handleClick = async (e: React.MouseEvent) => {
     e.stopPropagation()
+    setIsLoading(true)
 
-    if (status.isLinkedUp) {
-      await unlinkup()
-    } else {
-      await linkup()
+    try {
+      if (status.isLinkedUp) {
+        await unlinkup()
+      } else {
+        await linkup()
+      }
+    } finally {
+      setIsLoading(false)
     }
   }
 
   const getButtonContent = () => {
-    if (status.isLoading) {
+    if (status.isLoading || isLoading) {
       return {
         text: "Loading...",
         icon: <Plus className="h-4 w-4" />,
@@ -79,7 +85,7 @@ export const LinkupButton: React.FC<LinkupButtonProps> = ({ userId, className = 
   return (
     <button
       onClick={handleClick}
-      disabled={status.isLoading}
+      disabled={status.isLoading || isLoading}
       className={`flex items-center gap-1 ${textColor} hover:underline transition-colors ${className}`}
     >
       {icon}
