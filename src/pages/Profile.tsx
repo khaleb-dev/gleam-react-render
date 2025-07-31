@@ -363,6 +363,7 @@ const Profile = () => {
                           `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(displayUser.first_name || "User")}`
                       }
                       alt={`${displayUser.first_name} ${displayUser.last_name}`}
+                      className="object-cover"
                     />
                     <AvatarFallback className="text-lg sm:text-2xl bg-gray-100">
                       {displayUser.first_name?.[0] || "U"}

@@ -43,10 +43,11 @@ export const ProfileCard = ({ user }: ProfileCardProps) => {
       <div className="flex flex-col md:flex-row items-center gap-4">
         <Avatar className="h-16 w-16">
           <AvatarImage 
-            src={dicebearUrl} 
+            src={user.profile_avatar || dicebearUrl} 
             alt={firstName}
+            className="object-cover"
             onError={(e) => {
-              console.error('Failed to load dicebear image:', dicebearUrl);
+              console.error('Failed to load profile image:', user.profile_avatar || dicebearUrl);
             }}
           />
           <AvatarFallback className="bg-taskApp-purple text-white text-sm">

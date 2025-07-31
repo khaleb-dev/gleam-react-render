@@ -242,6 +242,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
               <AvatarImage
                 src={post.user?.profile_avatar ? post.user?.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(post.user.first_name)}`}
                 alt={`${post.user.first_name} ${post.user.last_name}`}
+                className="object-cover"
               />
               <AvatarFallback style={{ fontSize: '12px' }}>
                 {post.user.first_name?.[0]}

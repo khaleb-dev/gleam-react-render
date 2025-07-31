@@ -283,7 +283,7 @@ const Feed = () => {
 
                   <TabsContent value="design" className="mt-3 space-y-0">
                     {filteredPosts
-                      .filter((post) => post.category.toLowerCase() === "design")
+                      .filter((post) => post.tags.some(tag => tag.toLowerCase().includes('project')))
                       .map((post: FeedPost) => (
                         <FeedCard
                           key={post._id}
@@ -300,12 +300,7 @@ const Feed = () => {
 
                   <TabsContent value="development" className="mt-3 space-y-0">
                     {filteredPosts
-                      .filter(
-                        (post) =>
-                          post.category.toLowerCase() === "development" ||
-                          post.category.toLowerCase() === "web development" ||
-                          post.category.toLowerCase() === "mobile development",
-                      )
+                      .filter((post) => post.tags.some(tag => tag.toLowerCase().includes('job')))
                       .map((post: FeedPost) => (
                         <FeedCard
                           key={post._id}

@@ -40,6 +40,7 @@ interface UserProfile {
   first_name: string
   last_name: string
   email: string
+  profile_avatar?: string
   is_vetted: boolean
   responder_info?: {
     job_title: string
@@ -169,10 +170,11 @@ const UserProfile = () => {
             <div className="flex flex-col md:flex-row md:items-end md:justify-between -mt-12 md:-mt-16">
               <div className="flex flex-col md:flex-row md:items-start md:space-x-6">
                 <div className="relative mb-4 md:mb-0 self-start">
-                  <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-white shadow-lg">
+                <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-white shadow-lg">
                     <AvatarImage
-                      src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`}
+                      src={user.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`}
                       alt={`${user.first_name} ${user.last_name}`}
+                      className="object-cover"
                     />
                     <AvatarFallback className="text-2xl bg-gray-100">
                       {user.first_name[0]}
@@ -247,13 +249,14 @@ const UserProfile = () => {
                       <MessageCircle className="h-4 w-4 mr-2" />
                       Message
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      className="px-6 border-gray-300 hover:bg-gray-50 bg-transparent"
-                    >
-                      More
-                    </Button>
+                     <LinkupButton userId={user.user_id} />
+                     <Button
+                       variant="outline"
+                       size="lg"
+                       className="px-6 border-gray-300 hover:bg-gray-50 bg-transparent"
+                     >
+                       More
+                     </Button>
                   </>
                 )}
 
@@ -482,16 +485,16 @@ const UserProfile = () => {
                         </Button>
                       )}
                     </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <div className="text-gray-400 text-4xl mb-3">📝</div>
-                      <p className="text-gray-600">
-                        {isOwnProfile
-                          ? "You haven't posted anything yet."
-                          : `${user.first_name} hasn't posted anything yet.`}
-                      </p>
-                    </div>
-                  )}
+                   ) : (
+                     <div className="text-center py-8">
+                       <div className="text-gray-400 text-4xl mb-3">📝</div>
+                       <p className="text-gray-600">
+                         {isOwnProfile
+                           ? "You haven't posted anything yet."
+                           : "No posts yet."}
+                       </p>
+                     </div>
+                   )}
                 </CardContent>
               </Card>
 

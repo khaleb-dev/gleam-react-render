@@ -191,7 +191,7 @@ export const CreatePostCard: React.FC<CreatePostCardProps> = ({ user, onPostCrea
               </div>
               <div className="absolute -bottom-1 -right-1">
                 <Avatar className="h-6 w-6 sm:h-8 sm:w-8 border-2 border-white dark:border-gray-800">
-                  <AvatarImage src={user.profile_avatar ? user.profile_avatar : dicebearUrl || "/placeholder.svg"} alt={user.first_name || "User"} />
+                  <AvatarImage src={user.profile_avatar ? user.profile_avatar : dicebearUrl || "/placeholder.svg"} alt={user.first_name || "User"} className="object-cover" />
                   <AvatarFallback className="text-xs">
                     {user.first_name?.substring(0, 2).toUpperCase() || "U"}
                   </AvatarFallback>
@@ -212,7 +212,7 @@ export const CreatePostCard: React.FC<CreatePostCardProps> = ({ user, onPostCrea
           <div className="flex items-center justify-between p-6 border-b flex-shrink-0">
             <div className="flex items-center space-x-3">
               <Avatar className="h-10 w-10">
-                <AvatarImage src={user.profile_avatar ? user.profile_avatar : dicebearUrl || "/placeholder.svg"} alt={user.first_name || "User"} />
+                <AvatarImage src={user.profile_avatar ? user.profile_avatar : dicebearUrl || "/placeholder.svg"} alt={user.first_name || "User"} className="object-cover" />
                 <AvatarFallback>
                   {user.first_name?.substring(0, 2).toUpperCase() || "U"}
                 </AvatarFallback>

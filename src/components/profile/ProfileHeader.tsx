@@ -114,6 +114,7 @@ export const ProfileHeader = ({ user, onEditClick }: ProfileHeaderProps) => {
             <AvatarImage 
               src={profileImageUrl}
               alt={firstName}
+              className="object-cover"
               onError={(e) => {
                 console.error('Failed to load profile image:', profileImageUrl);
               }}

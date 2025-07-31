@@ -14,6 +14,7 @@ export interface ApiNotification {
     first_name: string;
     last_name: string;
     user_id: string;
+    profile_avatar?: string;
   };
   type:
     | "system"

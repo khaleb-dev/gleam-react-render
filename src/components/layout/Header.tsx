@@ -126,8 +126,9 @@ export const Header = () => {
                 <DropdownMenuTrigger asChild>
                   <Avatar className="cursor-pointer h-9 w-9">
                     <AvatarImage
-                      src={dicebearUrl || "/placeholder.svg"}
+                      src={user.profile_avatar || dicebearUrl || "/placeholder.svg"}
                       alt={user.first_name}
+                      className="object-cover"
                       onError={(e) => {
                         console.error("Failed to load dicebear image in header:", dicebearUrl)
                       }}
