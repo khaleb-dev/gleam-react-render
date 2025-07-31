@@ -118,7 +118,7 @@ const UserProfile = () => {
 
     fetchUserProfile()
     fetchCurrentUser()
-  }, [userId, loggedInUser])
+  }, [userId])
 
   const handleMessage = () => {
     navigate(`/chat/user/${userId}`)

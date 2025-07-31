@@ -66,11 +66,11 @@ export const CreatePostCard: React.FC<CreatePostCardProps> = ({ user, onPostCrea
     if (files) {
       const newFiles = Array.from(files)
       const newImagePreviews: string[] = []
-      
+
       newFiles.forEach((file) => {
         newImagePreviews.push(URL.createObjectURL(file))
       })
-      
+
       setImageFiles([...imageFiles, ...newFiles])
       setImagePreviews([...imagePreviews, ...newImagePreviews])
     }
@@ -81,11 +81,11 @@ export const CreatePostCard: React.FC<CreatePostCardProps> = ({ user, onPostCrea
     if (files) {
       const newFiles = Array.from(files)
       const newVideoPreviews: string[] = []
-      
+
       newFiles.forEach((file) => {
         newVideoPreviews.push(URL.createObjectURL(file))
       })
-      
+
       setVideoFiles([...videoFiles, ...newFiles])
       setVideoPreviews([...videoPreviews, ...newVideoPreviews])
     }
@@ -112,10 +112,10 @@ export const CreatePostCard: React.FC<CreatePostCardProps> = ({ user, onPostCrea
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    
+
     try {
       setUploadProgress(20)
-      
+
       // Upload images first if any
       let imageUrls: string[] = []
       if (imageFiles.length > 0) {
@@ -146,14 +146,14 @@ export const CreatePostCard: React.FC<CreatePostCardProps> = ({ user, onPostCrea
         category: formData.category || "other",
         tags: formData.tags,
       }
-      
+
       // Close modal immediately and show uploading state
       setIsModalOpen(false)
-      
+
       await onPostCreate(postData)
-      
+
       setUploadProgress(100)
-      
+
       // Reset form
       setFormData({
         title: "",
@@ -191,7 +191,7 @@ export const CreatePostCard: React.FC<CreatePostCardProps> = ({ user, onPostCrea
               </div>
               <div className="absolute -bottom-1 -right-1">
                 <Avatar className="h-6 w-6 sm:h-8 sm:w-8 border-2 border-white dark:border-gray-800">
-                  <AvatarImage src={dicebearUrl || "/placeholder.svg"} alt={user.first_name || "User"} />
+                  <AvatarImage src={user.profile_avatar ? user.profile_avatar : dicebearUrl || "/placeholder.svg"} alt={user.first_name || "User"} />
                   <AvatarFallback className="text-xs">
                     {user.first_name?.substring(0, 2).toUpperCase() || "U"}
                   </AvatarFallback>
@@ -212,7 +212,7 @@ export const CreatePostCard: React.FC<CreatePostCardProps> = ({ user, onPostCrea
           <div className="flex items-center justify-between p-6 border-b flex-shrink-0">
             <div className="flex items-center space-x-3">
               <Avatar className="h-10 w-10">
-                <AvatarImage src={dicebearUrl || "/placeholder.svg"} alt={user.first_name || "User"} />
+                <AvatarImage src={user.profile_avatar ? user.profile_avatar : dicebearUrl || "/placeholder.svg"} alt={user.first_name || "User"} />
                 <AvatarFallback>
                   {user.first_name?.substring(0, 2).toUpperCase() || "U"}
                 </AvatarFallback>

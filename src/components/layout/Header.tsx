@@ -57,11 +57,8 @@ export const Header = () => {
   }
 
   // Generate a Dicebear URL using the user's first name as the seed
-  const dicebearUrl = user?.first_name
-    ? `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`
-    : ""
+  const dicebearUrl = user?.profile_avatar ? user?.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user?.first_name)}`
 
-  console.log("Header dicebear URL:", dicebearUrl)
 
   const menuItems = [
     { label: "Explore", path: "/feed" },
@@ -203,7 +200,7 @@ export const Header = () => {
                     <div className="flex items-center space-x-3 mb-6 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <Avatar className="h-10 w-10">
                         <AvatarImage
-                          src={dicebearUrl || "/placeholder.svg"}
+                          src={user.profile_avatar ? user.profile_avatar : dicebearUrl || "/placeholder.svg"}
                           alt={user.first_name}
                           onError={(e) => {
                             console.error("Failed to load dicebear image in mobile sheet:", dicebearUrl)

@@ -70,7 +70,7 @@ const SuggestedUsers: React.FC = () => {
                 {/* Avatar */}
                 <Avatar className="h-9 w-9">
                   <AvatarImage
-                    src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`}
+                    src={user.profile_avatar ? user.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`}
                     alt={`${user.first_name} ${user.last_name}`}
                   />
                   <AvatarFallback>

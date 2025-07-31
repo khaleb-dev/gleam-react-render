@@ -215,7 +215,7 @@ const TaskDetail = () => {
                 <h2 className="text-sm font-semibold mb-3">Assigned to</h2>
                 <div className="flex items-center gap-3">
                   <Avatar className="h-12 w-12">
-                    <AvatarImage src={task.responder.first_name ? `https://robohash.org/${encodeURIComponent(task.responder.first_name)}?set=set4&size=200x200` : undefined} alt={task.responder.first_name || 'Responder'} />
+                    <AvatarImage src={task.responder.profile_image ? task.responder.profile_image : `https://robohash.org/${encodeURIComponent(task.responder.first_name)}?set=set4&size=200x200`} alt={task.responder.first_name || 'Responder'} />
                     <AvatarFallback>{task.responder.first_name ? task.responder.first_name.substring(0, 2).toUpperCase() : 'RS'}</AvatarFallback>
                   </Avatar>
                   <div>

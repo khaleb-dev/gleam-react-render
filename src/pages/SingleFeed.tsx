@@ -63,7 +63,7 @@ export const SingleFeed: React.FC = () => {
     return () => {
       isMounted = false
     }
-  }, [loggedInUser])
+  }, [])
 
   // Update local state when post data changes - always call useEffect
   React.useEffect(() => {
@@ -72,9 +72,6 @@ export const SingleFeed: React.FC = () => {
       setCurrentPeopleCount(post.people_score_count)
     }
   }, [post])
-
-  console.log('Post data:', post)
-  console.log('Suggested posts:', suggestedPosts)
 
   if (isLoadingPost) {
     return (
@@ -294,7 +291,7 @@ export const SingleFeed: React.FC = () => {
                     onClick={() => navigate(`/profile/${post.user_id}`)}
                   >
                     <AvatarImage
-                      src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(post.user.first_name)}`}
+                      src={post?.user?.profile_avatar ? post?.user?.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(post?.user?.first_name)}`}
                       alt={`${post.user.first_name} ${post.user.last_name}`}
                     />
                     <AvatarFallback>

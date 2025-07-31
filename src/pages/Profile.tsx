@@ -71,7 +71,7 @@ const Profile = () => {
 
   // Check if viewing own profile or other user's profile
   const isOwnProfile = !userId
-  
+
   // Fetch user posts
   const { data: userPosts = [], isLoading: isLoadingPosts } = getSuggestedPostsByUser("", user?.user_id || user?._id || "", {
     enabled: !!user?.user_id || !!user?._id,
@@ -310,14 +310,14 @@ const Profile = () => {
         </Card>
 
         <Card className="mb-6 overflow-hidden shadow-sm border-0 bg-white">
-          <div 
+          <div
             className="relative h-40 md:h-48 bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900"
             style={{
               backgroundImage: selectedCoverImage
                 ? `url(${URL.createObjectURL(selectedCoverImage)})`
                 : displayUser.cover_avatar
-                ? `url(${displayUser.cover_avatar})`
-                : `url(https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(
+                  ? `url(${displayUser.cover_avatar})`
+                  : `url(https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(
                     displayUser.last_name || displayUser.first_name || "cover"
                   )}&backgroundColor=2563eb,7c3aed,dc2626,ea580c,16a34a)`,
               backgroundSize: "cover",
@@ -360,7 +360,7 @@ const Profile = () => {
                         selectedProfileImage
                           ? URL.createObjectURL(selectedProfileImage)
                           : displayUser.profile_avatar ||
-                            `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(displayUser.first_name || "User")}`
+                          `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(displayUser.first_name || "User")}`
                       }
                       alt={`${displayUser.first_name} ${displayUser.last_name}`}
                     />
@@ -369,23 +369,23 @@ const Profile = () => {
                       {displayUser.last_name?.[0] || ""}
                     </AvatarFallback>
                   </Avatar>
-                   <input
-                     type="file"
-                     accept="image/*"
-                     onChange={handleProfileImageSelect}
-                     className="hidden"
-                     id="profile-image-input"
-                   />
-                   {isOwnProfile && isEditing && (
-                     <Button
-                       size="sm"
-                       variant="secondary"
-                       className="absolute bottom-1 right-1 h-6 w-6 sm:h-7 sm:w-7 p-0 rounded-full"
-                       onClick={() => document.getElementById("profile-image-input")?.click()}
-                     >
-                       <Camera className="h-3 w-3" />
-                     </Button>
-                   )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfileImageSelect}
+                    className="hidden"
+                    id="profile-image-input"
+                  />
+                  {isOwnProfile && isEditing && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="absolute bottom-1 right-1 h-6 w-6 sm:h-7 sm:w-7 p-0 rounded-full"
+                      onClick={() => document.getElementById("profile-image-input")?.click()}
+                    >
+                      <Camera className="h-3 w-3" />
+                    </Button>
+                  )}
                 </div>
 
                 <div className="flex-1 md:pb-4 mt-6 lg:mt-[70px]">
@@ -420,8 +420,8 @@ const Profile = () => {
                     <div className="flex items-center gap-1">
                       <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
                       {displayUser.responder_id?.country &&
-                      displayUser.responder_id?.state &&
-                      displayUser.responder_id?.city
+                        displayUser.responder_id?.state &&
+                        displayUser.responder_id?.city
                         ? `${displayUser.responder_id.city}, ${displayUser.responder_id.state}, ${displayUser.responder_id.country}`
                         : "Location not set"}
                     </div>
@@ -553,7 +553,7 @@ const Profile = () => {
                           (displayUser.education?.length > 0 ? 1 : 0) +
                           (displayUser.achievements?.length > 0 ? 1 : 0)) /
                           4) *
-                          100,
+                        100,
                       )}
                       %
                     </span>
@@ -565,7 +565,7 @@ const Profile = () => {
                         (displayUser.education?.length > 0 ? 1 : 0) +
                         (displayUser.achievements?.length > 0 ? 1 : 0)) /
                         4) *
-                        100,
+                      100,
                     )}
                     className="h-2"
                   />
@@ -719,7 +719,7 @@ const Profile = () => {
                   <div className="text-center py-8">
                     <div className="text-gray-400 text-4xl mb-3">📝</div>
                     <p className="text-gray-600">You haven't posted anything yet.</p>
-                    <Button className="mt-4 bg-primary hover:bg-primary/90" onClick={() => navigate("/create-task")}>
+                    <Button className="mt-4 bg-primary hover:bg-primary/90" onClick={() => navigate("/feed")}>
                       Create your first post
                     </Button>
                   </div>
@@ -739,17 +739,17 @@ const Profile = () => {
                       <p className="text-xs sm:text-sm text-gray-600">Professional background</p>
                     </div>
                   </div>
-                   {isOwnProfile && (
-                     <Button
-                       variant="outline"
-                       size="sm"
-                       onClick={() => setExperienceModalOpen(true)}
-                       className="p-2 sm:px-3 sm:py-2"
-                     >
-                       <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                       <span className="hidden sm:inline">Add Experience</span>
-                     </Button>
-                   )}
+                  {isOwnProfile && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setExperienceModalOpen(true)}
+                      className="p-2 sm:px-3 sm:py-2"
+                    >
+                      <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Add Experience</span>
+                    </Button>
+                  )}
                 </div>
 
                 <div className="space-y-6">
@@ -785,16 +785,16 @@ const Profile = () => {
                                 </div>
                               )}
                             </div>
-                             {isOwnProfile && (
-                               <Button
-                                 variant="ghost"
-                                 size="sm"
-                                 onClick={() => handleDeleteItem(exp._id, "experience")}
-                                 className="p-2"
-                               >
-                                 <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
-                               </Button>
-                             )}
+                            {isOwnProfile && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteItem(exp._id, "experience")}
+                                className="p-2"
+                              >
+                                <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -825,17 +825,17 @@ const Profile = () => {
                       <p className="text-xs sm:text-sm text-gray-600">Academic background</p>
                     </div>
                   </div>
-                   {isOwnProfile && (
-                     <Button
-                       variant="outline"
-                       size="sm"
-                       onClick={() => setEducationModalOpen(true)}
-                       className="p-2 sm:px-3 sm:py-2"
-                     >
-                       <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                       <span className="hidden sm:inline">Add Education</span>
-                     </Button>
-                   )}
+                  {isOwnProfile && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setEducationModalOpen(true)}
+                      className="p-2 sm:px-3 sm:py-2"
+                    >
+                      <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Add Education</span>
+                    </Button>
+                  )}
                 </div>
 
                 <div className="space-y-6">
@@ -860,16 +860,16 @@ const Profile = () => {
                               </p>
                               <p className="text-gray-700 text-xs sm:text-sm">{edu.description}</p>
                             </div>
-                             {isOwnProfile && (
-                               <Button
-                                 variant="ghost"
-                                 size="sm"
-                                 onClick={() => handleDeleteItem(edu._id, "education")}
-                                 className="p-2"
-                               >
-                                 <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
-                               </Button>
-                             )}
+                            {isOwnProfile && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteItem(edu._id, "education")}
+                                className="p-2"
+                              >
+                                <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -900,17 +900,17 @@ const Profile = () => {
                       <p className="text-xs sm:text-sm text-gray-600">Recognition and awards</p>
                     </div>
                   </div>
-                   {isOwnProfile && (
-                     <Button
-                       variant="outline"
-                       size="sm"
-                       onClick={() => setAchievementModalOpen(true)}
-                       className="p-2 sm:px-3 sm:py-2"
-                     >
-                       <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                       <span className="hidden sm:inline">Add Achievement</span>
-                     </Button>
-                   )}
+                  {isOwnProfile && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAchievementModalOpen(true)}
+                      className="p-2 sm:px-3 sm:py-2"
+                    >
+                      <Plus className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Add Achievement</span>
+                    </Button>
+                  )}
                 </div>
 
                 <div className="grid gap-4">
@@ -947,16 +947,16 @@ const Profile = () => {
                               </a>
                             )}
                           </div>
-                           {isOwnProfile && (
-                             <Button
-                               variant="ghost"
-                               size="sm"
-                               onClick={() => handleDeleteItem(achievement._id, "achievement")}
-                               className="p-2"
-                             >
-                               <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
-                             </Button>
-                           )}
+                          {isOwnProfile && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteItem(achievement._id, "achievement")}
+                              className="p-2"
+                            >
+                              <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>

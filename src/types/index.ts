@@ -143,6 +143,7 @@ export interface Message {
 }
 
 export interface User {
+  profile_avatar?: any;
   _id?: string;
   user_id: string;
   first_name: string;

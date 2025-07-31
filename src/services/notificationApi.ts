@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '@/config/env';
+import { API_BASE_URL } from "@/config/env";
 
 export interface NotificationResponse {
   message: string;
@@ -15,7 +15,15 @@ export interface ApiNotification {
     last_name: string;
     user_id: string;
   };
-  type: 'system' | 'task' | 'chat' | 'alert' | 'linkups' | 'score' | 'comment';
+  type:
+    | "system"
+    | "task"
+    | "chat"
+    | "alert"
+    | "linkups"
+    | "score"
+    | "comment"
+    | "mention";
   path?: string;
   title: string;
   message: string;
@@ -34,7 +42,7 @@ export interface ActivityResponse {
 export interface Activity {
   _id: string;
   user_id: string;
-  type: 'post' | 'comment' | 'task' | 'linkup' | 'score' | 'other';
+  type: "post" | "comment" | "task" | "linkup" | "score" | "other";
   reference_id: string;
   message: string;
   created_at: string;
@@ -43,10 +51,10 @@ export interface Activity {
 export const getAllNotifications = async (): Promise<NotificationResponse> => {
   try {
     const response = await fetch(`${API_BASE_URL}/notifications/all`, {
-      method: 'GET',
-      credentials: 'include',
+      method: "GET",
+      credentials: "include",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
@@ -57,7 +65,7 @@ export const getAllNotifications = async (): Promise<NotificationResponse> => {
     const result = await response.json();
     return result;
   } catch (error) {
-    console.error('Get notifications error:', error);
+    console.error("Get notifications error:", error);
     throw error;
   }
 };
@@ -65,10 +73,10 @@ export const getAllNotifications = async (): Promise<NotificationResponse> => {
 export const getAllActivities = async (): Promise<ActivityResponse> => {
   try {
     const response = await fetch(`${API_BASE_URL}/notifications/activity/all`, {
-      method: 'GET',
-      credentials: 'include',
+      method: "GET",
+      credentials: "include",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
@@ -79,20 +87,25 @@ export const getAllActivities = async (): Promise<ActivityResponse> => {
     const result = await response.json();
     return result;
   } catch (error) {
-    console.error('Get activities error:', error);
+    console.error("Get activities error:", error);
     throw error;
   }
 };
 
-export const markAsRead = async (notificationId: string): Promise<{ message: string; data: ApiNotification; success: boolean }> => {
+export const markAsRead = async (
+  notificationId: string
+): Promise<{ message: string; data: ApiNotification; success: boolean }> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/notifications/${notificationId}/read`, {
-      method: 'PATCH',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/notifications/${notificationId}/read`,
+      {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -101,7 +114,7 @@ export const markAsRead = async (notificationId: string): Promise<{ message: str
     const result = await response.json();
     return result;
   } catch (error) {
-    console.error('Mark as read error:', error);
+    console.error("Mark as read error:", error);
     throw error;
   }
 };

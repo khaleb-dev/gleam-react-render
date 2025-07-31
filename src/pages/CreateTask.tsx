@@ -37,7 +37,7 @@ interface Responder {
   first_name: string;
   last_name: string;
   email: string;
-  profile_picture?: string;
+  profile_avatar?: string;
   _id: string;
   availability_status: 'available' | 'busy';
 }
@@ -84,7 +84,7 @@ const CreateTask = () => {
 
   useEffect(() => {
     let hasFetched = false
-    
+
     async function setBalance() {
       if (!hasFetched) {
         hasFetched = true

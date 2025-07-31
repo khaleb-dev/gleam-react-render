@@ -13,6 +13,7 @@ interface Comment {
   content: string;
   created_at: string;
   user_id: {
+    [x: string]: any;
     first_name: string;
     last_name: string;
     email: string;
@@ -25,6 +26,7 @@ interface CommentModalProps {
   onClose: () => void;
   postId: string;
   currentUser?: {
+    profile_avatar: any;
     first_name: string;
     last_name: string;
     email: string;
@@ -44,9 +46,6 @@ export const CommentModal: React.FC<CommentModalProps> = ({
 
   // Fetch comments
   const { data: comments = [], isLoading, refetch } = getPostComments(postId);
-
-  console.log('Comments data:', comments);
-  console.log('Current user:', currentUser);
 
   const handleSubmitComment = async () => {
     if (!newComment.trim()) return;
@@ -122,9 +121,9 @@ export const CommentModal: React.FC<CommentModalProps> = ({
                 <div key={comment._id} className="flex space-x-3">
                   <Avatar className="h-8 w-8 flex-shrink-0">
                     <AvatarImage
-                      src={comment.user_id ?
-                        `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(comment.user_id.first_name)}`
-                        : '/placeholder.svg'
+                      src={
+                        comment.user_id.profile_avatar ? comment.user_id.profile_avatar :
+                          `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(comment.user_id.first_name)}`
                       }
                       alt={comment.user_id ?
                         `${comment.user_id.first_name} ${comment.user_id.last_name}`
@@ -175,7 +174,7 @@ export const CommentModal: React.FC<CommentModalProps> = ({
               <div className="flex space-x-3">
                 <Avatar className="h-8 w-8 flex-shrink-0">
                   <AvatarImage
-                    src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(currentUser.first_name)}`}
+                    src={currentUser.profile_avatar ? currentUser.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(currentUser.first_name)}`}
                     alt={`${currentUser.first_name} ${currentUser.last_name}`}
                   />
                   <AvatarFallback className="text-xs">

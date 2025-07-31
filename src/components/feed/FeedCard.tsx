@@ -32,6 +32,7 @@ interface FeedPost {
   updated_at: string
   __v: number
   user: {
+    profile_avatar: any
     first_name: string
     last_name: string
     email: string
@@ -239,7 +240,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
               }}
             >
               <AvatarImage
-                src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(post.user.first_name)}`}
+                src={post.user?.profile_avatar ? post.user?.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(post.user.first_name)}`}
                 alt={`${post.user.first_name} ${post.user.last_name}`}
               />
               <AvatarFallback style={{ fontSize: '12px' }}>
@@ -509,7 +510,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
                 <div key={comment._id} className="flex items-start space-x-2.5">
                   <Avatar className="h-6 w-6 flex-shrink-0">
                     <AvatarImage
-                      src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(comment.user_id.first_name)}`}
+                      src={comment.user_id.profile_avatar ? comment.user_id.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(comment.user_id.first_name)}`}
                       alt={`${comment.user_id.first_name} ${comment.user_id.last_name}`}
                     />
                     <AvatarFallback style={{ fontSize: '12px' }}>

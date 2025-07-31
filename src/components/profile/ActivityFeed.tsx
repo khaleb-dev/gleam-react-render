@@ -1,97 +1,67 @@
-import { useState } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import { 
-  Star, 
-  MessageCircle, 
-  Briefcase, 
-  Users, 
-  FileText,
-  Activity as ActivityIcon
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Activity } from '@/services/notificationApi';
+import { formatDistanceToNow } from "date-fns"
+import { Star, MessageCircle, Briefcase, Users, FileText, ActivityIcon } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
+import type { Activity } from "@/services/notificationApi"
 
 interface ActivityFeedProps {
-  activities: Activity[];
+  activities: Activity[]
 }
 
 export const ActivityFeed = ({ activities }: ActivityFeedProps) => {
-  const [activeTab, setActiveTab] = useState('all');
-
   const getIcon = (type: string) => {
     switch (type) {
-      case 'post':
-        return <FileText className="h-4 w-4 text-blue-600" />;
-      case 'comment':
-        return <MessageCircle className="h-4 w-4 text-green-600" />;
-      case 'task':
-        return <Briefcase className="h-4 w-4 text-purple-600" />;
-      case 'linkup':
-        return <Users className="h-4 w-4 text-orange-600" />;
-      case 'score':
-        return <Star className="h-4 w-4 text-yellow-500" />;
+      case "post":
+        return <FileText className="h-4 w-4 text-blue-600" />
+      case "comment":
+        return <MessageCircle className="h-4 w-4 text-green-600" />
+      case "task":
+        return <Briefcase className="h-4 w-4 text-purple-600" />
+      case "linkup":
+        return <Users className="h-4 w-4 text-orange-600" />
+      case "score":
+        return <Star className="h-4 w-4 text-yellow-500" />
       default:
-        return <ActivityIcon className="h-4 w-4 text-gray-500" />;
+        return <ActivityIcon className="h-4 w-4 text-gray-500" />
     }
-  };
+  }
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'post':
-        return 'bg-blue-100 text-blue-700';
-      case 'comment':
-        return 'bg-green-100 text-green-700';
-      case 'task':
-        return 'bg-purple-100 text-purple-700';
-      case 'linkup':
-        return 'bg-orange-100 text-orange-700';
-      case 'score':
-        return 'bg-yellow-100 text-yellow-700';
+      case "post":
+        return "bg-blue-100 text-blue-700"
+      case "comment":
+        return "bg-green-100 text-green-700"
+      case "task":
+        return "bg-purple-100 text-purple-700"
+      case "linkup":
+        return "bg-orange-100 text-orange-700"
+      case "score":
+        return "bg-yellow-100 text-yellow-700"
       default:
-        return 'bg-gray-100 text-gray-700';
+        return "bg-gray-100 text-gray-700"
     }
-  };
-
-  const filterActivities = (activities: Activity[], filter: string) => {
-    switch (filter) {
-      case 'all':
-        return activities;
-      case 'posts':
-        return activities.filter(a => a.type === 'post');
-      case 'comments':
-        return activities.filter(a => a.type === 'comment');
-      case 'tasks':
-        return activities.filter(a => a.type === 'task');
-      case 'social':
-        return activities.filter(a => ['linkup', 'score'].includes(a.type));
-      default:
-        return activities;
-    }
-  };
-
-  const filteredActivities = filterActivities(activities, activeTab);
+  }
 
   const getTimeAgo = (dateString: string) => {
     try {
-      const date = new Date(dateString);
-      const now = new Date();
-      const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-      
+      const date = new Date(dateString)
+      const now = new Date()
+      const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
+
       if (diffInHours < 24) {
-        return formatDistanceToNow(date, { addSuffix: true });
+        return formatDistanceToNow(date, { addSuffix: true })
       } else {
-        const diffInDays = Math.floor(diffInHours / 24);
-        if (diffInDays === 1) return '1 day ago';
-        if (diffInDays < 7) return `${diffInDays} days ago`;
-        if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
-        return `${Math.floor(diffInDays / 30)} months ago`;
+        const diffInDays = Math.floor(diffInHours / 24)
+        if (diffInDays === 1) return "1 day ago"
+        if (diffInDays < 7) return `${diffInDays} days ago`
+        if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`
+        return `${Math.floor(diffInDays / 30)} months ago`
       }
     } catch {
-      return 'Recently';
+      return "Recently"
     }
-  };
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -109,26 +79,21 @@ export const ActivityFeed = ({ activities }: ActivityFeedProps) => {
             {activities.map((activity) => (
               <div key={activity._id} className="p-4 hover:bg-accent/50 transition-colors">
                 <div className="flex items-start gap-3">
-                  <div className={cn(
-                    "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center",
-                    getTypeColor(activity.type)
-                  )}>
+                  <div
+                    className={cn(
+                      "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center",
+                      getTypeColor(activity.type),
+                    )}
+                  >
                     {getIcon(activity.type)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-foreground leading-relaxed">
-                      {activity.message}
-                    </p>
+                    <p className="text-sm text-foreground leading-relaxed">{activity.message}</p>
                     <div className="flex items-center gap-2 mt-2">
-                      <Badge 
-                        variant="outline" 
-                        className={cn("text-xs capitalize", getTypeColor(activity.type))}
-                      >
+                      <Badge variant="outline" className={cn("text-xs capitalize", getTypeColor(activity.type))}>
                         {activity.type}
                       </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        {getTimeAgo(activity.created_at)}
-                      </span>
+                      <span className="text-xs text-muted-foreground">{getTimeAgo(activity.created_at)}</span>
                     </div>
                   </div>
                 </div>
@@ -141,12 +106,10 @@ export const ActivityFeed = ({ activities }: ActivityFeedProps) => {
               <ActivityIcon className="h-8 w-8 text-muted-foreground" />
             </div>
             <h4 className="text-lg font-medium text-foreground mb-2">No activities yet</h4>
-            <p className="text-muted-foreground text-sm">
-              Start interacting to see your activities here
-            </p>
+            <p className="text-muted-foreground text-sm">Start interacting to see your activities here</p>
           </div>
         )}
       </div>
     </div>
-  );
-};
+  )
+}

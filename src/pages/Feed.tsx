@@ -31,6 +31,7 @@ interface FeedPost {
   user: {
     first_name: string
     last_name: string
+    profile_avatar: string
     email: string
     is_vetted: boolean
     responder_info: {

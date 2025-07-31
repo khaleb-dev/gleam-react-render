@@ -1,7 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
-import { API_BASE_URL } from '@/config/env';
+import { useQuery } from "@tanstack/react-query";
+import { API_BASE_URL } from "@/config/env";
 
 interface SuggestedUser {
+  profile_avatar: any;
   _id: string;
   first_name: string;
   last_name: string;
@@ -71,18 +72,21 @@ interface SuggestedUsersResponse {
 
 export const useSuggestedUsers = (limit: number = 10, skip: number = 0) => {
   return useQuery({
-    queryKey: ['suggestedUsers', limit, skip],
+    queryKey: ["suggestedUsers", limit, skip],
     queryFn: async (): Promise<SuggestedUsersResponse> => {
-      const response = await fetch(`${API_BASE_URL}/users/suggested-users?limit=${limit}&skip=${skip}`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/users/suggested-users?limit=${limit}&skip=${skip}`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch suggested users');
+        throw new Error("Failed to fetch suggested users");
       }
 
       return response.json();
