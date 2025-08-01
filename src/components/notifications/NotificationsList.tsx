@@ -47,8 +47,9 @@ export const NotificationsList = ({ notifications, onMarkAllAsRead, onReadNotifi
     return filterNotifications(notifications, type).length
   }
 
+  console.log('notification')
   return (
-    <div className="w-full bg-white">
+    <div className="w-full bg-background">
       {/* Mobile Activity Dropdown */}
       {isMobile && (
         <div className="px-4 py-3 border-b border-gray-100">
@@ -64,7 +65,7 @@ export const NotificationsList = ({ notifications, onMarkAllAsRead, onReadNotifi
 
       {/* Mark all as read button - only show if there are unread notifications */}
       {hasUnread && !isMobile && (
-        <div className="flex justify-end p-4 border-b border-gray-100">
+        <div className="flex justify-end p-4 border-b border-border">
           <Button
             onClick={onMarkAllAsRead}
             variant="ghost"
@@ -79,7 +80,7 @@ export const NotificationsList = ({ notifications, onMarkAllAsRead, onReadNotifi
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className={`border-b border-gray-200 ${isMobile ? "px-1" : "px-4 lg:px-6"}`}>
+        <div className={`border-b border-border ${isMobile ? "px-1" : "px-4 lg:px-6"}`}>
           <div className="overflow-x-auto">
             <TabsList className="inline-flex h-auto p-0 gap-0 bg-transparent min-w-max">
               <TabsTrigger
@@ -183,11 +184,11 @@ export const NotificationsList = ({ notifications, onMarkAllAsRead, onReadNotifi
             </div>
           ) : (
             <div className="p-8 lg:p-12 text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCheck className="h-8 w-8 text-gray-400" />
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCheck className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h4 className="text-lg font-medium text-gray-900 mb-2">All caught up!</h4>
-              <p className="text-gray-500 text-sm max-w-sm mx-auto">
+              <h4 className="text-lg font-medium text-foreground mb-2">All caught up!</h4>
+              <p className="text-muted-foreground text-sm max-w-sm mx-auto">
                 {activeTab === "all" ? "You have no notifications" : `No ${activeTab} notifications`}
               </p>
             </div>

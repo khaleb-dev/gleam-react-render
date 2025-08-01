@@ -64,16 +64,16 @@ export const ActivityFeed = ({ activities }: ActivityFeedProps) => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-      <div className="p-6 border-b border-gray-100">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+    <div className="bg-card rounded-lg shadow-sm border border-border">
+      <div className="p-6 border-b border-border">
+        <h3 className="text-lg font-semibold text-card-foreground flex items-center gap-2">
           <ActivityIcon className="h-5 w-5" />
           Activity
         </h3>
-        <p className="text-sm text-gray-600 mt-1">Your recent activities and interactions</p>
+        <p className="text-sm text-muted-foreground mt-1">Your recent activities and interactions</p>
       </div>
 
-      <div className="max-h-96 overflow-y-auto">
+      <div>
         {activities.length > 0 ? (
           <div className="divide-y divide-border">
             {activities.map((activity) => (

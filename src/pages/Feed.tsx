@@ -5,6 +5,7 @@ import { CreatePostCard } from "@/components/feed/CreatePostCard"
 import { WeeklyTopResponders } from "@/components/feed/WeeklyTopResponders"
 import { TrendingCategories } from "@/components/feed/TrendingCategories"
 import { SuggestedUsers } from "@/components/feed/SuggestedUsers"
+import { MobileSuggestedUsers } from "@/components/feed/MobileSuggestedUsers"
 import { FeedActionButton } from "@/components/feed/FeedActionButton"
 import { useAuth } from "@/hooks/useAuth"
 import { useFeed } from "@/hooks/useFeed"
@@ -235,6 +236,11 @@ const Feed = () => {
                   <CreatePostCard user={user} onPostCreate={handlePostCreate} />
                 </div>
               )}
+
+              {/* Mobile Suggested Users - Only show on mobile */}
+              <div className="block lg:hidden">
+                <MobileSuggestedUsers />
+              </div>
 
               {/* Filter Tabs */}
               <div className="w-full px-0 sm:px-4 lg:px-0 mb-3">

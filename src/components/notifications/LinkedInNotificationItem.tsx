@@ -101,8 +101,8 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
   return (
     <div
       className={cn(
-        "hover:bg-gray-50/80 cursor-pointer transition-all group relative",
-        !notification.is_read && "bg-blue-50/60",
+        "hover:bg-accent/50 cursor-pointer transition-all group relative",
+        !notification.is_read && "bg-blue-50/60 dark:bg-blue-950/20",
         isMobile ? "px-3 py-3" : "px-4 lg:px-5 py-3",
       )}
       onClick={handleClick}
@@ -119,9 +119,12 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
                 navigate(`/profile/${notification.sender_id.user_id || notification.sender_id._id}`)
               }}
             >
-              <Avatar className={`${isMobile ? "h-12 w-12" : "h-12 w-12"} border-2 border-white shadow-sm`}>
+              <Avatar className={`${isMobile ? "h-12 w-12" : "h-12 w-12"} border-2 border-background shadow-sm`}>
                 <AvatarImage
-                  src={notification.sender_id.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(notification.sender_id.first_name)}`}
+                  src={
+                    notification.sender_id.profile_avatar ||
+                    `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(notification.sender_id.first_name)}`
+                  }
                   alt={senderName}
                   className="object-cover"
                 />
@@ -140,7 +143,7 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
           )}
 
           {/* Type indicator badge */}
-          <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full border-2 border-white shadow-sm flex items-center justify-center">
+          <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-background rounded-full border-2 border-background shadow-sm flex items-center justify-center">
             {getIcon()}
           </div>
         </div>
@@ -154,37 +157,37 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
                 <span
                   className={cn(
                     "text-xs leading-relaxed",
-                    !notification.is_read ? "font-medium text-gray-900" : "text-gray-700",
+                    !notification.is_read ? "font-medium text-foreground" : "text-muted-foreground",
                   )}
                 >
-                  <button 
+                  <button
                     onClick={(e) => {
                       e.stopPropagation()
                       if (notification.sender_id) {
                         navigate(`/profile/${notification.sender_id.user_id || notification.sender_id._id}`)
                       }
                     }}
-                    className="font-semibold text-gray-900 hover:text-blue-600 hover:underline"
+                    className="font-semibold text-foreground hover:text-blue-600 hover:underline"
                   >
                     {senderName}
                   </button>
                   {notification.sender_id && notification.type === "linkups" && (
                     <>
                       {" "}
-                      and <span className="font-medium text-gray-700">1 other</span>
+                      and <span className="font-medium text-foreground">1 other</span>
                     </>
                   )}
-                  <span className="text-gray-700"> {getActionText()}</span>
+                  <span className="text-foreground"> {getActionText()}</span>
                 </span>
               </div>
 
               {/* Reference content preview - Larger size */}
               {notification.reference_id?.post_id && (
-                <div className="bg-gray-50 rounded-lg p-3 mb-3 hover:bg-gray-100 transition-colors">
+                <div className="bg-muted/50 p-3 mb-3 hover:bg-muted/70 transition-colors rounded-lg border border-border">
                   <div className="flex items-start gap-3">
                     {notification.reference_id.post_id.images?.length > 0 && (
                       <div
-                        className={`${isMobile ? "w-14 h-14" : "w-16 h-16"} bg-gray-200 rounded flex-shrink-0 overflow-hidden`}
+                        className={`${isMobile ? "w-14 h-14" : "w-16 h-16"} bg-muted rounded flex-shrink-0 overflow-hidden`}
                       >
                         <img
                           src={notification.reference_id.post_id.images[0] || "/placeholder.svg"}
@@ -195,12 +198,14 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
                     )}
                     <div className="flex-1 min-w-0">
                       <p
-                        className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-gray-900 line-clamp-2 mb-1`}
+                        className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-foreground line-clamp-2 mb-1`}
                       >
                         {notification.reference_id.post_id.title}
                       </p>
                       {notification.reference_id.post_id.description && (
-                        <p className={`${isMobile ? "text-xs" : "text-xs"} text-gray-600 line-clamp-2 leading-relaxed`}>
+                        <p
+                          className={`${isMobile ? "text-xs" : "text-xs"} text-muted-foreground line-clamp-2 leading-relaxed`}
+                        >
                           {notification.reference_id.post_id.description}
                         </p>
                       )}
@@ -211,8 +216,8 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
 
               {/* Comment content preview - Larger size */}
               {notification.type === "comment" && notification.reference_id?.content && (
-                <div className="bg-gray-50 rounded-lg p-3 mb-3">
-                  <p className={`${isMobile ? "text-xs" : "text-xs"} text-gray-700 italic line-clamp-2`}>
+                <div className="bg-muted/50 p-3 mb-3 rounded-lg border border-border">
+                  <p className={`${isMobile ? "text-xs" : "text-xs"} text-foreground italic line-clamp-2`}>
                     "{notification.reference_id.content}"
                   </p>
                 </div>
@@ -222,7 +227,9 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
               {notification.type === "score" && notification.reference_id?.score && (
                 <div className="flex items-center gap-1 mb-3">
                   <Star className={"h-4 w-4 text-red-500 fill-current"} />
-                  <span className="text-sm text-gray-600 ml-1 font-medium">{notification.reference_id.score}/10</span>
+                  <span className="text-sm text-muted-foreground ml-1 font-medium">
+                    {notification.reference_id.score}/10
+                  </span>
                 </div>
               )}
 
@@ -263,14 +270,16 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
               {/* Likes count for reactions */}
               {notification.message?.includes("reacted") && (
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500">2 Likes</p>
+                  <p className="text-xs text-muted-foreground">2 Likes</p>
                 </div>
               )}
 
               {/* Bottom row */}
               <div className="flex items-center justify-between mt-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500 font-medium">{getTimeAgo(notification.created_at)}</span>
+                  <span className="text-xs text-muted-foreground font-medium">
+                    {getTimeAgo(notification.created_at)}
+                  </span>
                   {!notification.is_read && <div className="h-2 w-2 rounded-full bg-blue-600"></div>}
                 </div>
               </div>
@@ -288,11 +297,11 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
                     // Handle more options
                   }}
                 >
-                  <MoreHorizontal className="h-4 w-4 text-gray-400" />
+                  <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
                 </Button>
               )}
               <div className={cn("transition-opacity", isHovered ? "opacity-100" : "opacity-0")}>
-                <ChevronRight className="h-4 w-4 text-gray-400" />
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </div>
             </div>
           </div>

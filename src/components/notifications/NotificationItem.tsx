@@ -25,18 +25,18 @@ interface NotificationItemProps {
 export const NotificationItem = ({ notification, onRead }: NotificationItemProps) => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
-  
+
   const handleClick = () => {
     if (!notification.is_read) {
       onRead(notification._id);
     }
-    
+
     // Navigate based on notification link
     if (notification.link) {
       navigate(notification.link);
     }
   };
-  
+
   const getIcon = () => {
     switch (notification.type) {
       case 'task':
@@ -65,7 +65,7 @@ export const NotificationItem = ({ notification, onRead }: NotificationItemProps
       return 'Just now';
     }
   };
-  
+
   return (
     <div
       className={cn(
@@ -81,8 +81,8 @@ export const NotificationItem = ({ notification, onRead }: NotificationItemProps
         <div className="flex-shrink-0">
           {notification.sender_id ? (
             <Avatar className="h-10 w-10">
-              <AvatarImage 
-                src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(notification.sender_id.first_name)}`}
+              <AvatarImage
+                src={notification.sender_id.profile_avatar ? notification.sender_id.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(notification.sender_id.first_name)}`}
                 alt={`${notification.sender_id.first_name} ${notification.sender_id.last_name}`}
               />
               <AvatarFallback className="text-sm bg-gray-100">
@@ -110,7 +110,7 @@ export const NotificationItem = ({ notification, onRead }: NotificationItemProps
               <p className="text-sm text-gray-600 leading-relaxed mb-2">
                 {notification.message}
               </p>
-              
+
               {/* Reference content preview */}
               {notification.reference_id?.post_id && (
                 <div className="bg-gray-50 rounded-lg p-3 mt-2 border-l-4 border-blue-500">
@@ -145,7 +145,7 @@ export const NotificationItem = ({ notification, onRead }: NotificationItemProps
                   </p>
                 </div>
               )}
-              
+
               <div className="flex items-center gap-2 mt-2">
                 <span className="text-xs text-gray-500">
                   {getTimeAgo(notification.created_at)}
@@ -155,7 +155,7 @@ export const NotificationItem = ({ notification, onRead }: NotificationItemProps
                 )}
               </div>
             </div>
-            
+
             {/* Notification type icon */}
             <div className="flex-shrink-0 ml-2">
               <div className={cn(

@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/hooks/useAuth"
 import { UserIcon } from "lucide-react"
 import { useNotifications } from "@/hooks/useNotifications"
+import { ThemeToggleButton } from "@/components/ui/theme-toggle"
 import type { User as UserType } from "@/types"
 
 export const Header = () => {
@@ -97,6 +98,9 @@ export const Header = () => {
         </div>
 
         <div className="flex items-center space-x-4">
+          {/* Theme Toggle */}
+          <ThemeToggleButton />
+          
           {/* Notifications Icon */}
           {!userLoading && user && (
             <div className="relative">

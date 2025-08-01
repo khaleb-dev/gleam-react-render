@@ -1,6 +1,7 @@
 "use client"
 
-import React, { useState } from "react"
+import type React from "react"
+import { useState } from "react"
 import { Edit, Save, X, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,14 +14,16 @@ interface ProfileItemEditorProps {
   onSave: (item: any) => Promise<void>
   onDelete: (id: string) => Promise<void>
   isOwnProfile: boolean
+  isEditMode?: boolean
 }
 
-export const ProfileItemEditor: React.FC<ProfileItemEditorProps> = ({ 
-  item, 
-  type, 
-  onSave, 
-  onDelete, 
-  isOwnProfile 
+export const ProfileItemEditor: React.FC<ProfileItemEditorProps> = ({
+  item,
+  type,
+  onSave,
+  onDelete,
+  isOwnProfile,
+  isEditMode = false,
 }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [editedItem, setEditedItem] = useState(item)
@@ -49,9 +52,11 @@ export const ProfileItemEditor: React.FC<ProfileItemEditorProps> = ({
     }
   }
 
+  const showEditControls = isOwnProfile && (isEditMode || isEditing)
+
   if (isEditing) {
     return (
-      <div className="border rounded-lg p-4 space-y-4">
+      <div className="border border-border rounded-lg p-4 space-y-4 bg-card">
         {type === "experience" && (
           <>
             <div className="grid grid-cols-2 gap-4">
@@ -80,14 +85,14 @@ export const ProfileItemEditor: React.FC<ProfileItemEditorProps> = ({
             <div className="grid grid-cols-2 gap-4">
               <Input
                 type="date"
-                value={editedItem.start_date?.split('T')[0]}
+                value={editedItem.start_date?.split("T")[0]}
                 onChange={(e) => setEditedItem({ ...editedItem, start_date: e.target.value })}
                 placeholder="Start Date"
               />
               {!editedItem.is_current && (
                 <Input
                   type="date"
-                  value={editedItem.end_date?.split('T')[0]}
+                  value={editedItem.end_date?.split("T")[0]}
                   onChange={(e) => setEditedItem({ ...editedItem, end_date: e.target.value })}
                   placeholder="End Date"
                 />
@@ -119,13 +124,13 @@ export const ProfileItemEditor: React.FC<ProfileItemEditorProps> = ({
               <Input
                 type="number"
                 value={editedItem.start_year}
-                onChange={(e) => setEditedItem({ ...editedItem, start_year: parseInt(e.target.value) })}
+                onChange={(e) => setEditedItem({ ...editedItem, start_year: Number.parseInt(e.target.value) })}
                 placeholder="Start Year"
               />
               <Input
                 type="number"
                 value={editedItem.end_year}
-                onChange={(e) => setEditedItem({ ...editedItem, end_year: parseInt(e.target.value) })}
+                onChange={(e) => setEditedItem({ ...editedItem, end_year: Number.parseInt(e.target.value) })}
                 placeholder="End Year"
               />
             </div>
@@ -154,12 +159,12 @@ export const ProfileItemEditor: React.FC<ProfileItemEditorProps> = ({
             <div className="grid grid-cols-2 gap-4">
               <Input
                 type="date"
-                value={editedItem.date_awarded?.split('T')[0]}
+                value={editedItem.date_awarded?.split("T")[0]}
                 onChange={(e) => setEditedItem({ ...editedItem, date_awarded: e.target.value })}
                 placeholder="Date Awarded"
               />
               <Input
-                value={editedItem.link || ''}
+                value={editedItem.link || ""}
                 onChange={(e) => setEditedItem({ ...editedItem, link: e.target.value })}
                 placeholder="Link (optional)"
               />
@@ -183,39 +188,29 @@ export const ProfileItemEditor: React.FC<ProfileItemEditorProps> = ({
 
   return (
     <div className="relative group">
-      {isOwnProfile && (
+      {showEditControls && (
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsEditing(true)}
-            className="p-1"
-          >
+          <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)} className="p-1">
             <Edit className="h-3 w-3" />
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleDelete}
-            className="p-1 text-red-500 hover:text-red-700"
-          >
+          <Button variant="ghost" size="sm" onClick={handleDelete} className="p-1 text-red-500 hover:text-red-700">
             <Trash2 className="h-3 w-3" />
           </Button>
         </div>
       )}
-      
+
       {/* Original display content */}
       <div className="space-y-3">
         {type === "experience" && (
           <>
-            <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{item.title}</h4>
+            <h4 className="font-semibold text-foreground text-sm sm:text-base">{item.title}</h4>
             <p className="text-primary font-medium text-sm">{item.company}</p>
-            <p className="text-xs sm:text-sm text-gray-500 mb-2">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-2">
               {new Date(item.start_date).getFullYear()} -{" "}
               {item.is_current ? "Present" : new Date(item.end_date).getFullYear()}
               {item.location && ` • ${item.location}`}
             </p>
-            <p className="text-gray-700 text-xs sm:text-sm mb-3">{item.description}</p>
+            <p className="text-foreground text-xs sm:text-sm mb-3">{item.description}</p>
             {item.tools && item.tools.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {item.tools.map((tool: string, toolIndex: number) => (
@@ -230,22 +225,20 @@ export const ProfileItemEditor: React.FC<ProfileItemEditorProps> = ({
 
         {type === "education" && (
           <>
-            <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{item.degree}</h4>
+            <h4 className="font-semibold text-foreground text-sm sm:text-base">{item.degree}</h4>
             <p className="text-primary font-medium text-sm">{item.institution}</p>
-            <p className="text-xs sm:text-sm text-gray-500 mb-2">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-2">
               {item.field_of_study} • {item.start_year} - {item.end_year}
             </p>
-            <p className="text-gray-700 text-xs sm:text-sm">{item.description}</p>
+            <p className="text-foreground text-xs sm:text-sm">{item.description}</p>
           </>
         )}
 
         {type === "achievement" && (
           <>
-            <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{item.title}</h4>
-            <p className="text-gray-700 text-xs sm:text-sm mb-2">{item.description}</p>
-            <p className="text-xs text-gray-500">
-              {new Date(item.date_awarded).toLocaleDateString()}
-            </p>
+            <h4 className="font-semibold text-foreground text-sm sm:text-base">{item.title}</h4>
+            <p className="text-foreground text-xs sm:text-sm mb-2">{item.description}</p>
+            <p className="text-xs text-muted-foreground">{new Date(item.date_awarded).toLocaleDateString()}</p>
             {item.link && (
               <a
                 href={item.link}
