@@ -31,6 +31,8 @@ import Feed from "./pages/Feed"
 import { SingleFeed } from "./pages/SingleFeed"
 import { useAuthGuard } from "@/hooks/useAuthGuard"
 import SuggestedUsers from "./pages/SuggestedUsers"
+import Messages from "./pages/Messages"
+import UserProfile from "./pages/UserProfile"
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -292,6 +294,39 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <SuggestedUsers />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/messages"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Messages />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/messages/:userId"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Messages />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/user/:userId"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <UserProfile />
               </Layout>
             </ProtectedRoute>
           }

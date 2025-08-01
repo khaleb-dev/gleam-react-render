@@ -174,12 +174,16 @@ export const NotificationsList = ({ notifications, onMarkAllAsRead, onReadNotifi
         <TabsContent value={activeTab} className="mt-0">
           {filteredNotifications.length > 0 ? (
             <div>
-              {filteredNotifications.map((notification) => (
-                <LinkedInNotificationItem
-                  key={notification._id}
-                  notification={notification}
-                  onRead={onReadNotification}
-                />
+              {filteredNotifications.map((notification, index) => (
+                <div key={notification._id}>
+                  <LinkedInNotificationItem
+                    notification={notification}
+                    onRead={onReadNotification}
+                  />
+                  {index < filteredNotifications.length - 1 && (
+                    <div className="border-b border-gray-100 dark:border-gray-800" />
+                  )}
+                </div>
               ))}
             </div>
           ) : (

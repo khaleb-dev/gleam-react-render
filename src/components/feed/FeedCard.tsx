@@ -232,23 +232,38 @@ export const FeedCard: React.FC<FeedCardProps> = ({
         {/* User Header - With padding and color coding */}
         <div className="px-3 sm:px-4 py-2.5">
           <div className="flex items-center space-x-2.5">
-            <Avatar
-              className="h-8 w-8 flex-shrink-0 cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/profile/${post.user_id}`);
-              }}
-            >
-              <AvatarImage
-                src={post.user?.profile_avatar ? post.user?.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(post.user.first_name)}`}
-                alt={`${post.user.first_name} ${post.user.last_name}`}
-                className="object-cover"
-              />
-              <AvatarFallback style={{ fontSize: '12px' }}>
-                {post.user.first_name?.[0]}
-                {post.user.last_name?.[0]}
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar
+                className="h-8 w-8 flex-shrink-0 cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/profile/${post.user_id}`);
+                }}
+              >
+                <AvatarImage
+                  src={post.user?.profile_avatar ? post.user?.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(post.user.first_name)}`}
+                  alt={`${post.user.first_name} ${post.user.last_name}`}
+                  className="object-cover"
+                />
+                <AvatarFallback style={{ fontSize: '12px' }}>
+                  {post.user.first_name?.[0]}
+                  {post.user.last_name?.[0]}
+                </AvatarFallback>
+              </Avatar>
+              
+              {/* Message overlay for non-owners */}
+              {!isOwner && (
+                <div 
+                  className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full border-2 border-white shadow-sm flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/messages/${post.user_id}`);
+                  }}
+                >
+                  <MessageCircle className="h-2.5 w-2.5 text-white" />
+                </div>
+              )}
+            </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-1.5">
