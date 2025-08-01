@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Search, MessageCircle, ArrowLeft, Send, Phone, Video, MoreHorizontal } from 'lucide-react';
+import { Search, MessageCircle, ArrowLeft, Send, Phone, Video, MoreHorizontal, Settings, Edit, Smile, Paperclip, Mic, Heart } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAppContext } from '@/context/AppContext';
+import { ChatMessageText } from '@/components/chat/ChatMessageText';
+import { LinkPreview } from '@/components/chat/LinkPreview';
+import { findFirstUrl } from '@/components/chat/findFirstUrl';
 
 interface MessageUser {
   _id: string;
@@ -212,26 +215,58 @@ const Messages = () => {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((message) => (
-              <div
-                key={message._id}
-                className={`flex ${message.sender_id === user?.user_id ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-[70%] p-3 rounded-2xl ${
-                    message.sender_id === user?.user_id
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
-                  }`}
-                >
-                  <p className="text-sm">{message.content}</p>
-                  <p className={`text-xs mt-1 opacity-70`}>
-                    {formatTime(message.timestamp)}
-                  </p>
+          <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            {messages.map((message) => {
+              const isOwn = message.sender_id === user?.user_id;
+              const url = findFirstUrl(message.content);
+              
+              return (
+                <div key={message._id} className="space-y-2">
+                  <div
+                    className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
+                  >
+                    {!isOwn && (
+                      <Avatar className="h-8 w-8 mr-2 mt-1">
+                        <AvatarImage
+                          src={selectedUser.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(selectedUser.first_name)}`}
+                          className="object-cover"
+                        />
+                        <AvatarFallback className="text-xs">
+                          {selectedUser.first_name[0]}{selectedUser.last_name[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                    <div
+                      className={`max-w-xs px-4 py-2 rounded-2xl ${
+                        isOwn
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted'
+                      }`}
+                    >
+                      <div className="text-sm">
+                        <ChatMessageText text={message.content} isOwn={isOwn} />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Link Preview */}
+                  {url && (
+                    <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                      {!isOwn && <div className="w-10" />}
+                      <div className="max-w-xs">
+                        <LinkPreview url={url} compact />
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                    <p className={`text-xs text-muted-foreground ${!isOwn ? 'ml-10' : ''}`}>
+                      {formatTime(message.timestamp)}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Message Input */}
@@ -318,155 +353,244 @@ const Messages = () => {
 
   // Desktop view
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-black text-white">
       {/* Users Sidebar */}
-      <div className="w-80 border-r flex flex-col">
-        <div className="p-4 border-b">
-          <h1 className="text-xl font-bold mb-4">Messages</h1>
+      <div className="w-96 border-r border-gray-700 flex flex-col bg-black">
+        <div className="p-6 border-b border-gray-700">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold">Messages</h1>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" className="p-2 text-gray-400 hover:text-white">
+                <Settings className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="sm" className="p-2 text-gray-400 hover:text-white">
+                <Edit className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Search conversations..."
+              placeholder="Search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
+              className="pl-10 bg-gray-900 border-gray-700 text-white placeholder-gray-400 focus:border-gray-500"
             />
           </div>
         </div>
 
+        {/* Tab Navigation */}
+        <div className="px-6 py-3 border-b border-gray-700">
+          <div className="flex space-x-8">
+            <button className="text-white font-medium border-b-2 border-blue-500 pb-2">
+              Primary
+            </button>
+            <button className="text-gray-400 hover:text-gray-300 pb-2">
+              General
+            </button>
+            <button className="text-gray-400 hover:text-gray-300 pb-2">
+              Requests
+            </button>
+          </div>
+        </div>
+
         <div className="flex-1 overflow-y-auto">
-          {filteredUsers.map((user) => (
-            <div
-              key={user._id}
-              onClick={() => handleUserSelect(user)}
-              className={`flex items-center gap-3 p-4 hover:bg-accent cursor-pointer border-b ${
-                selectedUser?.user_id === user.user_id ? 'bg-accent' : ''
-              }`}
-            >
-              <div className="relative">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage
-                    src={user.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`}
-                    className="object-cover"
-                  />
-                  <AvatarFallback>
-                    {user.first_name[0]}{user.last_name[0]}
-                  </AvatarFallback>
-                </Avatar>
-                {user.isOnline && (
-                  <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-green-500 border-2 border-background rounded-full" />
+          {filteredUsers.length === 0 ? (
+            <div className="p-6 text-center">
+              <p className="text-gray-400 text-sm">No conversations found</p>
+            </div>
+          ) : (
+            filteredUsers.map((user) => (
+              <div
+                key={user._id}
+                onClick={() => handleUserSelect(user)}
+                className={`flex items-center gap-3 p-4 hover:bg-gray-900 cursor-pointer transition-colors ${
+                  selectedUser?.user_id === user.user_id ? 'bg-gray-900' : ''
+                }`}
+              >
+                <div className="relative">
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage
+                      src={user.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`}
+                      className="object-cover"
+                    />
+                    <AvatarFallback className="bg-gray-700 text-white">
+                      {user.first_name[0]}{user.last_name[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  {user.isOnline && (
+                    <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-green-500 border-2 border-black rounded-full" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-sm text-white truncate">
+                      {user.first_name} {user.last_name}
+                    </h3>
+                    <span className="text-xs text-gray-400">
+                      {user.lastMessageTime}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-400 truncate">
+                    {user.lastMessage}
+                  </p>
+                </div>
+                {user.unreadCount && user.unreadCount > 0 && (
+                  <div className="h-5 w-5 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span className="text-xs text-white font-medium">
+                      {user.unreadCount}
+                    </span>
+                  </div>
                 )}
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-sm truncate">
-                    {user.first_name} {user.last_name}
-                  </h3>
-                  <span className="text-xs text-muted-foreground">
-                    {user.lastMessageTime}
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground truncate">
-                  {user.lastMessage}
-                </p>
-              </div>
-              {user.unreadCount && user.unreadCount > 0 && (
-                <div className="h-5 w-5 bg-primary rounded-full flex items-center justify-center">
-                  <span className="text-xs text-primary-foreground font-medium">
-                    {user.unreadCount}
-                  </span>
-                </div>
-              )}
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col bg-black">
         {selectedUser ? (
           <>
             {/* Chat Header */}
-            <div className="flex items-center justify-between p-4 border-b bg-background/95 backdrop-blur">
+            <div className="flex items-center justify-between p-4 border-b border-gray-700">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10">
                   <AvatarImage
                     src={selectedUser.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(selectedUser.first_name)}`}
                     className="object-cover"
                   />
-                  <AvatarFallback>
+                  <AvatarFallback className="bg-gray-700 text-white">
                     {selectedUser.first_name[0]}{selectedUser.last_name[0]}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="font-semibold text-sm">
+                  <h3 className="font-semibold text-sm text-white">
                     {selectedUser.first_name} {selectedUser.last_name}
                   </h3>
-                  <p className="text-xs text-muted-foreground">
-                    {selectedUser.isOnline ? 'Online' : 'Offline'}
+                  <p className="text-xs text-gray-400">
+                    @{selectedUser.first_name.toLowerCase()}{selectedUser.last_name.toLowerCase()}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" className="p-2">
+                <Button variant="ghost" size="sm" className="p-2 text-gray-400 hover:text-white">
                   <Phone className="h-5 w-5" />
                 </Button>
-                <Button variant="ghost" size="sm" className="p-2">
+                <Button variant="ghost" size="sm" className="p-2 text-gray-400 hover:text-white">
                   <Video className="h-5 w-5" />
                 </Button>
-                <Button variant="ghost" size="sm" className="p-2">
+                <Button variant="ghost" size="sm" className="p-2 text-gray-400 hover:text-white">
                   <MoreHorizontal className="h-5 w-5" />
                 </Button>
               </div>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {messages.map((message) => (
-                <div
-                  key={message._id}
-                  className={`flex ${message.sender_id === user?.user_id ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[70%] p-3 rounded-2xl ${
-                      message.sender_id === user?.user_id
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted'
-                    }`}
-                  >
-                    <p className="text-sm">{message.content}</p>
-                    <p className={`text-xs mt-1 opacity-70`}>
-                      {formatTime(message.timestamp)}
-                    </p>
+            <div className="flex-1 overflow-y-auto p-4 space-y-2 min-h-0">
+              {messages.map((message) => {
+                const isOwn = message.sender_id === user?.user_id;
+                const url = findFirstUrl(message.content);
+                
+                return (
+                  <div key={message._id} className="space-y-2">
+                    <div
+                      className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
+                    >
+                      {!isOwn && (
+                        <Avatar className="h-8 w-8 mr-2 mt-1">
+                          <AvatarImage
+                            src={selectedUser.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(selectedUser.first_name)}`}
+                            className="object-cover"
+                          />
+                          <AvatarFallback className="bg-gray-700 text-white text-xs">
+                            {selectedUser.first_name[0]}{selectedUser.last_name[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                      <div
+                        className={`max-w-xs px-4 py-2 rounded-2xl ${
+                          isOwn
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-gray-800 text-gray-100'
+                        }`}
+                      >
+                        <div className="text-sm">
+                          <ChatMessageText text={message.content} isOwn={isOwn} />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Link Preview */}
+                    {url && (
+                      <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                        {!isOwn && <div className="w-10" />}
+                        <div className="max-w-xs">
+                          <LinkPreview url={url} compact />
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                      <p className={`text-xs text-gray-500 ${!isOwn ? 'ml-10' : ''}`}>
+                        {formatTime(message.timestamp)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Message Input */}
-            <form onSubmit={handleSendMessage} className="p-4 border-t">
-              <div className="flex items-center gap-3">
-                <Input
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Type a message..."
-                  className="flex-1"
-                />
-                <Button type="submit" disabled={!newMessage.trim()}>
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
-            </form>
+            <div className="p-4 border-t border-gray-700">
+              <form onSubmit={handleSendMessage}>
+                <div className="flex items-center gap-3 bg-gray-900 rounded-full px-4 py-2">
+                  <Button type="button" variant="ghost" size="sm" className="p-1 text-gray-400 hover:text-white">
+                    <Paperclip className="h-4 w-4" />
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" className="p-1 text-gray-400 hover:text-white">
+                    <Search className="h-4 w-4" />
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" className="p-1 text-gray-400 hover:text-white">
+                    <Smile className="h-4 w-4" />
+                  </Button>
+                  <Input
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder="Start a new message"
+                    className="flex-1 bg-transparent border-0 text-white placeholder-gray-400 focus:ring-0 h-auto p-0"
+                  />
+                  <Button type="button" variant="ghost" size="sm" className="p-1 text-gray-400 hover:text-white">
+                    <Mic className="h-4 w-4" />
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" className="p-1 text-gray-400 hover:text-white">
+                    <Paperclip className="h-4 w-4" />
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" className="p-1 text-gray-400 hover:text-white">
+                    <Smile className="h-4 w-4" />
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" className="p-1 text-gray-400 hover:text-white">
+                    <Heart className="h-4 w-4" />
+                  </Button>
+                </div>
+              </form>
+            </div>
           </>
         ) : (
           // No chat selected
           <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No conversation selected</h3>
-              <p className="text-muted-foreground">
-                Choose a conversation from the sidebar to start messaging
-              </p>
+            <div className="text-center max-w-md mx-auto px-8">
+              <div className="mb-8">
+                <h1 className="text-4xl font-bold text-white mb-4">
+                  Welcome to your inbox!
+                </h1>
+                <p className="text-gray-400 text-lg">
+                  Drop a line, share posts and more with private conversations between you and others.
+                </p>
+              </div>
+              <Button className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full font-semibold">
+                Write a message
+              </Button>
             </div>
           </div>
         )}

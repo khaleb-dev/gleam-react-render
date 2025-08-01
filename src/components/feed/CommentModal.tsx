@@ -140,7 +140,7 @@ export const CommentModal: React.FC<CommentModalProps> = ({
                   <div className="flex-1 min-w-0">
                     <div className="bg-muted rounded-lg p-3">
                       <div className="flex items-center justify-between mb-1">
-                        <p className="text-xs font-medium">
+                        <p className="text-xs font-medium text-foreground">
                           {comment.user_id ?
                             `${comment.user_id.first_name} ${comment.user_id.last_name}`
                             : 'Anonymous User'

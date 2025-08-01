@@ -171,7 +171,7 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
             <div className="p-4 text-center text-sm text-gray-500">Loading...</div>
           ) : (
             peopleData?.users?.map((user) => (
-              <div key={user._id} className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors">
+              <div key={user._id} className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 <div className="flex items-center space-x-3">
                   <Avatar className="h-7 w-7">
                     <AvatarImage
@@ -184,14 +184,14 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium text-xs text-gray-900">
+                    <p className="font-medium text-xs text-gray-900 dark:text-gray-100">
                       {user.first_name} {user.last_name}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="text-yellow-500 text-sm">⭐</span>
-                  <span className="text-xs font-medium text-gray-700">{user.score}</span>
+                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{user.score}</span>
                 </div>
               </div>
             )) || <div className="p-4 text-center text-sm text-gray-500">No scores yet</div>

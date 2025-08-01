@@ -15,6 +15,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { VideoPlayer } from "@/components/ui/VideoPlayer"
 import { LinkupButton } from "./LinkupButton"
 import { LinkupCount } from "./LinkupCount"
+import { ChatMessageText } from "@/components/chat/ChatMessageText"
 
 interface FeedPost {
   _id: string
@@ -234,7 +235,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
           <div className="flex items-center space-x-2.5">
             <div className="relative">
               <Avatar
-                className="h-8 w-8 flex-shrink-0 cursor-pointer"
+                className="h-10 w-10 flex-shrink-0 cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                   navigate(`/profile/${post.user_id}`);
@@ -251,18 +252,6 @@ export const FeedCard: React.FC<FeedCardProps> = ({
                 </AvatarFallback>
               </Avatar>
               
-              {/* Message overlay for non-owners */}
-              {!isOwner && (
-                <div 
-                  className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full border-2 border-white shadow-sm flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/messages/${post.user_id}`);
-                  }}
-                >
-                  <MessageCircle className="h-2.5 w-2.5 text-white" />
-                </div>
-              )}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
@@ -352,9 +341,9 @@ export const FeedCard: React.FC<FeedCardProps> = ({
         {/* Content - With padding */}
         <div className="px-3 sm:px-4 pb-2.5">
           <h3 className="font-semibold text-gray-900 dark:text-white mb-1.5" style={{ fontSize: '14px' }}>{post.title}</h3>
-          <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-2.5 line-clamp-3" style={{ fontSize: '12px' }}>
-            {post.description}
-          </p>
+          <div className="text-gray-600 dark:text-gray-300 leading-relaxed mb-2.5 line-clamp-3" style={{ fontSize: '12px' }}>
+            <ChatMessageText text={post.description} />
+          </div>
           {/* Tags */}
           {post.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mb-2.5">

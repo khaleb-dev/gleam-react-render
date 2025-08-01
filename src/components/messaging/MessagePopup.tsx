@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Send, Minimize2, MessageCircle, Phone, Video } from 'lucide-react';
+import { X, Send, Minimize2, MessageCircle, Phone, Video, Smile, Paperclip } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAppContext } from '@/context/AppContext';
+import { ChatMessageText } from '@/components/chat/ChatMessageText';
+import { LinkPreview } from '@/components/chat/LinkPreview';
+import { findFirstUrl } from '@/components/chat/findFirstUrl';
 
 interface MessagePopupProps {
   user: {
@@ -135,9 +138,9 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
   }
 
   return (
-    <div className="fixed bottom-4 right-4 w-80 h-96 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50 flex flex-col">
+    <div className="fixed bottom-4 right-4 w-80 h-96 bg-black border border-gray-700 rounded-lg shadow-xl z-50 flex flex-col text-white">
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b bg-gray-50 dark:bg-gray-700 rounded-t-lg">
+      <div className="flex items-center justify-between p-3 border-b border-gray-700 rounded-t-lg">
         <div className="flex items-center gap-2">
           <div className="relative">
             <Avatar className="h-8 w-8">
@@ -145,59 +148,99 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
                 src={user.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`}
                 className="object-cover"
               />
-              <AvatarFallback className="text-xs">
+              <AvatarFallback className="text-xs bg-gray-700 text-white">
                 {user.first_name[0]}{user.last_name[0]}
               </AvatarFallback>
             </Avatar>
             {user.isOnline && (
-              <div className="absolute -bottom-1 -right-1 h-3 w-3 bg-green-500 border-2 border-white rounded-full" />
+              <div className="absolute -bottom-1 -right-1 h-3 w-3 bg-green-500 border-2 border-black rounded-full" />
             )}
           </div>
           <div>
-            <p className="text-sm font-medium">{user.first_name} {user.last_name}</p>
-            <p className="text-xs text-gray-500">{user.isOnline ? 'Online' : 'Offline'}</p>
+            <p className="text-sm font-medium text-white">{user.first_name} {user.last_name}</p>
+            <p className="text-xs text-gray-400">@{user.first_name.toLowerCase()}{user.last_name.toLowerCase()}</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" className="p-1 h-auto">
+          <Button variant="ghost" size="sm" className="p-1 h-auto text-gray-400 hover:text-white">
             <Phone className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="sm" className="p-1 h-auto">
+          <Button variant="ghost" size="sm" className="p-1 h-auto text-gray-400 hover:text-white">
             <Video className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="sm" onClick={onMinimize} className="p-1 h-auto">
+          <Button variant="ghost" size="sm" onClick={onMinimize} className="p-1 h-auto text-gray-400 hover:text-white">
             <Minimize2 className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="sm" onClick={onClose} className="p-1 h-auto">
+          <Button variant="ghost" size="sm" onClick={onClose} className="p-1 h-auto text-gray-400 hover:text-white">
             <X className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-3">
-        {messages.map((message) => (
-          <div
-            key={message._id}
-            className={`flex ${message.sender_id === currentUser?.user_id ? 'justify-end' : 'justify-start'}`}
-          >
-            <div
-              className={`max-w-[80%] p-2 rounded-lg text-sm ${
-                message.sender_id === currentUser?.user_id
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 dark:bg-gray-700'
-              }`}
-            >
-              <p>{message.content}</p>
-              <p className={`text-xs mt-1 opacity-70`}>
-                {formatTime(message.timestamp)}
-              </p>
+      <div className="flex-1 overflow-y-auto p-3 space-y-2">
+        {messages.map((message) => {
+          const isOwn = message.sender_id === currentUser?.user_id;
+          const url = findFirstUrl(message.content);
+          
+          return (
+            <div key={message._id} className="space-y-1">
+              <div
+                className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
+              >
+                {!isOwn && (
+                  <Avatar className="h-6 w-6 mr-2 mt-1">
+                    <AvatarImage
+                      src={user.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`}
+                      className="object-cover"
+                    />
+                    <AvatarFallback className="bg-gray-700 text-white text-xs">
+                      {user.first_name[0]}{user.last_name[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+                <div
+                  className={`max-w-[70%] px-3 py-2 rounded-2xl text-sm ${
+                    isOwn
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-800 text-gray-100'
+                  }`}
+                >
+                  <ChatMessageText text={message.content} isOwn={isOwn} />
+                </div>
+              </div>
+              
+              {/* Link Preview */}
+              {url && (
+                <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                  {!isOwn && <div className="w-8" />}
+                  <div className="max-w-[70%]">
+                    <LinkPreview url={url} compact />
+                  </div>
+                </div>
+              )}
+              
+              <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                <p className={`text-xs text-gray-500 ${!isOwn ? 'ml-8' : ''}`}>
+                  {formatTime(message.timestamp)}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
+        
         {isTyping && (
           <div className="flex justify-start">
-            <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
+            <Avatar className="h-6 w-6 mr-2">
+              <AvatarImage
+                src={user.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`}
+                className="object-cover"
+              />
+              <AvatarFallback className="bg-gray-700 text-white text-xs">
+                {user.first_name[0]}{user.last_name[0]}
+              </AvatarFallback>
+            </Avatar>
+            <div className="bg-gray-800 p-2 rounded-2xl">
               <div className="flex space-x-1">
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -210,19 +253,27 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
       </div>
 
       {/* Message Input */}
-      <form onSubmit={handleSendMessage} className="p-3 border-t">
-        <div className="flex items-center gap-2">
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1 text-sm h-8"
-          />
-          <Button type="submit" size="sm" disabled={!newMessage.trim()} className="h-8 w-8 p-0">
-            <Send className="h-3 w-3" />
-          </Button>
-        </div>
-      </form>
+      <div className="p-3 border-t border-gray-700">
+        <form onSubmit={handleSendMessage}>
+          <div className="flex items-center gap-2 bg-gray-900 rounded-full px-3 py-2">
+            <Button type="button" variant="ghost" size="sm" className="p-1 text-gray-400 hover:text-white">
+              <Paperclip className="h-3 w-3" />
+            </Button>
+            <Button type="button" variant="ghost" size="sm" className="p-1 text-gray-400 hover:text-white">
+              <Smile className="h-3 w-3" />
+            </Button>
+            <Input
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Start a new message"
+              className="flex-1 bg-transparent border-0 text-white placeholder-gray-400 focus:ring-0 h-auto p-0 text-sm"
+            />
+            <Button type="submit" disabled={!newMessage.trim()} variant="ghost" size="sm" className="p-1 text-gray-400 hover:text-white">
+              <Send className="h-3 w-3" />
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
