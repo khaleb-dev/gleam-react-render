@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { Task, TaskStatus, User, MapLocation } from '@/types';
 import { mockTasks } from '@/data/mockData';
 
