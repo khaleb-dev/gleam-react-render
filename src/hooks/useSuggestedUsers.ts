@@ -70,9 +70,9 @@ interface SuggestedUsersResponse {
   success: boolean;
 }
 
-export const useSuggestedUsers = (limit: number = 10, skip: number = 0) => {
+export const useSuggestedUsers = (limit: number = 10, skip: number = 0, accumulate: boolean = false) => {
   return useQuery({
-    queryKey: ["suggestedUsers", limit, skip],
+    queryKey: ["suggestedUsers", limit, skip, accumulate],
     queryFn: async (): Promise<SuggestedUsersResponse> => {
       const response = await fetch(
         `${API_BASE_URL}/users/suggested-users?limit=${limit}&skip=${skip}`,
@@ -91,5 +91,9 @@ export const useSuggestedUsers = (limit: number = 10, skip: number = 0) => {
 
       return response.json();
     },
+    select: accumulate ? (data) => {
+      // For accumulation, we need to manage this at component level
+      return data;
+    } : undefined,
   });
 };

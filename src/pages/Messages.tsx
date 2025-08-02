@@ -319,7 +319,10 @@ export default function Messages() {
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <h2 className="font-semibold text-foreground">
+                    <h2 
+                      className="font-semibold text-foreground cursor-pointer hover:underline"
+                      onClick={() => navigate(`/profile/${selectedUser.user_id}`)}
+                    >
                       {selectedUser.first_name} {selectedUser.last_name}
                     </h2>
                     <p className="text-sm text-muted-foreground">

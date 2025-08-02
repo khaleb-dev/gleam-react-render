@@ -1,7 +1,6 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -12,13 +11,27 @@ import { useSuggestedUsers } from "@/hooks/useSuggestedUsers"
 const SuggestedUsers: React.FC = () => {
   const navigate = useNavigate()
   const [skip, setSkip] = useState(0)
+  const [allUsers, setAllUsers] = useState<any[]>([])
   const limit = 20
 
-  const { data, isLoading, error } = useSuggestedUsers(limit, skip)
+  const { data, isLoading, error } = useSuggestedUsers(limit, skip, true)
 
   const handleUserClick = (userId: string) => {
     navigate(`/profile/${userId}`)
   }
+
+  // Update allUsers when new data comes in
+  useEffect(() => {
+    if (data?.data) {
+      if (skip === 0) {
+        // First load
+        setAllUsers(data.data)
+      } else {
+        // Append new data
+        setAllUsers(prev => [...prev, ...data.data])
+      }
+    }
+  }, [data, skip])
 
   const handleLoadMore = () => {
     setSkip(skip + limit)
@@ -60,9 +73,9 @@ const SuggestedUsers: React.FC = () => {
           <p className="text-muted-foreground mt-2">Discover and connect with other community members</p>
         </div>
 
-        {data?.data && data.data.length > 0 ? (
+        {allUsers.length > 0 ? (
           <div className="flex flex-col gap-2">
-            {data.data.map((user) => (
+            {allUsers.map((user) => (
               <div
                 key={user._id}
                 className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-muted transition cursor-pointer"
