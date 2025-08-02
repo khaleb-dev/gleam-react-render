@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Send, Minimize2, MessageCircle, Phone, Video, Smile, Paperclip } from 'lucide-react';
+import { X, Send, Minimize2, MessageCircle, Phone, Video, Smile, Image } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +8,12 @@ import { useAppContext } from '@/context/AppContext';
 import { ChatMessageText } from '@/components/chat/ChatMessageText';
 import { LinkPreview } from '@/components/chat/LinkPreview';
 import { findFirstUrl } from '@/components/chat/findFirstUrl';
+import { messageApi, MessageData } from '@/services/messageApi';
+import { toast } from 'sonner';
+import { handleApiErrors } from '@/utils/apiResponse';
+import { EmojiPicker } from '@/components/chat/EmojiPicker';
+import { FilePreview } from '@/components/chat/FilePreview';
+import { useFileUpload } from '@/hooks/useFileUpload';
 
 interface MessagePopupProps {
   user: {
@@ -21,15 +28,6 @@ interface MessagePopupProps {
   isMinimized: boolean;
 }
 
-interface Message {
-  _id: string;
-  content: string;
-  sender_id: string;
-  recipient_id: string;
-  timestamp: string;
-  isRead: boolean;
-}
-
 export const MessagePopup: React.FC<MessagePopupProps> = ({
   user,
   onClose,
@@ -37,33 +35,33 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
   isMinimized
 }) => {
   const { user: currentUser } = useAppContext();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<MessageData[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { uploadFiles, isUploading } = useFileUpload();
 
-  // Mock messages - replace with real API call
+  // Fetch conversation on component mount
   useEffect(() => {
-    const mockMessages: Message[] = [
-      {
-        _id: '1',
-        content: 'Hey! How are you doing?',
-        sender_id: user.user_id,
-        recipient_id: currentUser?.user_id || '',
-        timestamp: '2025-01-01T10:00:00Z',
-        isRead: true
-      },
-      {
-        _id: '2',
-        content: 'I\'m doing great! Thanks for asking.',
-        sender_id: currentUser?.user_id || '',
-        recipient_id: user.user_id,
-        timestamp: '2025-01-01T10:01:00Z',
-        isRead: true
+    const fetchConversation = async () => {
+      try {
+        const response = await messageApi.getConversation(user.user_id);
+        if (response.success && response.data) {
+          setMessages(response.data);
+        } else {
+          handleApiErrors(response);
+        }
+      } catch (error) {
+        console.error('Failed to fetch conversation:', error);
+        toast.error('Failed to load messages');
       }
-    ];
-    setMessages(mockMessages);
-  }, [user.user_id, currentUser]);
+    };
+
+    fetchConversation();
+  }, [user.user_id]);
 
   useEffect(() => {
     scrollToBottom();
@@ -73,21 +71,100 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim()) return;
+    if ((!newMessage.trim() && selectedFiles.length === 0) || !currentUser) return;
 
-    const message: Message = {
-      _id: Date.now().toString(),
-      content: newMessage.trim(),
-      sender_id: currentUser?.user_id || '',
+    setIsSending(true);
+    const tempMessage = newMessage.trim();
+    const filesToUpload = [...selectedFiles];
+
+    // Create optimistic message with proper image_urls
+    const optimisticMessage: MessageData = {
+      _id: `temp-${Date.now()}`,
+      content: tempMessage,
+      sender_id: currentUser.user_id,
       recipient_id: user.user_id,
       timestamp: new Date().toISOString(),
-      isRead: false
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      isRead: false,
+      image_urls: filesToUpload.map(file => URL.createObjectURL(file)) // Use blob URLs temporarily
     };
 
-    setMessages(prev => [...prev, message]);
+    // Show message immediately
+    setMessages(prev => [...prev, optimisticMessage]);
     setNewMessage('');
+    setSelectedFiles([]);
+
+    try {
+      let imageUrls: string[] = [];
+
+      // Upload files if any
+      if (filesToUpload.length > 0) {
+        const uploadedUrls = await uploadFiles(filesToUpload);
+        if (uploadedUrls) {
+          imageUrls = uploadedUrls;
+        }
+      }
+
+      // Send message with content and/or images
+      const response = await messageApi.sendMessage({
+        recipient_id: user.user_id,
+        content: tempMessage,
+        image_urls: imageUrls
+      });
+
+      if (response.success && response.data) {
+        // Clean up blob URLs
+        optimisticMessage.image_urls?.forEach(url => {
+          if (url.startsWith('blob:')) {
+            URL.revokeObjectURL(url);
+          }
+        });
+
+        // Replace optimistic message with real one
+        setMessages(prev =>
+          prev.map(msg =>
+            msg._id === optimisticMessage._id ? response.data : msg
+          )
+        );
+      } else {
+        // Remove optimistic message on failure
+        setMessages(prev => prev.filter(msg => msg._id !== optimisticMessage._id));
+        handleApiErrors(response);
+      }
+    } catch (error) {
+      // Clean up blob URLs and remove optimistic message on failure
+      optimisticMessage.image_urls?.forEach(url => {
+        if (url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
+      });
+      setMessages(prev => prev.filter(msg => msg._id !== optimisticMessage._id));
+      console.error('Failed to send message:', error);
+      toast.error('Failed to send message');
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const handleEmojiSelect = (emoji: string) => {
+    setNewMessage(prev => prev + emoji);
+  };
+
+  const handleFileSelect = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    setSelectedFiles(prev => [...prev, ...files]);
+    e.target.value = '';
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const formatTime = (timestamp: string) => {
@@ -101,10 +178,16 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
 
   if (isMinimized) {
     return (
-      <div className="fixed bottom-4 right-4 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
-        <div 
-          className="flex items-center justify-between p-3 border-b cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
-          onClick={onMinimize}
+      <div
+        className="w-64 bg-background border border-border rounded-lg shadow-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div
+          className="flex items-center justify-between p-3 border-b cursor-pointer hover:bg-muted"
+          onClick={(e) => {
+            e.stopPropagation();
+            onMinimize();
+          }}
         >
           <div className="flex items-center gap-2">
             <Avatar className="h-8 w-8">
@@ -112,13 +195,13 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
                 src={user.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`}
                 className="object-cover"
               />
-              <AvatarFallback className="text-xs">
+              <AvatarFallback className="text-xs bg-muted text-muted-foreground">
                 {user.first_name[0]}{user.last_name[0]}
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-sm font-medium">{user.first_name} {user.last_name}</p>
-              <p className="text-xs text-gray-500">{user.isOnline ? 'Online' : 'Offline'}</p>
+              <p className="text-sm font-medium text-foreground">{user.first_name} {user.last_name}</p>
+              {/* <p className="text-xs text-muted-foreground">{user.isOnline ? 'Online' : 'Offline'}</p> */}
             </div>
           </div>
           <Button
@@ -128,7 +211,7 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
               e.stopPropagation();
               onClose();
             }}
-            className="p-1 h-auto"
+            className="p-1 h-auto text-muted-foreground hover:text-foreground"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -138,9 +221,12 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
   }
 
   return (
-    <div className="fixed bottom-4 right-4 w-80 h-96 bg-black border border-gray-700 rounded-lg shadow-xl z-50 flex flex-col text-white">
+    <div
+      className="w-80 h-96 bg-background border border-border rounded-lg shadow-xl flex flex-col text-foreground"
+      onClick={(e) => e.stopPropagation()}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b border-gray-700 rounded-t-lg">
+      <div className="flex items-center justify-between p-3 border-b border-border rounded-tl-lg">
         <div className="flex items-center gap-2">
           <div className="relative">
             <Avatar className="h-8 w-8">
@@ -148,30 +234,24 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
                 src={user.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`}
                 className="object-cover"
               />
-              <AvatarFallback className="text-xs bg-gray-700 text-white">
+              <AvatarFallback className="text-xs bg-muted text-muted-foreground">
                 {user.first_name[0]}{user.last_name[0]}
               </AvatarFallback>
             </Avatar>
             {user.isOnline && (
-              <div className="absolute -bottom-1 -right-1 h-3 w-3 bg-green-500 border-2 border-black rounded-full" />
+              <div className="absolute -bottom-1 -right-1 h-3 w-3 bg-green-500 border-2 border-background rounded-full" />
             )}
           </div>
           <div>
-            <p className="text-sm font-medium text-white">{user.first_name} {user.last_name}</p>
-            <p className="text-xs text-gray-400">@{user.first_name.toLowerCase()}{user.last_name.toLowerCase()}</p>
+            <p className="text-sm font-medium text-foreground">{user.first_name} {user.last_name}</p>
+            <p className="text-xs text-muted-foreground">@{user.first_name.toLowerCase()}{user.last_name.toLowerCase()}</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" className="p-1 h-auto text-gray-400 hover:text-white">
-            <Phone className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="sm" className="p-1 h-auto text-gray-400 hover:text-white">
-            <Video className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={onMinimize} className="p-1 h-auto text-gray-400 hover:text-white">
+          <Button variant="ghost" size="sm" onClick={onMinimize} className="p-1 h-auto text-muted-foreground hover:text-foreground">
             <Minimize2 className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="sm" onClick={onClose} className="p-1 h-auto text-gray-400 hover:text-white">
+          <Button variant="ghost" size="sm" onClick={onClose} className="p-1 h-auto text-muted-foreground hover:text-foreground">
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -180,36 +260,59 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
         {messages.map((message) => {
-          const isOwn = message.sender_id === currentUser?.user_id;
+          const isOwn = message.sender_id.user_id === currentUser?.user_id || message.sender_id === currentUser.user_id;
           const url = findFirstUrl(message.content);
-          
+
           return (
             <div key={message._id} className="space-y-1">
-              <div
-                className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
-              >
-                {!isOwn && (
-                  <Avatar className="h-6 w-6 mr-2 mt-1">
-                    <AvatarImage
-                      src={user.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`}
-                      className="object-cover"
-                    />
-                    <AvatarFallback className="bg-gray-700 text-white text-xs">
-                      {user.first_name[0]}{user.last_name[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-                <div
-                  className={`max-w-[70%] px-3 py-2 rounded-2xl text-sm ${
-                    isOwn
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-800 text-gray-100'
-                  }`}
-                >
-                  <ChatMessageText text={message.content} isOwn={isOwn} />
+              {/* Message Content */}
+              {(message.content && message.content.trim()) && (!message.image_urls || message.image_urls.length === 0) && (
+                <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                  {!isOwn && (
+                    <Avatar className="h-6 w-6 mr-2 mt-1">
+                      <AvatarImage
+                        src={message.sender_id.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(message.sender_id.first_name || 'User')}`}
+                        className="object-cover"
+                      />
+                      <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                        {message.sender_id.first_name?.[0] || 'U'}{message.sender_id.last_name?.[0] || 'N'}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                  <div className={`max-w-[70%] px-3 py-2 rounded-2xl text-sm ${isOwn
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-foreground'
+                    }`}>
+                    <ChatMessageText text={message.content} isOwn={isOwn} />
+                  </div>
                 </div>
-              </div>
-              
+              )}
+
+              {/* Images */}
+              {message.image_urls && message.image_urls.length > 0 && (
+                <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                  {!isOwn && <div className="w-8" />}
+                  <div className="max-w-[70%] space-y-1">
+                    {message.image_urls.map((imageUrl, index) => (
+                      <img
+                        key={index}
+                        src={imageUrl}
+                        alt="Shared image"
+                        className="rounded-lg max-w-full h-auto"
+                      />
+                    ))}
+                    {message.content && message.content.trim() && (
+                      <div className={`px-3 py-2 rounded-2xl text-sm ${isOwn
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-foreground'
+                        }`}>
+                        <ChatMessageText text={message.content} isOwn={isOwn} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Link Preview */}
               {url && (
                 <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
@@ -219,16 +322,16 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
                   </div>
                 </div>
               )}
-              
+
               <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                <p className={`text-xs text-gray-500 ${!isOwn ? 'ml-8' : ''}`}>
+                <p className={`text-xs text-muted-foreground ${isOwn ? 'mr-2' : 'ml-8'}`}>
                   {formatTime(message.timestamp)}
                 </p>
               </div>
             </div>
           );
         })}
-        
+
         {isTyping && (
           <div className="flex justify-start">
             <Avatar className="h-6 w-6 mr-2">
@@ -236,15 +339,15 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
                 src={user.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`}
                 className="object-cover"
               />
-              <AvatarFallback className="bg-gray-700 text-white text-xs">
+              <AvatarFallback className="bg-muted text-muted-foreground text-xs">
                 {user.first_name[0]}{user.last_name[0]}
               </AvatarFallback>
             </Avatar>
-            <div className="bg-gray-800 p-2 rounded-2xl">
+            <div className="bg-muted p-2 rounded-2xl">
               <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
               </div>
             </div>
           </div>
@@ -253,26 +356,55 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
       </div>
 
       {/* Message Input */}
-      <div className="p-3 border-t border-gray-700">
+      <div className="p-3 border-t border-border">
+        {/* File Preview */}
+        {selectedFiles.length > 0 && (
+          <div className="mb-3">
+            <FilePreview files={selectedFiles} onRemoveFile={handleRemoveFile} />
+          </div>
+        )}
+
         <form onSubmit={handleSendMessage}>
-          <div className="flex items-center gap-2 bg-gray-900 rounded-full px-3 py-2">
-            <Button type="button" variant="ghost" size="sm" className="p-1 text-gray-400 hover:text-white">
-              <Paperclip className="h-3 w-3" />
+          <div className="flex items-center gap-2 bg-muted rounded-full px-3 py-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleFileSelect}
+              className="p-1 text-muted-foreground hover:text-foreground"
+            >
+              <Image className="h-3 w-3" />
             </Button>
-            <Button type="button" variant="ghost" size="sm" className="p-1 text-gray-400 hover:text-white">
-              <Smile className="h-3 w-3" />
-            </Button>
+            <div className="flex-shrink-0">
+              <EmojiPicker onEmojiSelect={handleEmojiSelect} />
+            </div>
             <Input
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Start a new message"
-              className="flex-1 bg-transparent border-0 text-white placeholder-gray-400 focus:ring-0 h-auto p-0 text-sm"
+              className="flex-1 bg-transparent border-0 text-foreground placeholder-muted-foreground focus:ring-0 h-auto p-0 text-sm"
             />
-            <Button type="submit" disabled={!newMessage.trim()} variant="ghost" size="sm" className="p-1 text-gray-400 hover:text-white">
+            <Button
+              type="submit"
+              disabled={(!newMessage.trim() && selectedFiles.length === 0) || isSending || isUploading}
+              variant="ghost"
+              size="sm"
+              className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-50"
+            >
               <Send className="h-3 w-3" />
             </Button>
           </div>
         </form>
+
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept="image/*,video/*,.pdf,.doc,.docx"
+          onChange={handleFileChange}
+          className="hidden"
+        />
       </div>
     </div>
   );

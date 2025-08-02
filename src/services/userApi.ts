@@ -40,50 +40,73 @@ export interface ChangePasswordResponse {
   message: string;
 }
 
+export interface GetUserByIdResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user_id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone_number: string;
+    profile_avatar: string;
+    role: string;
+    is_verified: boolean;
+    status: string;
+  };
+}
+
 class UserApiService {
   async getUserProfile(): Promise<UserProfileResponse> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/user-profile`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+    const response = await fetch(`${API_BASE_URL}/users/user-profile`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      return result;
-    } catch (error) {
-      console.error('Get user profile error:', error);
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const result = await response.json();
+    return result;
   }
 
   async changePassword(data: ChangePasswordRequest): Promise<ChangePasswordResponse> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/change-password`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+    const response = await fetch(`${API_BASE_URL}/users/change-password`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      return result;
-    } catch (error) {
-      console.error('Change password error:', error);
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const result = await response.json();
+    return result;
+  }
+
+  async getUserById(userId: string): Promise<GetUserByIdResponse> {
+    const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result;
   }
 }
 

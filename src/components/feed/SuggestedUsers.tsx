@@ -9,7 +9,7 @@ import { ArrowRight } from 'lucide-react';
 
 export const SuggestedUsers: React.FC = () => {
   const navigate = useNavigate();
-  const { data, isLoading, error } = useSuggestedUsers(5, 0); // Show only 5 on feed
+  const { data, isLoading, error } = useSuggestedUsers(7, 0); // Show only 7 on feed
 
   const handleUserClick = (userId: string) => {
     navigate(`/profile/${userId}`);

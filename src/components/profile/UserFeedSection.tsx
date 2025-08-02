@@ -116,7 +116,7 @@ export const UserFeedSection: React.FC<UserFeedSectionProps> = ({ userId, userNa
               <h3 className="font-semibold text-base text-card-foreground mb-2 group-hover:text-primary transition-colors">
                 {post.title}
               </h3>
-              
+
               {post.description && (
                 <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                   {post.description}
@@ -141,7 +141,7 @@ export const UserFeedSection: React.FC<UserFeedSectionProps> = ({ userId, userNa
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Star className="h-3 w-3" />
-                  <span>{post.total_score} stars</span>
+                  <span>{post.total_score} scores</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <MessageSquare className="h-3 w-3" />

@@ -16,6 +16,8 @@ import { VideoPlayer } from "@/components/ui/VideoPlayer"
 import { LinkupButton } from "./LinkupButton"
 import { LinkupCount } from "./LinkupCount"
 import { ChatMessageText } from "@/components/chat/ChatMessageText"
+import { MessageButton } from "@/components/messaging/MessageButton"
+import { useLinkup } from "@/hooks/useLinkup"
 
 interface FeedPost {
   _id: string
@@ -91,6 +93,9 @@ export const FeedCard: React.FC<FeedCardProps> = ({
   const [commentsLoaded, setCommentsLoaded] = React.useState(false)
   const [currentUser, setCurrentUser] = React.useState<any>(null)
   const [optimisticComments, setOptimisticComments] = React.useState<any[]>([])
+
+  // Get linkup status for the post user
+  const { status: linkupStatus } = useLinkup(post.user_id)
 
   // Combine all media (images and videos) for carousel
   const allMedia = React.useMemo(() => {
@@ -284,9 +289,25 @@ export const FeedCard: React.FC<FeedCardProps> = ({
                       {post.user.responder_info.rank_status.rank_name}
                     </span>
                   )}
-                </div>
-                <LinkupButton userId={post.user_id} />
-              </div>
+                 </div>
+                 <div className="flex items-center gap-2">
+                    {/* Don't show message button if it's the current user's post - hide on mobile */}
+                    {currentUser && currentUser.user_id !== post.user_id && (
+                      <div className="hidden lg:block">
+                        <MessageButton 
+                          user={{
+                            user_id: post.user_id,
+                            first_name: post.user.first_name,
+                            last_name: post.user.last_name,
+                            profile_avatar: post.user.profile_avatar
+                          }}
+                          className="scale-75"
+                        />
+                      </div>
+                    )}
+                   <LinkupButton userId={post.user_id} />
+                 </div>
+               </div>
 
               <div className="flex items-center space-x-1.5 text-gray-500 dark:text-gray-400" style={{ fontSize: '12px' }}>
                 {post.user.is_vetted && post.user.responder_info && (
@@ -312,13 +333,14 @@ export const FeedCard: React.FC<FeedCardProps> = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 z-50">
-                {!isOwner && (
+                {/* Only show message option if users are mutually linked */}
+                {!isOwner && linkupStatus.isMutual && (
                   <DropdownMenuItem
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`/chat/user/${post.user_id}`);
+                      navigate(`/messages?userId=${post.user_id}`);
                     }}
-                    className=""
+                    className="text-foreground hover:bg-accent hover:text-accent-foreground"
                   >
                     <Send className="h-4 w-4 mr-2" />
                     Message

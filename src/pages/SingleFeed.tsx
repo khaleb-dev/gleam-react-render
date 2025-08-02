@@ -12,6 +12,7 @@ import { CommentModal } from "@/components/feed/CommentModal"
 import { ShareModal } from "@/components/feed/ShareModal"
 import { useFeed } from "@/hooks/useFeed"
 import { useAuth } from "@/hooks/useAuth"
+import { useLinkup } from "@/hooks/useLinkup"
 import { LinkupButton } from "@/components/feed/LinkupButton"
 import { LinkupCount } from "@/components/feed/LinkupCount"
 
@@ -32,6 +33,9 @@ export const SingleFeed: React.FC = () => {
   // Always call all hooks in the same order
   const { data: postResponse, isLoading: isLoadingPost, error: postError } = getPost(postId || '')
   const post = postResponse?.data
+
+  // Check mutual linkup status
+  const { status: linkupStatus } = useLinkup(post?.user_id || '')
 
   // Always call this hook, but conditionally enable it
   const { data: suggestedPosts = [], isLoading: isLoadingSuggested } = getSuggestedPostsByUser(
@@ -116,6 +120,18 @@ export const SingleFeed: React.FC = () => {
   const handleOptimisticUpdate = (scoreChange: number, peopleChange: number) => {
     setCurrentScore(prev => prev + scoreChange)
     setCurrentPeopleCount(prev => prev + peopleChange)
+  }
+
+  const handleMessageUser = () => {
+    // Navigate to messages with all necessary user information
+    const queryParams = new URLSearchParams({
+      userId: post.user_id || "",
+      firstName: post.user.first_name || "",
+      lastName: post.user.last_name || "",
+      profileAvatar: post.user.profile_avatar || "",
+    })
+
+    navigate(`/messages?${queryParams.toString()}`)
   }
 
   return (
@@ -321,15 +337,18 @@ export const SingleFeed: React.FC = () => {
                     {!isOwner && (
                       <div className="flex items-center gap-2 mb-3 h-9">
                         <>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => navigate(`/chat/user/${post.user_id}`)}
-                            className="flex items-center gap-1 bg-white hover:none border-gray-300 h-9"
-                          >
-                            <Send className="h-4 w-4 mr-2" />
-                            <span className="text-xs">Message</span>
-                          </Button>
+                          {/* Only show message button if mutually linked */}
+                          {linkupStatus.isMutual && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleMessageUser}
+                              className="flex items-center gap-1 bg-background hover:bg-accent border-border text-foreground h-9"
+                            >
+                              <Send className="h-4 w-4 mr-2" />
+                              <span className="text-xs">Message</span>
+                            </Button>
+                          )}
                           <LinkupButton userId={post.user_id} />
                         </>
                       </div>

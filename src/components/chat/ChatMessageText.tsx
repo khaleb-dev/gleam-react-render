@@ -1,4 +1,6 @@
+
 import React from "react";
+import { LinkPreview } from "./LinkPreview";
 
 // Simple regex to match all URLs (can be improved further for edge cases)
 const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/gi;
@@ -23,6 +25,7 @@ export const ChatMessageText: React.FC<ChatMessageTextProps> = ({
 
   // Split text into parts: plain text and links
   const parts = [];
+  const urls = [];
   let lastIdx = 0;
   let match;
 
@@ -35,18 +38,18 @@ export const ChatMessageText: React.FC<ChatMessageTextProps> = ({
     }
     // Push link
     const url = match[0];
+    urls.push(url);
     parts.push(
       <a
         key={match.index}
         href={normalizeUrl(url)}
         target="_blank"
         rel="noopener noreferrer"
-        // Use dark color for white bubbles, white for own messages (colored bubbles)
-        className={
-          isOwn
-            ? "text-white underline break-all transition-colors"
-            : "text-primary underline break-all transition-colors hover:text-primary/80"
-        }
+        className={`underline break-all transition-colors ${
+          isOwn 
+            ? "text-white hover:text-white/80" 
+            : "text-white hover:text-white/80"
+        }`}
       >
         {url}
       </a>
@@ -58,5 +61,15 @@ export const ChatMessageText: React.FC<ChatMessageTextProps> = ({
     parts.push(text.slice(lastIdx));
   }
 
-  return <span>{parts.length ? parts : text}</span>;
+  return (
+    <div>
+      <span>{parts.length ? parts : text}</span>
+      {/* Show link preview for the first URL found */}
+      {urls.length > 0 && (
+        <div className="mt-2">
+          <LinkPreview url={urls[0]} compact />
+        </div>
+      )}
+    </div>
+  );
 };

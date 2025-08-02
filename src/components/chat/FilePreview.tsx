@@ -26,19 +26,19 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ files, onRemoveFile })
         return (
           <div
             key={file.name + i}
-            className="relative rounded-lg border flex items-center gap-2 px-2 py-1 bg-white min-w-[60px] max-w-[180px]"
-            style={{ minHeight: 44 }}
+            className="relative rounded-lg border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 w-16 h-16 flex items-center justify-center"
           >
             {isImg ? (
               <img
                 src={URL.createObjectURL(file)}
                 alt={file.name}
-                className="h-10 w-10 rounded object-cover"
+                className="w-14 h-14 rounded object-cover"
               />
             ) : (
-              getIcon(file)
+              <div className="w-14 h-14 flex items-center justify-center">
+                {getIcon(file)}
+              </div>
             )}
-            <span className="text-xs truncate flex-1" title={file.name}>{file.name}</span>
             <button
               type="button"
               className="absolute -top-2 -right-2 rounded-full bg-red-500 text-white p-0.5 shadow hover:bg-red-600 z-10"

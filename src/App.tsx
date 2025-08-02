@@ -3,6 +3,7 @@
 import type React from "react"
 import { Routes, Route, Navigate } from "react-router-dom"
 import { Toaster } from "@/components/ui/sonner"
+import { MessagePopupContainer } from "@/components/messaging/MessagePopupContainer"
 import Landing from "./pages/Landing"
 import Login from "./pages/Login"
 import Register from "./pages/Register"
@@ -32,7 +33,6 @@ import { SingleFeed } from "./pages/SingleFeed"
 import { useAuthGuard } from "@/hooks/useAuthGuard"
 import SuggestedUsers from "./pages/SuggestedUsers"
 import Messages from "./pages/Messages"
-import UserProfile from "./pages/UserProfile"
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -320,21 +320,10 @@ function App() {
             </ProtectedRoute>
           }
         />
-
-        <Route
-          path="/user/:userId"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <UserProfile />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
         {/* Catch-all */}
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <MessagePopupContainer />
       <Toaster />
     </div>
   )

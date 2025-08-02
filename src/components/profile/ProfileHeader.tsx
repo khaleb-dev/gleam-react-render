@@ -1,19 +1,29 @@
+
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Download, Edit3 } from 'lucide-react';
+import { Download, Edit3, Send } from 'lucide-react';
 import { User } from '@/types';
 import { ProfileCardGenerator } from './ProfileCardGenerator';
-import { LinkupButton } from '@/components/feed/LinkupButton';
 import { LinkupCount } from '@/components/feed/LinkupCount';
+import { LinkupButton } from '@/components/feed/LinkupButton';
+import { useLinkup } from '@/hooks/useLinkup';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 interface ProfileHeaderProps {
   user: User | null;
   onEditClick: () => void;
+  isOwnProfile?: boolean;
 }
 
-export const ProfileHeader = ({ user, onEditClick }: ProfileHeaderProps) => {
+export const ProfileHeader = ({ user, onEditClick, isOwnProfile = false }: ProfileHeaderProps) => {
   const [isGeneratingCard, setIsGeneratingCard] = useState(false);
+  const { loggedInUser } = useAuth();
+  const navigate = useNavigate();
+  
+  // Check mutual linkup status
+  const { status: linkupStatus } = useLinkup(user?._id || user?.user_id || '');
 
   if (!user) {
     return (
@@ -82,28 +92,30 @@ export const ProfileHeader = ({ user, onEditClick }: ProfileHeaderProps) => {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
         
-        {/* Action Buttons - Better mobile positioning */}
-        <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex flex-col sm:flex-row gap-1 sm:gap-2">
-          <Button
-            onClick={handleDownloadProfileCard}
-            disabled={isGeneratingCard}
-            size="sm"
-            className="bg-white/90 hover:bg-white text-gray-800 text-xs shadow-md backdrop-blur-sm h-7 px-2 sm:h-9 sm:px-3"
-          >
-            <Download size={12} className="sm:mr-1" />
-            <span className="hidden sm:inline ml-1">
-              {isGeneratingCard ? 'Generating...' : 'Download Profile Card'}
-            </span>
-          </Button>
-          <Button
-            onClick={onEditClick}
-            size="sm"
-            className="bg-primary/90 hover:bg-primary text-white text-xs shadow-md backdrop-blur-sm h-7 px-2 sm:h-9 sm:px-3"
-          >
-            <Edit3 size={12} className="sm:mr-1" />
-            <span className="hidden sm:inline ml-1">Edit Profile</span>
-          </Button>
-        </div>
+        {/* Action Buttons - Only show for own profile */}
+        {isOwnProfile && (
+          <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex flex-col sm:flex-row gap-1 sm:gap-2">
+            <Button
+              onClick={handleDownloadProfileCard}
+              disabled={isGeneratingCard}
+              size="sm"
+              className="bg-white/90 hover:bg-white text-gray-800 text-xs shadow-md backdrop-blur-sm h-7 px-2 sm:h-9 sm:px-3"
+            >
+              <Download size={12} className="sm:mr-1" />
+              <span className="hidden sm:inline ml-1">
+                {isGeneratingCard ? 'Generating...' : 'Download Profile Card'}
+              </span>
+            </Button>
+            <Button
+              onClick={onEditClick}
+              size="sm"
+              className="bg-primary/90 hover:bg-primary text-white text-xs shadow-md backdrop-blur-sm h-7 px-2 sm:h-9 sm:px-3"
+            >
+              <Edit3 size={12} className="sm:mr-1" />
+              <span className="hidden sm:inline ml-1">Edit Profile</span>
+            </Button>
+          </div>
+        )}
       </div>
       
       {/* Profile Section with mobile-specific padding */}
@@ -125,7 +137,7 @@ export const ProfileHeader = ({ user, onEditClick }: ProfileHeaderProps) => {
           </Avatar>
         </div>
 
-        {/* User Info without background for name */}
+        {/* User Info */}
         <div className="space-y-2 sm:space-y-3">
           {/* Name and linkup section */}
           <div className="flex items-center justify-between">
@@ -135,8 +147,26 @@ export const ProfileHeader = ({ user, onEditClick }: ProfileHeaderProps) => {
               </h1>
               <LinkupCount userId={user._id || user.user_id} className="mt-1" />
             </div>
-            <LinkupButton userId={user._id || user.user_id} />
           </div>
+
+          {/* Action buttons for other users' profiles */}
+          {!isOwnProfile && (
+            <div className="flex items-center gap-2 mb-3 h-9">
+              {/* Only show message button if mutually linked */}
+              {linkupStatus.isMutual && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate(`/messages?userId=${user._id || user.user_id}`)}
+                  className="flex items-center gap-1 bg-background hover:bg-accent border-border text-foreground h-9"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  <span className="text-xs">Message</span>
+                </Button>
+              )}
+              <LinkupButton userId={user._id || user.user_id} />
+            </div>
+          )}
           
           {/* Contact Info */}
           <div className="space-y-1">

@@ -64,8 +64,8 @@ const Feed = () => {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const { getFeedPosts, createPost, likePost, unlikePost, commentOnPost, deleteComment, deletePost } = useFeed()
 
-  // Fetch feed posts from API
-  const { data: feedData, isLoading: feedLoading, error: feedError } = getFeedPosts(1, 10)
+  // Fetch feed posts from API with increased limit
+  const { data: feedData, isLoading: feedLoading, error: feedError } = getFeedPosts(1, 50)
 
   React.useEffect(() => {
     let isMounted = true

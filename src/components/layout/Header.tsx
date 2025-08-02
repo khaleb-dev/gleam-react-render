@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useNavigate } from "react-router-dom"
@@ -16,9 +17,9 @@ import { useEffect, useState } from "react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/hooks/useAuth"
-import { UserIcon } from "lucide-react"
+import { UserIcon, MessageCircle } from "lucide-react"
 import { useNotifications } from "@/hooks/useNotifications"
-import { ThemeToggleButton } from "@/components/ui/theme-toggle"
+import { useMessageUnread } from "@/hooks/useMessageUnread"
 import type { User as UserType } from "@/types"
 
 export const Header = () => {
@@ -26,6 +27,7 @@ export const Header = () => {
   const { isLoading: userLoading, loggedInUser, logout } = useAuth()
   const [user, setUser] = useState<UserType>(null)
   const { unreadCount } = useNotifications()
+  const { unreadCount: messageUnreadCount } = useMessageUnread()
 
   useEffect(() => {
     let isMounted = true
@@ -98,8 +100,27 @@ export const Header = () => {
         </div>
 
         <div className="flex items-center space-x-4">
-          {/* Theme Toggle */}
-          <ThemeToggleButton />
+          {/* Messages Icon */}
+          {!userLoading && user && (
+            <div className="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/messages")}
+                className="relative hover:bg-gray-100"
+              >
+                <MessageCircle className="h-5 w-5" />
+                {messageUnreadCount > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                  >
+                    {messageUnreadCount > 9 ? "9+" : messageUnreadCount}
+                  </Badge>
+                )}
+              </Button>
+            </div>
+          )}
           
           {/* Notifications Icon */}
           {!userLoading && user && (
@@ -239,6 +260,21 @@ export const Header = () => {
                       <>
                         <button
                           className="text-gray-600 hover:text-primary text-left py-2 text-sm flex items-center gap-2"
+                          onClick={() => navigate("/messages")}
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                          Messages
+                          {messageUnreadCount > 0 && (
+                            <Badge
+                              variant="destructive"
+                              className="h-4 w-4 flex items-center justify-center p-0 text-xs"
+                            >
+                              {messageUnreadCount > 9 ? "9+" : messageUnreadCount}
+                            </Badge>
+                          )}
+                        </button>
+                        <button
+                          className="text-gray-600 hover:text-primary text-left py-2 text-sm flex items-center gap-2"
                           onClick={() => navigate("/notifications")}
                         >
                           <Bell className="h-4 w-4" />
@@ -264,6 +300,7 @@ export const Header = () => {
                         >
                           💰 Wallet
                         </button>
+                        
                         <button
                           className="text-red-600 hover:text-red-700 text-left py-2 text-sm"
                           onClick={handleLogout}

@@ -34,6 +34,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { LinkupCount } from "@/components/feed/LinkupCount"
 import { LinkupButton } from "@/components/feed/LinkupButton"
+import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { useAuth } from "@/hooks/useAuth"
 import { useFeed } from "@/hooks/useFeed"
 import { ExperienceModal } from "@/components/profile/ExperienceModal"
@@ -48,6 +49,9 @@ import { API_BASE_URL } from "@/config/env"
 import { useSingleFileUpload } from "@/hooks/useSingleFileUpload"
 import { useNotifications } from "@/hooks/useNotifications"
 import { UserFeedSection } from "@/components/profile/UserFeedSection"
+import { useProfileStats } from "@/hooks/useProfileStats"
+import { useProfileView } from "@/hooks/useProfileView"
+import { useLinkup } from "@/hooks/useLinkup"
 
 const Profile = () => {
   const navigate = useNavigate()
@@ -67,9 +71,20 @@ const Profile = () => {
   const { getSuggestedPostsByUser } = useFeed()
   const { uploadFile, isUploading: isUploadingFile } = useSingleFileUpload()
   const { activities } = useNotifications()
+  const { viewProfile } = useProfileView()
 
   // Check if viewing own profile or other user's profile
-  const isOwnProfile = !userId
+  const isOwnProfile = !userId || userId === currentUser?.user_id
+  const targetUserId = isOwnProfile ? currentUser?.user_id : userId
+
+  // Fetch profile stats only for own profile
+  const { data: profileStats } = useProfileStats(
+    targetUserId,
+    isOwnProfile && !!targetUserId
+  )
+
+  // Check mutual linkup status
+  const { status: linkupStatus } = useLinkup(targetUserId || '')
 
   // Fetch user posts
   const { data: userPosts = [], isLoading: isLoadingPosts } = getSuggestedPostsByUser(
@@ -100,6 +115,11 @@ const Profile = () => {
           if (data.success && data.data) {
             setUser(data.data)
             setEditedUser(data.data)
+
+            // Record profile view only if viewing another user's profile
+            if (currentUserData?.user_id !== userId) {
+              viewProfile(userId)
+            }
           }
         } else {
           // Viewing own profile
@@ -123,7 +143,7 @@ const Profile = () => {
     }
 
     fetchUserData()
-  }, [userId])
+  }, [userId, viewProfile])
 
   const handleProfileUpdate = (newUserData: any) => {
     setUser(newUserData)
@@ -161,8 +181,15 @@ const Profile = () => {
   }
 
   const handleMessageUser = () => {
-    // Navigate to chat with this user
-    navigate(`/chat?userId=${userId}`)
+    // Navigate to messages with all necessary user information
+    const queryParams = new URLSearchParams({
+      userId: userId || "",
+      firstName: user.first_name || "",
+      lastName: user.last_name || "",
+      profileAvatar: user.profile_avatar || "",
+    })
+
+    navigate(`/messages?${queryParams.toString()}`)
   }
 
   const handleSaveProfile = async () => {
@@ -360,8 +387,8 @@ const Profile = () => {
                 : displayUser.cover_avatar
                   ? `url(${displayUser.cover_avatar})`
                   : `url(https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(
-                      displayUser.last_name || displayUser.first_name || "cover",
-                    )}&backgroundColor=2563eb,7c3aed,dc2626,ea580c,16a34a)`,
+                    displayUser.last_name || displayUser.first_name || "cover",
+                  )}&backgroundColor=2563eb,7c3aed,dc2626,ea580c,16a34a)`,
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}
@@ -402,7 +429,7 @@ const Profile = () => {
                         selectedProfileImage
                           ? URL.createObjectURL(selectedProfileImage)
                           : displayUser.profile_avatar ||
-                            `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(displayUser.first_name || "User")}`
+                          `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(displayUser.first_name || "User")}`
                       }
                       alt={`${displayUser.first_name} ${displayUser.last_name}`}
                       className="object-cover"
@@ -462,8 +489,8 @@ const Profile = () => {
                     <div className="flex items-center gap-1">
                       <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
                       {displayUser.responder_id?.country &&
-                      displayUser.responder_id?.state &&
-                      displayUser.responder_id?.city
+                        displayUser.responder_id?.state &&
+                        displayUser.responder_id?.city
                         ? `${displayUser.responder_id.city}, ${displayUser.responder_id.state}, ${displayUser.responder_id.country}`
                         : "Location not set"}
                     </div>
@@ -533,6 +560,7 @@ const Profile = () => {
                         <span className="sm:hidden">Edit</span>
                       </Button>
                     ) : (
+                      linkupStatus.isMutual &&
                       <Button
                         onClick={handleMessageUser}
                         size="sm"
@@ -590,6 +618,16 @@ const Profile = () => {
                   )}
                 </div>
 
+                {/* Theme Toggle - Only show on own profile */}
+                {isOwnProfile && (
+                  <div className="pt-3 border-t border-border">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs sm:text-sm text-muted-foreground">Dark Mode</span>
+                      <ThemeToggle />
+                    </div>
+                  </div>
+                )}
+
                 {/* Responder Console Link - Only show on own profile */}
                 {isOwnProfile && (
                   <div className="mt-3 pt-3 border-t border-border">
@@ -616,10 +654,15 @@ const Profile = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <div className="flex justify-between text-xs sm:text-sm">
-                    <span className="text-muted-foreground">Profile views</span>
-                    <span className="font-medium text-foreground">0</span>
-                  </div>
+                  {/* Only show profile views to profile owner */}
+                  {isOwnProfile && (
+                    <div className="flex justify-between text-xs sm:text-sm">
+                      <span className="text-muted-foreground">Profile views</span>
+                      <span className="font-medium text-foreground">
+                        {profileStats?.data?.totalProfileViews ?? 0}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-xs sm:text-sm">
                     <span className="text-muted-foreground">Profile completeness</span>
                     <span className="font-medium text-foreground">
@@ -629,7 +672,7 @@ const Profile = () => {
                           (displayUser.education?.length > 0 ? 1 : 0) +
                           (displayUser.achievements?.length > 0 ? 1 : 0)) /
                           4) *
-                          100,
+                        100,
                       )}
                       %
                     </span>
@@ -641,7 +684,7 @@ const Profile = () => {
                         (displayUser.education?.length > 0 ? 1 : 0) +
                         (displayUser.achievements?.length > 0 ? 1 : 0)) /
                         4) *
-                        100,
+                      100,
                     )}
                     className="h-2"
                   />
@@ -699,6 +742,12 @@ const Profile = () => {
                 </CardContent>
               </Card>
             )}
+
+
+            <UserFeedSection
+              userId={user?.user_id || user?._id || ""}
+              userName={`${user?.first_name || ""} ${user?.last_name || ""}`}
+            />
 
             <Card className="shadow-sm border-0">
               <CardContent className="p-4 sm:p-6">
@@ -812,11 +861,6 @@ const Profile = () => {
               </CardContent>
             </Card>
 
-            <UserFeedSection
-              userId={user?.user_id || user?._id || ""}
-              userName={`${user?.first_name || ""} ${user?.last_name || ""}`}
-            />
-
             <Card className="shadow-sm border-0">
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-6">
@@ -888,11 +932,9 @@ const Profile = () => {
                 )}
                 <div className="flex justify-between text-xs sm:text-sm">
                   <span className="text-muted-foreground">Posts created</span>
-                  <span className="font-medium text-foreground">{userPosts.length}</span>
-                </div>
-                <div className="flex justify-between text-xs sm:text-sm">
-                  <span className="text-muted-foreground">Profile views</span>
-                  <span className="font-medium text-foreground">0</span>
+                  <span className="font-medium text-foreground">
+                    {profileStats?.data?.totalPosts ?? userPosts.length}
+                  </span>
                 </div>
                 <LinkupCount userId={displayUser.user_id} className="flex justify-between text-xs sm:text-sm" />
               </CardContent>
