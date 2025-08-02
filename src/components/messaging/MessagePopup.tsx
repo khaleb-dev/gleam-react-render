@@ -14,6 +14,7 @@ import { handleApiErrors } from '@/utils/apiResponse';
 import { EmojiPicker } from '@/components/chat/EmojiPicker';
 import { FilePreview } from '@/components/chat/FilePreview';
 import { useFileUpload } from '@/hooks/useFileUpload';
+import { isSingleEmoji } from '@/utils/emojiUtils';
 
 interface MessagePopupProps {
   user: {
@@ -262,6 +263,7 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
         {messages.map((message) => {
           const isOwn = message.sender_id.user_id === currentUser?.user_id || message.sender_id === currentUser.user_id;
           const url = findFirstUrl(message.content);
+          const isEmojiOnly = isSingleEmoji(message.content);
 
           return (
             <div key={message._id} className="space-y-1">
@@ -279,11 +281,15 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
                       </AvatarFallback>
                     </Avatar>
                   )}
-                  <div className={`max-w-[70%] px-3 py-2 rounded-2xl text-sm ${isOwn
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-foreground'
-                    }`}>
-                    <ChatMessageText text={message.content} isOwn={isOwn} />
+                   <div className={`${isEmojiOnly ? 'bg-transparent px-0 py-0' : `max-w-[70%] px-3 py-2 rounded-2xl ${isOwn
+                     ? 'bg-primary text-primary-foreground'
+                     : 'bg-muted text-foreground'
+                     }`} ${isEmojiOnly ? 'text-2xl' : 'text-sm'}`}>
+                     {isEmojiOnly ? (
+                       <span className="text-2xl">{message.content}</span>
+                     ) : (
+                       <ChatMessageText text={message.content} isOwn={isOwn} />
+                     )}
                   </div>
                 </div>
               )}

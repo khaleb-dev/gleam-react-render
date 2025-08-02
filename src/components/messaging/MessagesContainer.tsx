@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { MessageActions } from './MessageActions';
 import { ReplyContext } from './ReplyContext';
 import { RepliedMessage } from './RepliedMessage';
+import { isSingleEmoji } from '@/utils/emojiUtils';
 
 interface MessagesContainerProps {
   selectedUser: any;
@@ -345,6 +346,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
           const isOwn = message.sender_id.user_id === user?.user_id || message.sender_id === user?.user_id;
           const url = findFirstUrl(message.content);
           const repliedMessage = getRepliedMessage(message.reply_to);
+          const isEmojiOnly = isSingleEmoji(message.content);
 
           // Check if this message matches the search and is the current highlight
           const isCurrentHighlight = searchTerm &&
@@ -394,17 +396,21 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                       </AvatarFallback>
                     </Avatar>
                   )}
-                  <div className="relative flex items-center gap-2">
-                    <div className={`max-w-xs px-4 py-2 rounded-2xl text-sm ${isOwn
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-foreground'
-                      }`}>
-                      {searchTerm ? (
-                        <HighlightedText text={message.content} searchTerm={searchTerm} />
-                      ) : (
-                        <ChatMessageText text={message.content} isOwn={isOwn} />
-                      )}
-                    </div>
+                   <div className="relative flex items-center gap-2">
+                     <div className={`${isEmojiOnly ? 'bg-transparent px-0 py-0' : `max-w-xs px-4 py-2 rounded-2xl ${isOwn
+                       ? 'bg-primary text-primary-foreground'
+                       : 'bg-muted text-foreground'
+                       }`} ${isEmojiOnly ? 'text-4xl' : 'text-sm'}`}>
+                       {searchTerm ? (
+                         <HighlightedText text={message.content} searchTerm={searchTerm} />
+                       ) : (
+                         isEmojiOnly ? (
+                           <span className="text-4xl">{message.content}</span>
+                         ) : (
+                           <ChatMessageText text={message.content} isOwn={isOwn} />
+                         )
+                       )}
+                     </div>
                     <MessageActions
                       isOwn={isOwn}
                       onReply={() => handleReply(message)}
