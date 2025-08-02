@@ -110,6 +110,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
     if (!searchTerm) {
       setTotalMatches(0);
       setCurrentHighlight(0);
+      highlightRefs.current = [];
       return;
     }
 
@@ -119,11 +120,16 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
 
     setTotalMatches(matchingMessages.length);
     setCurrentHighlight(matchingMessages.length > 0 ? 1 : 0);
+    
+    // Reset highlight refs array
+    highlightRefs.current = new Array(matchingMessages.length).fill(null);
 
-    // Scroll to first match
-    if (matchingMessages.length > 0 && highlightRefs.current[0]) {
-      highlightRefs.current[0]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    // Scroll to first match after a short delay to ensure refs are set
+    setTimeout(() => {
+      if (matchingMessages.length > 0 && highlightRefs.current[0]) {
+        highlightRefs.current[0]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
   }, [searchTerm, messages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -290,10 +296,6 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
     }
   };
 
-  // Reset highlight refs when messages or search term changes
-  useEffect(() => {
-    highlightRefs.current = [];
-  }, [messages, searchTerm]);
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
@@ -348,29 +350,27 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
           const repliedMessage = getRepliedMessage(message.reply_to);
           const isEmojiOnly = isSingleEmoji(message.content);
 
-          // Check if this message matches the search and is the current highlight
-          const isCurrentHighlight = searchTerm &&
+          // Check if this message matches the search
+          const matchesSearch = searchTerm && 
             message.content?.toLowerCase().includes(searchTerm.toLowerCase());
 
-          // Track this message if it matches search
-          let highlightIndex = -1;
-          if (isCurrentHighlight) {
-            const matchingMessages = messages.slice(0, messageIndex + 1).filter(msg =>
+          // Get the index of this message among all matching messages
+          let matchIndex = -1;
+          if (matchesSearch) {
+            const allMatchingMessages = messages.filter(msg =>
               msg.content?.toLowerCase().includes(searchTerm.toLowerCase())
             );
-            highlightIndex = matchingMessages.length - 1;
+            matchIndex = allMatchingMessages.findIndex(msg => msg._id === message._id);
           }
+
+          // Check if this is the currently highlighted match
+          const isCurrentMatch = matchesSearch && matchIndex === currentHighlight - 1;
 
           return (
             <div
               key={message._id}
-              ref={isCurrentHighlight && highlightIndex === currentHighlight - 1 ?
-                (el) => { highlightRefs.current[highlightIndex] = el; } :
-                undefined
-              }
-              className={`group space-y-2 ${isCurrentHighlight && highlightIndex === currentHighlight - 1 ?
-                'rounded-lg p-2' : ''
-                }`}
+              ref={isCurrentMatch ? (el) => { highlightRefs.current[matchIndex] = el; } : undefined}
+              className={`group space-y-2 ${isCurrentMatch ? 'bg-yellow-100 dark:bg-yellow-900/20 rounded-lg p-2' : ''}`}
             >
               {/* Replied Message Context */}
               {repliedMessage && (
