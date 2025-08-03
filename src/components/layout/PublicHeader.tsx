@@ -183,8 +183,8 @@ export const PublicHeader = () => {
                       >
                         <span className="mr-2">📋</span>
                         <div>
-                          <div className="font-medium">Delegate Tasks</div>
-                          <div className="text-xs text-gray-500">Post tasks and get expert help</div>
+                          <div className="font-medium">Register</div>
+                          <div className="text-xs text-gray-500">Post update to the community</div>
                         </div>
                       </DropdownMenuItem>
                       <DropdownMenuItem

@@ -38,18 +38,17 @@ export const RepliedMessage: React.FC<RepliedMessageProps> = ({
           </div>
           <div className="w-px h-4 bg-primary/20 mt-1"></div>
         </div>
-        
+
         {/* Replied message content */}
-        <div className={`flex-1 rounded-xl p-3 border ${
-          isOwn 
-            ? 'bg-primary/5 border-primary/20' 
-            : 'bg-muted/50 border-border'
-        }`}>
+        <div className={`flex-1 rounded-xl p-3 border ${isOwn
+          ? 'bg-primary/5 border-primary/20'
+          : 'bg-muted/50 border-border'
+          }`}>
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-1 h-1 bg-primary rounded-full"></div>
-            <p className="text-xs text-primary font-medium">
+            {/* <div className="w-1 h-1 bg-primary rounded-full"></div> */}
+            {/* <p className="text-xs text-primary font-medium">
               {getSenderName(repliedMessage.sender_id)}
-            </p>
+            </p> */}
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
             {getMessageContent(repliedMessage)}

@@ -106,9 +106,21 @@ export default function Messages() {
         isOnline: false,
       };
       setSelectedUser(newUser);
-      if (isMobile) {
-        setShowSidebar(false);
-      }
+      // Always hide sidebar on mobile when user is selected
+      setShowSidebar(false);
+    } else if (userId) {
+      // If we have userId but no user details, create a placeholder user
+      // This ensures the chat interface opens even without existing conversation
+      const placeholderUser = {
+        user_id: userId,
+        first_name: 'User',
+        last_name: '',
+        profile_avatar: undefined,
+        isOnline: false,
+      };
+      setSelectedUser(placeholderUser);
+      // Always hide sidebar on mobile when user is selected
+      setShowSidebar(false);
     }
 
     // Clear the query params after selecting
@@ -319,7 +331,7 @@ export default function Messages() {
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <h2 
+                    <h2
                       className="font-semibold text-foreground cursor-pointer hover:underline"
                       onClick={() => navigate(`/profile/${selectedUser.user_id}`)}
                     >
@@ -349,7 +361,7 @@ export default function Messages() {
                 user={user}
                 isTyping={false}
                 formatTime={formatTime}
-                searchTerm={showMessageSearch ? messageSearchTerm : ''}
+                searchTerm={showMessageSearch && messageSearchTerm ? messageSearchTerm : ''}
                 showMessageSearch={showMessageSearch}
                 messageSearchTerm={messageSearchTerm}
                 setMessageSearchTerm={setMessageSearchTerm}

@@ -557,12 +557,14 @@ export const FeedCard: React.FC<FeedCardProps> = ({
                             {new Date(comment.created_at).toLocaleDateString()}
                           </p>
                         </div>
-                        <button
-                          onClick={() => onDeleteComment?.(comment._id)}
-                          className="text-gray-400 hover:text-red-500 transition-colors"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </button>
+                        {currentUser && comment.user_id._id === currentUser.user_id && (
+                          <button
+                            onClick={() => onDeleteComment?.(comment._id)}
+                            className="text-gray-400 hover:text-red-500 transition-colors"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                        )}
                       </div>
                       <p className="text-gray-600 dark:text-gray-300" style={{ fontSize: '12px' }}>{comment.content}</p>
                     </div>

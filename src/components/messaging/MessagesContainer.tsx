@@ -15,6 +15,8 @@ import { MessageActions } from './MessageActions';
 import { ReplyContext } from './ReplyContext';
 import { RepliedMessage } from './RepliedMessage';
 import { isSingleEmoji } from '@/utils/emojiUtils';
+import { ImagePreviewModal } from '@/components/chat/ImagePreviewModal';
+import { VideoPlayer } from '@/components/ui/VideoPlayer';
 
 interface MessagesContainerProps {
   selectedUser: any;
@@ -71,6 +73,9 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
   const [currentHighlight, setCurrentHighlight] = useState(0);
   const [totalMatches, setTotalMatches] = useState(0);
   const [replyToMessage, setReplyToMessage] = useState<MessageData | null>(null);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const { uploadFiles, isUploading } = useFileUpload();
 
   const scrollToBottom = () => {
@@ -141,6 +146,10 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
     const filesToUpload = [...selectedFiles];
     const replyTo = replyToMessage?._id;
 
+      // Separate files by type
+    const imageFiles = filesToUpload.filter(file => file.type.startsWith('image/'));
+    const videoFiles = filesToUpload.filter(file => file.type.startsWith('video/'));
+
     // Create optimistic message - ensure it's marked as user's message
     const optimisticMessage: MessageData = {
       _id: `temp-${Date.now()}`,
@@ -151,7 +160,8 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       isRead: false,
-      image_urls: filesToUpload.map(file => URL.createObjectURL(file)),
+      image_urls: imageFiles.map(file => URL.createObjectURL(file)),
+      video_urls: videoFiles.map(file => URL.createObjectURL(file)),
       reply_to: replyTo || undefined
     };
 
@@ -163,24 +173,33 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
 
     try {
       let imageUrls: string[] = [];
+      let videoUrls: string[] = [];
 
       if (filesToUpload.length > 0) {
         const uploadedUrls = await uploadFiles(filesToUpload);
         if (uploadedUrls) {
-          imageUrls = uploadedUrls;
+          // Separate uploaded URLs by original file type
+          imageUrls = uploadedUrls.slice(0, imageFiles.length);
+          videoUrls = uploadedUrls.slice(imageFiles.length);
         }
       }
 
       const response = await messageApi.sendMessage({
         recipient_id: selectedUser.user_id,
         content: tempMessage,
-        image_urls: imageUrls,
+        image_urls: imageUrls.length > 0 ? imageUrls : undefined,
+        video_urls: videoUrls.length > 0 ? videoUrls : undefined,
         reply_to: replyTo
       });
 
       if (response.success && response.data) {
         // Clean up blob URLs
         optimisticMessage.image_urls?.forEach(url => {
+          if (url.startsWith('blob:')) {
+            URL.revokeObjectURL(url);
+          }
+        });
+        optimisticMessage.video_urls?.forEach(url => {
           if (url.startsWith('blob:')) {
             URL.revokeObjectURL(url);
           }
@@ -205,6 +224,11 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
     } catch (error) {
       // Clean up and remove optimistic message
       optimisticMessage.image_urls?.forEach(url => {
+        if (url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
+      });
+      optimisticMessage.video_urls?.forEach(url => {
         if (url.startsWith('blob:')) {
           URL.revokeObjectURL(url);
         }
@@ -265,6 +289,12 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
 
   const handleFileSelect = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleImageClick = (images: string[], index: number) => {
+    setSelectedImages(images);
+    setSelectedImageIndex(index);
+    setShowImageModal(true);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -369,7 +399,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
           return (
             <div
               key={message._id}
-              ref={isCurrentMatch ? (el) => { highlightRefs.current[matchIndex] = el; } : undefined}
+              ref={matchesSearch ? (el) => { highlightRefs.current[matchIndex] = el; } : undefined}
               className={`group space-y-2 ${isCurrentMatch ? 'bg-yellow-100 dark:bg-yellow-900/20 rounded-lg p-2' : ''}`}
             >
               {/* Replied Message Context */}
@@ -432,7 +462,44 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                           key={index}
                           src={imageUrl}
                           alt="Shared image"
-                          className="rounded-lg max-w-full h-auto"
+                          className="rounded-lg max-w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => handleImageClick(message.image_urls!, index)}
+                        />
+                      ))}
+                      {message.content && message.content.trim() && (
+                        <div className={`px-4 py-2 rounded-2xl text-sm ${isOwn
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted text-foreground'
+                          }`}>
+                          {searchTerm ? (
+                            <HighlightedText text={message.content} searchTerm={searchTerm} />
+                          ) : (
+                            <ChatMessageText text={message.content} isOwn={isOwn} />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <MessageActions
+                      isOwn={isOwn}
+                      onReply={() => handleReply(message)}
+                      onDelete={isOwn ? () => handleDeleteMessage(message._id) : undefined}
+                      className={isOwn ? 'order-first' : ''}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Videos */}
+              {message.video_urls && message.video_urls.length > 0 && (
+                <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                  {!isOwn && <div className="w-11" />}
+                  <div className="relative flex items-center gap-2">
+                    <div className="max-w-xs space-y-2">
+                      {message.video_urls.map((videoUrl, index) => (
+                        <VideoPlayer
+                          key={index}
+                          src={videoUrl}
+                          className="rounded-lg max-w-full"
                         />
                       ))}
                       {message.content && message.content.trim() && (
@@ -525,6 +592,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
               size="sm"
               onClick={handleFileSelect}
               className="p-1 text-muted-foreground hover:text-foreground"
+              title="Attach image or video"
             >
               <Image className="h-4 w-4" />
             </Button>
@@ -559,6 +627,15 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
           className="hidden"
         />
       </div>
+
+      {/* Image Preview Modal */}
+      {showImageModal && (
+        <ImagePreviewModal
+          images={selectedImages}
+          startIndex={selectedImageIndex}
+          onClose={() => setShowImageModal(false)}
+        />
+      )}
     </div>
   );
 };

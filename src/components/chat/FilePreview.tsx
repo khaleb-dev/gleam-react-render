@@ -1,10 +1,13 @@
 import React from "react";
-import { X, FileText, ImageIcon } from "lucide-react";
+import { X, FileText, ImageIcon, Video } from "lucide-react";
 
 const getIcon = (file: File) => {
   const ext = file.name.split(".").pop()?.toLowerCase() || "";
   if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) {
     return <ImageIcon className="w-5 h-5 text-blue-500" />;
+  }
+  if (["mp4", "webm", "mov", "avi"].includes(ext)) {
+    return <Video className="w-5 h-5 text-purple-500" />;
   }
   if (["pdf"].includes(ext)) {
     return <FileText className="w-5 h-5 text-red-600" />;
@@ -23,6 +26,7 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ files, onRemoveFile })
       {files.map((file, i) => {
         const ext = file.name.split(".").pop()?.toLowerCase();
         const isImg = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext || "");
+        const isVideo = ["mp4", "webm", "mov", "avi"].includes(ext || "");
         return (
           <div
             key={file.name + i}
@@ -33,6 +37,12 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ files, onRemoveFile })
                 src={URL.createObjectURL(file)}
                 alt={file.name}
                 className="w-14 h-14 rounded object-cover"
+              />
+            ) : isVideo ? (
+              <video
+                src={URL.createObjectURL(file)}
+                className="w-14 h-14 rounded object-cover"
+                muted
               />
             ) : (
               <div className="w-14 h-14 flex items-center justify-center">

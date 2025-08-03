@@ -47,7 +47,7 @@ export const NotificationsList = ({ notifications, onMarkAllAsRead, onReadNotifi
     return filterNotifications(notifications, type).length
   }
 
-  console.log('notification')
+  
   return (
     <div className="w-full bg-background">
       {/* Mobile Activity Dropdown */}
