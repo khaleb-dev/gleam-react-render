@@ -494,20 +494,14 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                 <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
                   {!isOwn && <div className="w-11" />}
                   <div className="relative flex items-center gap-2">
-                     <div className="max-w-sm space-y-2">
-                       {message.video_urls.map((videoUrl, index) => (
-                         <div key={index} className="aspect-video h-full">
-                           <VideoPlayer
-                             src={videoUrl}
-                             className="rounded-lg w-full h-full"
-                             autoPlay={false}
-                             enableScrollAutoPlay={false}
-                             enablePictureInPicture={false}
-                             showMinimalControls={true}
-                             enableClickToPlay={true}
-                           />
-                         </div>
-                       ))}
+                    <div className="max-w-xs space-y-2">
+                      {message.video_urls.map((videoUrl, index) => (
+                        <VideoPlayer
+                          key={index}
+                          src={videoUrl}
+                          className="rounded-lg max-w-full"
+                        />
+                      ))}
                       {message.content && message.content.trim() && (
                         <div className={`px-4 py-2 rounded-2xl text-sm ${isOwn
                           ? 'bg-primary text-primary-foreground'
