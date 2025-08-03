@@ -13,6 +13,8 @@ interface VideoPlayerProps {
   enableScrollAutoPlay?: boolean
   enablePictureInPicture?: boolean
   autoPlayWithSound?: boolean
+  showMinimalControls?: boolean
+  enableClickToPlay?: boolean
 }
 
 export const VideoPlayer: React.FC<VideoPlayerProps> = ({
@@ -22,7 +24,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   muted = false,
   enableScrollAutoPlay = true,
   enablePictureInPicture = true,
-  autoPlayWithSound = false
+  autoPlayWithSound = false,
+  showMinimalControls = false,
+  enableClickToPlay = false
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -221,10 +225,10 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       <video
         ref={videoRef}
         src={src}
-        className="w-full h-full object-contain bg-black"
+        className={`w-full h-full object-contain bg-black ${showMinimalControls ? 'rounded-lg' : ''}`}
         autoPlay={false} // Let the hook handle auto-play
         muted={autoPlayWithSound ? false : true}
-        onClick={togglePlay}
+        onClick={enableClickToPlay ? togglePlay : undefined}
         playsInline
         preload="metadata"
       />
@@ -236,7 +240,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         }`}
       >
         {/* Play Button Overlay */}
-        {!isPlaying && !isLoading && (
+        {!isPlaying && !isLoading && (enableClickToPlay || !showMinimalControls) && (
           <div className="absolute inset-0 flex items-center justify-center">
             <Button
               size="lg"
@@ -279,21 +283,94 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         )}
         
         {/* Bottom Controls */}
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          {/* Progress Bar */}
-          <div className="mb-3">
-            <Slider
-              value={[currentTime]}
-              max={duration || 100}
-              step={1}
-              onValueChange={handleSeek}
-              className="w-full [&>:first-child]:h-1 [&_[role=slider]]:h-3 [&_[role=slider]]:w-3 [&_[role=slider]]:border-white [&_.bg-primary]:bg-white [&_.bg-secondary]:bg-white/30"
-            />
+        {!showMinimalControls && (
+          <div className="absolute bottom-0 left-0 right-0 p-4">
+            {/* Progress Bar */}
+            <div className="mb-3">
+              <Slider
+                value={[currentTime]}
+                max={duration || 100}
+                step={1}
+                onValueChange={handleSeek}
+                className="w-full [&>:first-child]:h-1 [&_[role=slider]]:h-3 [&_[role=slider]]:w-3 [&_[role=slider]]:border-white [&_.bg-primary]:bg-white [&_.bg-secondary]:bg-white/30"
+              />
+            </div>
+            
+            {/* Control Buttons */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-white hover:bg-white/20 hover:bg-primary/10"
+                  onClick={togglePlay}
+                >
+                  {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                </Button>
+                
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-white hover:bg-white/20 hover:bg-primary/10"
+                  onClick={skipBackward}
+                >
+                  <SkipBack className="h-4 w-4" />
+                </Button>
+                
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-white hover:bg-white/20 hover:bg-primary/10"
+                  onClick={skipForward}
+                >
+                  <SkipForward className="h-4 w-4" />
+                </Button>
+                
+                <div className="flex items-center space-x-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-white hover:bg-white/20 hover:bg-primary/10"
+                    onClick={toggleMute}
+                  >
+                    {isMuted || volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                  </Button>
+                  
+                  <div className="w-20">
+                    <Slider
+                      value={[isMuted ? 0 : volume]}
+                      max={1}
+                      step={0.1}
+                      onValueChange={handleVolumeChange}
+                      className="[&>:first-child]:h-1 [&_[role=slider]]:h-3 [&_[role=slider]]:w-3 [&_[role=slider]]:border-white [&_.bg-primary]:bg-white [&_.bg-secondary]:bg-white/30"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-white text-sm">
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </div>
+            </div>
           </div>
-          
-          {/* Control Buttons */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+        )}
+
+        {/* Minimal Controls - Just progress bar and play button */}
+        {showMinimalControls && (
+          <div className="absolute bottom-0 left-0 right-0 p-2">
+            {/* Progress Bar */}
+            <div className="mb-2">
+              <Slider
+                value={[currentTime]}
+                max={duration || 100}
+                step={1}
+                onValueChange={handleSeek}
+                className="w-full [&>:first-child]:h-1 [&_[role=slider]]:h-3 [&_[role=slider]]:w-3 [&_[role=slider]]:border-white [&_.bg-primary]:bg-white [&_.bg-secondary]:bg-white/30"
+              />
+            </div>
+            
+            {/* Just play/pause button */}
+            <div className="flex items-center justify-center">
               <Button
                 size="sm"
                 variant="ghost"
@@ -302,52 +379,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               >
                 {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
               </Button>
-              
-              <Button
-                size="sm"
-                variant="ghost"
-                className="text-white hover:bg-white/20 hover:bg-primary/10"
-                onClick={skipBackward}
-              >
-                <SkipBack className="h-4 w-4" />
-              </Button>
-              
-              <Button
-                size="sm"
-                variant="ghost"
-                className="text-white hover:bg-white/20 hover:bg-primary/10"
-                onClick={skipForward}
-              >
-                <SkipForward className="h-4 w-4" />
-              </Button>
-              
-              <div className="flex items-center space-x-2">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="text-white hover:bg-white/20 hover:bg-primary/10"
-                  onClick={toggleMute}
-                >
-                  {isMuted || volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                </Button>
-                
-                <div className="w-20">
-                  <Slider
-                    value={[isMuted ? 0 : volume]}
-                    max={1}
-                    step={0.1}
-                    onValueChange={handleVolumeChange}
-                    className="[&>:first-child]:h-1 [&_[role=slider]]:h-3 [&_[role=slider]]:w-3 [&_[role=slider]]:border-white [&_.bg-primary]:bg-white [&_.bg-secondary]:bg-white/30"
-                  />
-                </div>
-              </div>
-            </div>
-            
-            <div className="text-white text-sm">
-              {formatTime(currentTime)} / {formatTime(duration)}
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

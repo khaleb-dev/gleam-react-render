@@ -500,6 +500,11 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                           key={index}
                           src={videoUrl}
                           className="rounded-lg max-w-full"
+                          autoPlay={false}
+                          enableScrollAutoPlay={false}
+                          enablePictureInPicture={false}
+                          showMinimalControls={true}
+                          enableClickToPlay={true}
                         />
                       ))}
                       {message.content && message.content.trim() && (
