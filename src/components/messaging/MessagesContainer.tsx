@@ -496,7 +496,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                   <div className="relative flex items-center gap-2">
                      <div className="max-w-xs space-y-2">
                        {message.video_urls.map((videoUrl, index) => (
-                         <div key={index} className="aspect-video max-h-48">
+                         <div key={index} className="aspect-video h-full">
                            <VideoPlayer
                              src={videoUrl}
                              className="rounded-lg w-full h-full"
