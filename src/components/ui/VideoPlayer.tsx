@@ -139,6 +139,11 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     } else {
       // Set this video as the current playing video
       setCurrentVideo(video)
+      // Ensure video is unmuted when playing manually
+      if (video.muted && !autoPlayWithSound) {
+        video.muted = false
+        setIsMuted(false)
+      }
       video.play().catch((error) => {
         console.error('Error playing video:', error)
         setHasNetworkError(true)
@@ -214,6 +219,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   return (
     <div 
       className={`relative group ${className}`}
+      onClick={enableClickToPlay ? togglePlay : undefined}
       onMouseMove={showControlsTemporarily}
       onMouseLeave={() => {
         if (controlsTimeoutRef.current) {
@@ -225,10 +231,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       <video
         ref={videoRef}
         src={src}
-        className={`w-full h-full object-contain bg-black ${showMinimalControls ? 'rounded-lg' : ''}`}
+        className={`w-full h-full object-cover bg-black ${showMinimalControls ? 'rounded-lg' : ''}`}
         autoPlay={false} // Let the hook handle auto-play
         muted={autoPlayWithSound ? false : true}
-        onClick={enableClickToPlay ? togglePlay : undefined}
         playsInline
         preload="metadata"
       />
