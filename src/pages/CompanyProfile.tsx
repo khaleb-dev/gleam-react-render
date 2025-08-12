@@ -210,8 +210,8 @@ const CompanyProfile = () => {
               </Button>
             </div>
             
-            {/* Company Logo - Positioned lower and more to the right */}
-            <div className="absolute bottom-[-12px] left-8">
+            {/* Company Logo - Positioned below the cover area */}
+            <div className="absolute bottom-[-48px] left-8">
               <div className="w-24 h-24 rounded-lg border-4 border-white shadow-lg overflow-hidden bg-card">
                 {companyData.logo ? (
                   <img 
@@ -229,7 +229,7 @@ const CompanyProfile = () => {
           </div>
 
           {/* Company Info in Header - Moved right */}
-          <CardContent className="pt-6 pb-4 px-8 ml-24">
+          <CardContent className="pt-12 pb-4 px-8 ml-24">
             <div className="flex justify-between items-start">
               <div>
                 <h1 className="text-3xl font-bold mb-1">{companyData.name}</h1>
