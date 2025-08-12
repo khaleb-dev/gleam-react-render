@@ -160,7 +160,7 @@ const CompanyProfile = () => {
     {
       _id: "user1",
       first_name: "John",
-      last_name: "Doe", 
+      last_name: "Doe",
       email: "john.doe@example.com",
       profile_avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=center"
     },
@@ -168,7 +168,7 @@ const CompanyProfile = () => {
       _id: "user2",
       first_name: "Jane",
       last_name: "Smith",
-      email: "jane.smith@example.com", 
+      email: "jane.smith@example.com",
       profile_avatar: "https://images.unsplash.com/photo-1494790108755-2616b332c9ad?w=100&h=100&fit=crop&crop=center"
     },
     {
@@ -180,7 +180,7 @@ const CompanyProfile = () => {
     }
   ];
 
-  const filteredUsers = mockUsers.filter(user => 
+  const filteredUsers = mockUsers.filter(user =>
     user.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     user.last_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     user.email.toLowerCase().includes(searchQuery.toLowerCase())
@@ -342,7 +342,7 @@ const CompanyProfile = () => {
                 {isEditing ? (
                   <Input
                     value={editedData.name}
-                    onChange={(e) => setEditedData({...editedData, name: e.target.value})}
+                    onChange={(e) => setEditedData({ ...editedData, name: e.target.value })}
                     className="text-3xl font-bold mb-1 border border-border/50 shadow-none bg-transparent p-2 h-auto rounded-md"
                   />
                 ) : (
@@ -352,7 +352,7 @@ const CompanyProfile = () => {
                 {isEditing ? (
                   <Input
                     value={editedData.tag_line}
-                    onChange={(e) => setEditedData({...editedData, tag_line: e.target.value})}
+                    onChange={(e) => setEditedData({ ...editedData, tag_line: e.target.value })}
                     className="mb-3 border border-border/50 shadow-none bg-transparent p-2 h-auto rounded-md"
                   />
                 ) : (
@@ -365,7 +365,7 @@ const CompanyProfile = () => {
                     {isEditing ? (
                       <Input
                         value={editedData.website}
-                        onChange={(e) => setEditedData({...editedData, website: e.target.value})}
+                        onChange={(e) => setEditedData({ ...editedData, website: e.target.value })}
                         className="text-primary border border-border/50 shadow-none bg-transparent p-1 h-auto rounded-md"
                       />
                     ) : (
@@ -388,8 +388,8 @@ const CompanyProfile = () => {
               </div>
 
               <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="rounded-full px-6 border-primary text-primary bg-white hover:bg-primary hover:text-white"
                 >
                   <MessageCircle className="w-4 h-4 mr-2" />
@@ -399,18 +399,18 @@ const CompanyProfile = () => {
                   <Plus className="w-4 h-4 mr-2" />
                   Follow
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={isEditing ? handleSaveChanges : handleEditToggle}
                   className="rounded-full"
                 >
                   {isEditing ? <Save className="w-4 h-4" /> : <Settings className="w-4 h-4" />}
                 </Button>
                 {isEditing && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={handleEditToggle}
                     className="rounded-full"
                   >
@@ -432,21 +432,6 @@ const CompanyProfile = () => {
             {/* About Section */}
             <Card>
               <CardContent className="space-y-4 pt-6">
-                <h3 className="font-semibold text-lg">About {companyData.name}</h3>
-                
-                {isEditing ? (
-                  <Textarea
-                    value={editedData.description}
-                    onChange={(e) => setEditedData({...editedData, description: e.target.value})}
-                    placeholder="Company description"
-                    className="text-sm border border-border/50 bg-transparent rounded-md resize-none min-h-[120px]"
-                    rows={5}
-                  />
-                ) : (
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    We are a leading software company dedicated to delivering innovative solutions that help businesses streamline their operations and achieve their goals. Our team of experienced developers and designers work tirelessly to create cutting-edge applications that meet the evolving needs of our clients in today's digital landscape.
-                  </p>
-                )}
 
                 <div className="space-y-2 pt-2">
                   <div className="flex items-center gap-2">
@@ -454,7 +439,7 @@ const CompanyProfile = () => {
                     {isEditing ? (
                       <Input
                         value={editedData.industry}
-                        onChange={(e) => setEditedData({...editedData, industry: e.target.value})}
+                        onChange={(e) => setEditedData({ ...editedData, industry: e.target.value })}
                         placeholder="Industry type"
                         className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
                       />
@@ -467,7 +452,7 @@ const CompanyProfile = () => {
                     {isEditing ? (
                       <Input
                         value={editedData.size}
-                        onChange={(e) => setEditedData({...editedData, size: e.target.value})}
+                        onChange={(e) => setEditedData({ ...editedData, size: e.target.value })}
                         placeholder="Company size"
                         className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
                       />
@@ -484,9 +469,9 @@ const CompanyProfile = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">Products</CardTitle>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => navigate('/create-product')}
                     className="h-8 w-8 p-0"
                   >
@@ -531,9 +516,9 @@ const CompanyProfile = () => {
                   <CardTitle className="text-lg">Members</CardTitle>
                   <Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
                     <DialogTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="h-8 w-8 p-0"
                       >
                         <Plus className="w-4 h-4" />
@@ -553,16 +538,15 @@ const CompanyProfile = () => {
                             className="pl-10"
                           />
                         </div>
-                        
+
                         <div className="max-h-60 overflow-y-auto space-y-2">
                           {filteredUsers.map((user) => {
                             const isSelected = selectedUsers.some(u => u._id === user._id);
                             return (
                               <div
                                 key={user._id}
-                                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                                  isSelected ? 'bg-primary/10 border-primary' : 'hover:bg-muted/50'
-                                }`}
+                                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${isSelected ? 'bg-primary/10 border-primary' : 'hover:bg-muted/50'
+                                  }`}
                                 onClick={() => toggleUserSelection(user)}
                               >
                                 <Avatar className="w-10 h-10">
@@ -588,7 +572,7 @@ const CompanyProfile = () => {
                             );
                           })}
                         </div>
-                        
+
                         {selectedUsers.length > 0 && (
                           <div className="flex items-center justify-between pt-4 border-t">
                             <span className="text-sm text-muted-foreground">
