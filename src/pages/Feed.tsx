@@ -2,17 +2,22 @@
 import React, { useState } from "react"
 import { FeedCard } from "@/components/feed/FeedCard"
 import { CreatePostCard } from "@/components/feed/CreatePostCard"
+import { ChallengeCard } from "@/components/feed/ChallengeCard"
 import { WeeklyTopResponders } from "@/components/feed/WeeklyTopResponders"
 import { TrendingCategories } from "@/components/feed/TrendingCategories"
 import { SuggestedUsers } from "@/components/feed/SuggestedUsers"
 import { MobileSuggestedUsers } from "@/components/feed/MobileSuggestedUsers"
+import { TopWeeklyChallengers } from "@/components/feed/TopWeeklyChallengers"
 import { FeedActionButton } from "@/components/feed/FeedActionButton"
 import { useAuth } from "@/hooks/useAuth"
 import { useFeed } from "@/hooks/useFeed"
+import { useDebounce } from "@/hooks/useDebounce"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, TrendingUp } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { useSearchParams } from "react-router-dom"
 import type { User } from "@/types"
+import { ProfileStatsCard } from "@/components/profile/ProfileStatsCard"
 
 interface FeedPost {
   _id: string
@@ -64,8 +69,30 @@ const Feed = () => {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const { getFeedPosts, createPost, likePost, unlikePost, commentOnPost, deleteComment, deletePost } = useFeed()
 
-  // Fetch feed posts from API with increased limit
-  const { data: feedData, isLoading: feedLoading, error: feedError } = getFeedPosts(1, 50)
+  // Get hashtag from URL params
+  const [searchParams] = useSearchParams()
+  const hashtagFromUrl = searchParams.get('hashtag')
+
+  // Debounce search query to avoid too many requests
+  const debouncedSearchQuery = useDebounce(searchQuery, 500)
+
+  // Build filters object with debounced search
+  const filters = React.useMemo(() => {
+    const filterObj: { hashtag?: string; search?: string } = {}
+
+    if (hashtagFromUrl) {
+      filterObj.hashtag = hashtagFromUrl
+    }
+
+    if (debouncedSearchQuery.trim()) {
+      filterObj.search = debouncedSearchQuery.trim()
+    }
+
+    return Object.keys(filterObj).length > 0 ? filterObj : undefined
+  }, [hashtagFromUrl, debouncedSearchQuery])
+
+  // Fetch feed posts from API with filters
+  const { data: feedData, isLoading: feedLoading, error: feedError } = getFeedPosts(1, 50, filters)
 
   React.useEffect(() => {
     let isMounted = true
@@ -109,21 +136,54 @@ const Feed = () => {
     }
   }
 
-  // Use API data and filter only active posts
-  const postsToShow = (feedData?.posts || []).filter((post: any) => post.is_active !== false)
+  // Use API data and filter only active posts with proper null checks
+  const postsToShow = React.useMemo(() => {
+    if (!feedData?.posts || !Array.isArray(feedData.posts)) {
+      return []
+    }
+    return feedData.posts.filter((post: any) => {
+      // Ensure post exists and has required properties
+      return post && post._id && post.is_active !== false
+    })
+  }, [feedData])
 
-  const filteredPosts = postsToShow.filter(
-    (post: any) =>
-      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase())),
-  )
+  // Since we're now doing server-side filtering, we don't need client-side filtering for search
+  // but we still filter by tab categories
+  const filteredPosts = React.useMemo(() => {
+    return postsToShow.filter((post: any) => {
+      if (!post) return false
+
+      // Filter by active tab
+      if (activeTab === "design") {
+        const tags = Array.isArray(post.tags) ? post.tags : []
+        return tags.some(tag => typeof tag === 'string' && tag.toLowerCase().includes('project'))
+      } else if (activeTab === "development") {
+        const tags = Array.isArray(post.tags) ? post.tags : []
+        return tags.some(tag => typeof tag === 'string' && tag.toLowerCase().includes('job'))
+      }
+
+      return true // For "all" and "trending" tabs, show all posts
+    })
+  }, [postsToShow, activeTab])
+
+  // Sort for trending tab
+  const sortedPosts = React.useMemo(() => {
+    if (activeTab === "trending") {
+      return [...filteredPosts].sort((a, b) => (b.total_score || 0) - (a.total_score || 0))
+    }
+    return filteredPosts
+  }, [filteredPosts, activeTab])
 
   const handlePostCreate = async (postData: any) => {
-    await createPost(postData)
+    try {
+      await createPost(postData)
+    } catch (error) {
+      console.error("Error creating post:", error)
+    }
   }
 
   const handleLike = async (postId: string) => {
+    if (!postId) return
     try {
       await likePost(postId)
     } catch (error) {
@@ -132,6 +192,7 @@ const Feed = () => {
   }
 
   const handleUnlike = async (postId: string) => {
+    if (!postId) return
     try {
       await unlikePost(postId)
     } catch (error) {
@@ -140,6 +201,7 @@ const Feed = () => {
   }
 
   const handleComment = async (postId: string, content: string) => {
+    if (!postId || !content) return
     try {
       await commentOnPost({ postId, payload: { content } })
     } catch (error) {
@@ -148,6 +210,7 @@ const Feed = () => {
   }
 
   const handleDeleteComment = async (commentId: string) => {
+    if (!commentId) return
     try {
       await deleteComment(commentId)
     } catch (error) {
@@ -156,6 +219,7 @@ const Feed = () => {
   }
 
   const handleDeletePost = async (postId: string) => {
+    if (!postId) return
     try {
       await deletePost(postId)
     } catch (error) {
@@ -199,40 +263,26 @@ const Feed = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       {/* Add top padding to account for fixed header */}
-      <div className="pt-0 p-0">
+      <div className="pt-4 p-0">
         <main className="flex-grow">
-          {/* Hero Section - No padding on mobile */}
-          <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-            <div className="w-full px-0 sm:px-4 py-4">
-              <div className="text-center">
-                <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  Explore the community update
-                </h1>
-                <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-300 mb-4 px-4 sm:px-0">
-                  Share your progress, projects, and ideas — and discover what others in the Beembyte community are building.
-                </p>
-                {/* Search Bar */}
-                <div className="max-w-xl mx-auto relative px-4 sm:px-0">
-                  <Search className="absolute left-7 sm:left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
-                  <Input
-                    type="text"
-                    placeholder="Search feed title or content...."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-8 pr-4 py-1.5 text-xs w-full"
-                  />
-                </div>
+          {/* Main Content - Three Column Layout on Large Screens */}
+          <div className="w-full lg:max-w-8xl lg:mx-auto lg:flex lg:gap-6 lg:px-4 lg:items-start">
+
+            {/* Left Sidebar - Profile Stats and Top Responders (Only show on large screens) */}
+            <div className="hidden lg:block lg:w-75 lg:flex-shrink-0 lg:pt-4">
+              <div className="space-y-4">
+                <ProfileStatsCard />
+                <ChallengeCard />
+                <WeeklyTopResponders />
               </div>
             </div>
-          </div>
 
-          {/* Main Content - Two Column Layout on Large Screens */}
-          <div className="w-full lg:max-w-6xl lg:mx-auto lg:flex lg:gap-6 lg:px-4 lg:justify-center">
-            {/* Main Feed - Instagram Width on Large Screens */}
-            <div className="w-full lg:max-w-[510px] lg:flex-shrink-0 lg:mx-auto lg:mr-6">
+            {/* Main Feed - Fixed width for large screens */}
+            <div className="w-full lg:w-[510px] lg:flex-shrink-0 lg:pt-4">
+
               {/* Create Post Card - only show if logged in */}
               {user && (
-                <div className="w-full px-4 lg:px-0 py-3">
+                <div className="w-full px-4 lg:px-0 py-0">
                   <CreatePostCard user={user} onPostCreate={handlePostCreate} />
                 </div>
               )}
@@ -260,19 +310,20 @@ const Feed = () => {
                     </TabsTrigger>
                   </TabsList>
 
+                  {/* Tab content sections */}
                   <TabsContent value="all" className="mt-3 space-y-0">
-                    {filteredPosts.length === 0 ? (
+                    {sortedPosts.length === 0 ? (
                       <div className="p-12 text-center">
                         <div className="text-gray-400 text-6xl mb-4">📝</div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No posts found</h3>
                         <p className="text-gray-600 dark:text-gray-400">
-                          {searchQuery
-                            ? "Try adjusting your search"
+                          {searchQuery || hashtagFromUrl
+                            ? "Try adjusting your search or hashtag filter"
                             : "Be the first to share something with the community!"}
                         </p>
                       </div>
                     ) : (
-                      filteredPosts.map((post: FeedPost) => (
+                      sortedPosts.map((post: FeedPost) => (
                         <FeedCard
                           key={post._id}
                           post={post}
@@ -288,70 +339,66 @@ const Feed = () => {
                   </TabsContent>
 
                   <TabsContent value="design" className="mt-3 space-y-0">
-                    {filteredPosts
-                      .filter((post) => post.tags.some(tag => tag.toLowerCase().includes('project')))
-                      .map((post: FeedPost) => (
-                        <FeedCard
-                          key={post._id}
-                          post={post}
-                          onLike={() => handleLike(post._id)}
-                          onUnlike={() => handleUnlike(post._id)}
-                          onComment={(content) => handleComment(post._id, content)}
-                          onDeleteComment={handleDeleteComment}
-                          onDeletePost={handleDeletePost}
-                          initialLiked={post.has_scored}
-                        />
-                      ))}
+                    {sortedPosts.map((post: FeedPost) => (
+                      <FeedCard
+                        key={post._id}
+                        post={post}
+                        onLike={() => handleLike(post._id)}
+                        onUnlike={() => handleUnlike(post._id)}
+                        onComment={(content) => handleComment(post._id, content)}
+                        onDeleteComment={handleDeleteComment}
+                        onDeletePost={handleDeletePost}
+                        initialLiked={post.has_scored}
+                      />
+                    ))}
                   </TabsContent>
 
                   <TabsContent value="development" className="mt-3 space-y-0">
-                    {filteredPosts
-                      .filter((post) => post.tags.some(tag => tag.toLowerCase().includes('job')))
-                      .map((post: FeedPost) => (
-                        <FeedCard
-                          key={post._id}
-                          post={post}
-                          onLike={() => handleLike(post._id)}
-                          onUnlike={() => handleUnlike(post._id)}
-                          onComment={(content) => handleComment(post._id, content)}
-                          onDeleteComment={handleDeleteComment}
-                          onDeletePost={handleDeletePost}
-                          initialLiked={post.has_scored}
-                        />
-                      ))}
+                    {sortedPosts.map((post: FeedPost) => (
+                      <FeedCard
+                        key={post._id}
+                        post={post}
+                        onLike={() => handleLike(post._id)}
+                        onUnlike={() => handleUnlike(post._id)}
+                        onComment={(content) => handleComment(post._id, content)}
+                        onDeleteComment={handleDeleteComment}
+                        onDeletePost={handleDeletePost}
+                        initialLiked={post.has_scored}
+                      />
+                    ))}
                   </TabsContent>
 
                   <TabsContent value="trending" className="mt-3 space-y-0">
-                    {filteredPosts
-                      .sort((a, b) => b.total_score - a.total_score)
-                      .map((post: FeedPost) => (
-                        <FeedCard
-                          key={post._id}
-                          post={post}
-                          onLike={() => handleLike(post._id)}
-                          onUnlike={() => handleUnlike(post._id)}
-                          onComment={(content) => handleComment(post._id, content)}
-                          onDeleteComment={handleDeleteComment}
-                          onDeletePost={handleDeletePost}
-                          initialLiked={post.has_scored}
-                        />
-                      ))}
+                    {sortedPosts.map((post: FeedPost) => (
+                      <FeedCard
+                        key={post._id}
+                        post={post}
+                        onLike={() => handleLike(post._id)}
+                        onUnlike={() => handleUnlike(post._id)}
+                        onComment={(content) => handleComment(post._id, content)}
+                        onDeleteComment={handleDeleteComment}
+                        onDeletePost={handleDeletePost}
+                        initialLiked={post.has_scored}
+                      />
+                    ))}
                   </TabsContent>
                 </Tabs>
               </div>
             </div>
 
-            {/* Sidebar - Only show on large screens */}
-            <div className="hidden lg:block lg:w-80 lg:flex-shrink-0 lg:pt-3 lg:ml-0">
+            {/* Right Sidebar - Only show on large screens with proper sticky positioning */}
+            <div className="hidden lg:block lg:w-80 lg:flex-shrink-0 lg:pt-4">
               <div className="space-y-4">
-                {/* Suggested Users Section */}
                 <SuggestedUsers />
-                {/* Top Responders Section */}
-                <WeeklyTopResponders />
-                {/* Categories Section */}
-                <TrendingCategories />
+                <TopWeeklyChallengers />
+
+                {/* Make only this card sticky */}
+                <div className="sticky top-20">
+                  <TrendingCategories />
+                </div>
               </div>
             </div>
+
           </div>
         </main>
       </div>

@@ -17,6 +17,20 @@ export interface KeyNote {
   text: string;
 }
 
+// Add Challenge interface
+export interface Challenge {
+  _id: string;
+  challenge_title: string;
+  description: string;
+  hashtag: string;
+  banner: string;
+  status: string;
+  number_of_participants: number;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
 export interface SubmissionDetails {
   description: string;
   link?: string;
@@ -101,6 +115,7 @@ export type Responder = {
   average_rating?: number;
   profile_image?: string;
   profile_avatar?: string;
+  profile_cover?: string;
   bio?: string;
   rank?: number;
 };
@@ -119,10 +134,12 @@ export interface IProfessionalExperience {
   _id?: string;
   company: string;
   position: string;
+  job_title: string;
   start_date: string;
   end_date?: string;
   description?: string;
   location?: string;
+  is_current?: boolean;
 }
 
 export interface IUserAchievement {
@@ -146,6 +163,7 @@ export interface Message {
 
 export interface User {
   profile_avatar?: any;
+  cover_avatar?: string;
   _id?: string;
   user_id: string;
   first_name: string;
@@ -157,6 +175,8 @@ export interface User {
   role: string;
   status?: string;
   walletBalance?: number;
+  location?: string;
+  experience?: IProfessionalExperience[];
   wallet_id?: {
     _id: string;
     user_id: string;

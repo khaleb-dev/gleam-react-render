@@ -67,8 +67,10 @@ export const useLinkup = (userId: string) => {
       });
 
       const data = await response.json();
+      console.log('Linkup counts API response for userId:', userId, data);
       if (data.success) {
         setCounts(data.data);
+        console.log('Setting counts:', data.data);
       }
     } catch (error) {
       console.error('Error fetching linkup counts:', error);

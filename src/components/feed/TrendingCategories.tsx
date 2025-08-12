@@ -19,7 +19,7 @@ const getCategoryColor = (category: string) => {
     "bg-orange-500", "bg-red-500", "bg-teal-500",
     "bg-indigo-500", "bg-pink-500", "bg-cyan-500"
   ]
-  const index = category.toLowerCase().charCodeAt(0) % colors.length
+  const index = (category || '').toLowerCase().charCodeAt(0) % colors.length
   return colors[index]
 }
 
@@ -65,7 +65,7 @@ export const TrendingCategories: React.FC = () => {
         ) : (
           trendingCategories.map((category, index) => (
             <div
-              key={category.category}
+              key={`${category.category}-${category.tag}-${index}`}
               className="flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors cursor-pointer"
             >
               <div className="flex items-center space-x-3">
@@ -75,20 +75,20 @@ export const TrendingCategories: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-xs font-medium text-gray-900 dark:text-white">
-                    {category.tag}
+                    {category.tag || 'Unknown'}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {category.post_count} posts
+                    {category.post_count || 0} posts
                   </p>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
                 <Badge
                   variant="outline"
-                  className={`text-xs px-1.5 py-0.5 ${category.growth_percentage > 0 ? 'text-green-600 border-green-200' : 'text-red-600 border-red-200'
+                  className={`text-xs px-1.5 py-0.5 ${(category.growth_percentage || 0) > 0 ? 'text-green-600 border-green-200' : 'text-red-600 border-red-200'
                     }`}
                 >
-                  +{category.growth_percentage}%
+                  +{category.growth_percentage || 0}%
                 </Badge>
                 <span className="text-xs text-gray-400 font-mono">
                   #{index + 1}

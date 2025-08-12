@@ -15,6 +15,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { useLinkup } from "@/hooks/useLinkup"
 import { LinkupButton } from "@/components/feed/LinkupButton"
 import { LinkupCount } from "@/components/feed/LinkupCount"
+import { RichTextDisplay } from "@/components/ui/RichTextDisplay"
 
 export const SingleFeed: React.FC = () => {
   const { postId } = useParams<{ postId: string }>()
@@ -244,9 +245,9 @@ export const SingleFeed: React.FC = () => {
             <div className="space-y-4">
               <h1 className="text-xl font-bold text-foreground" style={{ fontSize: '18px' }}>{post.title}</h1>
 
-              <p className="text-muted-foreground leading-relaxed" style={{ fontSize: '14px' }}>
-                {post.description}
-              </p>
+              <div className="text-muted-foreground leading-relaxed" style={{ fontSize: '14px' }}>
+                <RichTextDisplay text={post.description} />
+              </div>
 
               {/* Tags */}
               {post.tags && post.tags.length > 0 && (

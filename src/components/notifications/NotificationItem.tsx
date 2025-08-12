@@ -84,6 +84,7 @@ export const NotificationItem = ({ notification, onRead }: NotificationItemProps
               <AvatarImage
                 src={notification.sender_id.profile_avatar ? notification.sender_id.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(notification.sender_id.first_name)}`}
                 alt={`${notification.sender_id.first_name} ${notification.sender_id.last_name}`}
+                className="object-cover w-full h-full"
               />
               <AvatarFallback className="text-sm bg-gray-100">
                 {notification.sender_id.first_name?.[0]}

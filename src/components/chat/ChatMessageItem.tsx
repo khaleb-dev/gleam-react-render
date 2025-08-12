@@ -28,6 +28,11 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
   const isOwn = message.sender_type === "users";
   const sender = message.sender_id;
   const messageTime = format(new Date(message.createdAt), 'p');
+  
+  // Check if message is older than one day
+  const messageDate = new Date(message.createdAt);
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const canDelete = messageDate > oneDayAgo;
 
   // Look for a link to show preview
   const detectedUrl = findFirstUrl(message.message || "");
@@ -45,6 +50,7 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
           <AvatarImage
             src={`https://robohash.org/${encodeURIComponent(sender?.first_name || 'user')}?set=set4&size=200x200`}
             alt=""
+            className="object-cover w-full h-full"
           />
           <AvatarFallback className="bg-secondary text-sm">
             {(sender?.first_name || 'U').substring(0, 2).toUpperCase()}
@@ -95,8 +101,8 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
         >
           {messageTime}
         </p>
-        {/* Delete button (for user's own message, show only on hover) */}
-        {isOwn && (
+        {/* Delete button (for user's own message, show only on hover and within one day) */}
+        {isOwn && canDelete && (
           <Button
             variant="ghost"
             size="icon"
@@ -114,7 +120,11 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
       {/* Avatar (right, for own messages only) */}
       {isOwn && showAvatar ? (
         <Avatar className="h-8 w-8 flex-shrink-0 ml-1">
-          <AvatarImage src={`https://robohash.org/${encodeURIComponent(sender?.first_name || 'user')}?set=set3&size=200x200`} alt="" />
+          <AvatarImage 
+            src={`https://robohash.org/${encodeURIComponent(sender?.first_name || 'user')}?set=set3&size=200x200`} 
+            alt=""
+            className="object-cover w-full h-full"
+          />
           <AvatarFallback className="bg-primary text-primary-foreground text-sm">
             {(user?.first_name || 'Y').substring(0, 2).toUpperCase()}
           </AvatarFallback>

@@ -20,10 +20,11 @@ export const TaskInfoPanel: React.FC<TaskInfoPanelProps> = ({ task, taskId, navi
       {task.responder && (
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center gap-3 mb-3">
-            <Avatar className="h-12 w-12">
+            <Avatar className="h-12 w-12 flex-shrink-0">
               <AvatarImage
                 src={`https://robohash.org/${encodeURIComponent(task.responder.first_name)}?set=set4&size=200x200`}
                 alt={task.responder.first_name}
+                className="object-cover w-full h-full"
               />
               <AvatarFallback className="bg-primary text-primary-foreground">
                 {task.responder.first_name.substring(0, 2).toUpperCase()}

@@ -1,3 +1,4 @@
+
 "use client"
 
 import type React from "react"
@@ -33,6 +34,11 @@ import { SingleFeed } from "./pages/SingleFeed"
 import { useAuthGuard } from "@/hooks/useAuthGuard"
 import SuggestedUsers from "./pages/SuggestedUsers"
 import Messages from "./pages/Messages"
+import TopWeeklyChallengers from "./pages/TopWeeklyChallengers"
+import Search from "./pages/Search"
+import Company from "./pages/Company"
+import CompanySetup from "./pages/CompanySetup"
+import CompanyProfile from "./pages/CompanyProfile"
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -320,6 +326,61 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/top-weekly-challengers"
+          element={
+            <ProtectedRoute>
+              <TopWeeklyChallengers />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/search"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Search />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/company"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Company />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/new/company/setup"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <CompanySetup />
+              </Layout>
+
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/company/page/:identifier"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <CompanyProfile />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
         {/* Catch-all */}
         <Route path="*" element={<NotFound />} />
       </Routes>

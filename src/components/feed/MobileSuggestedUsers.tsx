@@ -19,6 +19,13 @@ export const MobileSuggestedUsers: React.FC = () => {
     navigate('/suggested-users');
   };
 
+  // Helper function to safely get user initials
+  const getUserInitials = (firstName: string | undefined, lastName: string | undefined) => {
+    const first = (firstName && firstName.length > 0) ? firstName[0].toUpperCase() : '';
+    const last = (lastName && lastName.length > 0) ? lastName[0].toUpperCase() : '';
+    return first + last || 'U'; // Fallback to 'U' for User if no initials available
+  };
+
   if (isLoading) {
     return (
       <Card className="mx-4 mb-4">
@@ -75,11 +82,11 @@ export const MobileSuggestedUsers: React.FC = () => {
                 onClick={() => handleUserClick(user.user_id)}
               >
                 <AvatarImage
-                  src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`}
-                  alt={`${user.first_name} ${user.last_name}`}
+                  src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name || 'user')}`}
+                  alt={`${user.first_name || ''} ${user.last_name || ''}`}
                 />
                 <AvatarFallback className="text-xs">
-                  {user.first_name[0]}{user.last_name[0]}
+                  {getUserInitials(user.first_name, user.last_name)}
                 </AvatarFallback>
               </Avatar>
 
@@ -87,7 +94,7 @@ export const MobileSuggestedUsers: React.FC = () => {
                 className="font-medium text-xs truncate cursor-pointer hover:underline mb-1"
                 onClick={() => handleUserClick(user.user_id)}
               >
-                {user.first_name} {user.last_name}
+                {user.first_name || 'Unknown'} {user.last_name || 'User'}
               </h4>
               
               <p className="text-xs text-muted-foreground truncate mb-2">

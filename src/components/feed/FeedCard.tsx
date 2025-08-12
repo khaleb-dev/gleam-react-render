@@ -15,7 +15,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { VideoPlayer } from "@/components/ui/VideoPlayer"
 import { LinkupButton } from "./LinkupButton"
 import { LinkupCount } from "./LinkupCount"
-import { ChatMessageText } from "@/components/chat/ChatMessageText"
+import { RichTextDisplay } from "@/components/ui/RichTextDisplay"
 import { MessageButton } from "@/components/messaging/MessageButton"
 import { useLinkup } from "@/hooks/useLinkup"
 
@@ -364,7 +364,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
         <div className="px-3 sm:px-4 pb-2.5">
           <h3 className="font-semibold text-gray-900 dark:text-white mb-1.5" style={{ fontSize: '14px' }}>{post.title}</h3>
           <div className="text-gray-600 dark:text-gray-300 leading-relaxed mb-2.5 line-clamp-3" style={{ fontSize: '12px' }}>
-            <ChatMessageText text={post.description} />
+            <RichTextDisplay text={post.description} showLinkPreview={false} />
           </div>
           {/* Tags */}
           {post.tags.length > 0 && (

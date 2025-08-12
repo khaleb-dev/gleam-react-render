@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -122,11 +121,11 @@ export const ProfileHeader = ({ user, onEditClick, isOwnProfile = false }: Profi
       <div className="px-1.5 py-1.5 sm:px-6 sm:pb-6 relative">
         {/* Profile Picture - Overlapping cover */}
         <div className="flex justify-between items-start -mt-12 sm:-mt-16 mb-4 sm:mb-6">
-          <Avatar className="h-20 w-20 sm:h-32 sm:w-32 border-4 border-white shadow-lg">
+          <Avatar className="h-20 w-20 sm:h-32 sm:w-32 border-4 border-white shadow-lg flex-shrink-0">
             <AvatarImage 
               src={profileImageUrl}
               alt={firstName}
-              className="object-cover"
+              className="object-cover w-full h-full"
               onError={(e) => {
                 console.error('Failed to load profile image:', profileImageUrl);
               }}

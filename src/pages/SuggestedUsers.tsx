@@ -20,6 +20,13 @@ const SuggestedUsers: React.FC = () => {
     navigate(`/profile/${userId}`)
   }
 
+  // Helper function to safely get user initials
+  const getUserInitials = (firstName: string | undefined, lastName: string | undefined) => {
+    const first = (firstName && firstName.length > 0) ? firstName[0].toUpperCase() : '';
+    const last = (lastName && lastName.length > 0) ? lastName[0].toUpperCase() : '';
+    return first + last || 'U'; // Fallback to 'U' for User if no initials available
+  };
+
   // Update allUsers when new data comes in
   useEffect(() => {
     if (data?.data) {
@@ -78,24 +85,29 @@ const SuggestedUsers: React.FC = () => {
             {allUsers.map((user) => (
               <div
                 key={user._id}
-                className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-muted transition cursor-pointer"
+                className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-muted transition"
               >
                 {/* Avatar */}
-                <Avatar className="h-9 w-9">
+                <Avatar 
+                  className="h-9 w-9 cursor-pointer"
+                  onClick={() => handleUserClick(user.user_id)}
+                >
                   <AvatarImage
-                    src={user.profile_avatar ? user.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`}
-                    alt={`${user.first_name} ${user.last_name}`}
+                    src={user.profile_avatar ? user.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name || 'user')}`}
+                    alt={`${user.first_name || ''} ${user.last_name || ''}`}
                   />
                   <AvatarFallback>
-                    {user.first_name[0]}
-                    {user.last_name[0]}
+                    {getUserInitials(user.first_name, user.last_name)}
                   </AvatarFallback>
                 </Avatar>
 
                 {/* User Info */}
                 <div className="flex flex-col text-sm leading-tight">
-                  <span className="font-medium">
-                    {user.first_name}_{user.last_name.toLowerCase()}
+                  <span 
+                    className="font-medium cursor-pointer hover:underline"
+                    onClick={() => handleUserClick(user.user_id)}
+                  >
+                    {user.first_name || 'Unknown'}_{(user.last_name || 'User').toLowerCase()}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {user.responder_id?.job_title || "Community Member"}

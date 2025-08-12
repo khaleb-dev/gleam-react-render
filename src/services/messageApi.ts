@@ -1,4 +1,3 @@
-
 // Message API service for handling messaging functionality
 import { API_BASE_URL } from "../config/env";
 
@@ -35,6 +34,11 @@ export interface MessageData {
   timestamp: string;
   createdAt: string;
   updatedAt: string;
+  // Message status indicators
+  status?: 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
+  isDelivered?: boolean;
+  deliveredAt?: string;
+  readAt?: string;
 }
 
 export interface SendMessageRequest {

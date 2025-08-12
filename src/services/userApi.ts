@@ -56,6 +56,29 @@ export interface GetUserByIdResponse {
   };
 }
 
+export interface SearchUser {
+  _id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_number: string;
+  profile_avatar?: string;
+  roles: string[];
+  is_verified: boolean;
+  status: string;
+  responder?: {
+    _id: string;
+    job_title: string;
+    availability_status: string;
+  };
+}
+
+export interface SearchUsersResponse {
+  success: boolean;
+  message: string;
+  data: SearchUser[];
+}
+
 class UserApiService {
   async getUserProfile(): Promise<UserProfileResponse> {
     const response = await fetch(`${API_BASE_URL}/users/user-profile`, {
@@ -94,6 +117,23 @@ class UserApiService {
 
   async getUserById(userId: string): Promise<GetUserByIdResponse> {
     const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result;
+  }
+
+  async searchUsers(query: string): Promise<SearchUsersResponse> {
+    const response = await fetch(`${API_BASE_URL}/users/searchUsers?search=${encodeURIComponent(query)}`, {
       method: 'GET',
       credentials: 'include',
       headers: {

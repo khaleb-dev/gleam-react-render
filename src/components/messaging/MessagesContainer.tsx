@@ -17,6 +17,7 @@ import { RepliedMessage } from './RepliedMessage';
 import { isSingleEmoji } from '@/utils/emojiUtils';
 import { ImagePreviewModal } from '@/components/chat/ImagePreviewModal';
 import { VideoPlayer } from '@/components/ui/VideoPlayer';
+import { MessageStatus } from './MessageStatus';
 
 interface MessagesContainerProps {
   selectedUser: any;
@@ -160,6 +161,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       isRead: false,
+      status: 'sending',
       image_urls: imageFiles.map(file => URL.createObjectURL(file)),
       video_urls: videoFiles.map(file => URL.createObjectURL(file)),
       reply_to: replyTo || undefined
@@ -205,10 +207,13 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
           }
         });
 
-        // Replace optimistic message with real one
+        // Replace optimistic message with real one and update status
         setMessages(prev =>
           prev.map(msg =>
-            msg._id === optimisticMessage._id ? response.data : msg
+            msg._id === optimisticMessage._id ? { 
+              ...response.data, 
+              status: response.data?.isRead ? 'read' : 'sent'
+            } : msg
           )
         );
 
@@ -217,23 +222,21 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
           onMessageSent(selectedUser.user_id, tempMessage);
         }
       } else {
-        // Remove optimistic message on failure
-        setMessages(prev => prev.filter(msg => msg._id !== optimisticMessage._id));
+        // Mark message as failed instead of removing
+        setMessages(prev =>
+          prev.map(msg =>
+            msg._id === optimisticMessage._id ? { ...msg, status: 'failed' } : msg
+          )
+        );
         toast.error('Failed to send message');
       }
     } catch (error) {
-      // Clean up and remove optimistic message
-      optimisticMessage.image_urls?.forEach(url => {
-        if (url.startsWith('blob:')) {
-          URL.revokeObjectURL(url);
-        }
-      });
-      optimisticMessage.video_urls?.forEach(url => {
-        if (url.startsWith('blob:')) {
-          URL.revokeObjectURL(url);
-        }
-      });
-      setMessages(prev => prev.filter(msg => msg._id !== optimisticMessage._id));
+      // Mark message as failed instead of removing
+      setMessages(prev =>
+        prev.map(msg =>
+          msg._id === optimisticMessage._id ? { ...msg, status: 'failed' } : msg
+        )
+      );
       console.error('Failed to send message:', error);
       toast.error('Failed to send message');
     } finally {
@@ -326,6 +329,58 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
     }
   };
 
+  const handleRetryMessage = async (failedMessage: MessageData) => {
+    // Mark message as sending again
+    setMessages(prev =>
+      prev.map(msg =>
+        msg._id === failedMessage._id ? { ...msg, status: 'sending' } : msg
+      )
+    );
+
+    try {
+      const response = await messageApi.sendMessage({
+        recipient_id: failedMessage.recipient_id,
+        content: failedMessage.content,
+        image_urls: failedMessage.image_urls,
+        video_urls: failedMessage.video_urls,
+        reply_to: typeof failedMessage.reply_to === 'string' ? failedMessage.reply_to : failedMessage.reply_to?._id
+      });
+
+      if (response.success && response.data) {
+        // Replace failed message with successful one
+        setMessages(prev =>
+          prev.map(msg =>
+            msg._id === failedMessage._id ? { 
+              ...response.data, 
+              status: response.data?.isRead ? 'read' : 'sent'
+            } : msg
+          )
+        );
+        
+        // Notify parent component about new message for inbox update
+        if (onMessageSent && failedMessage.content) {
+          onMessageSent(failedMessage.recipient_id, failedMessage.content);
+        }
+      } else {
+        // Mark as failed again
+        setMessages(prev =>
+          prev.map(msg =>
+            msg._id === failedMessage._id ? { ...msg, status: 'failed' } : msg
+          )
+        );
+        toast.error('Failed to resend message');
+      }
+    } catch (error) {
+      // Mark as failed again
+      setMessages(prev =>
+        prev.map(msg =>
+          msg._id === failedMessage._id ? { ...msg, status: 'failed' } : msg
+        )
+      );
+      console.error('Failed to resend message:', error);
+      toast.error('Failed to resend message');
+    }
+  };
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
@@ -456,7 +511,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                 <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
                   {!isOwn && <div className="w-11" />}
                   <div className="relative flex items-center gap-2">
-                    <div className="max-w-xs space-y-2">
+                    <div className="max-w-xs space-y-1">
                       {message.image_urls.map((imageUrl, index) => (
                         <img
                           key={index}
@@ -467,7 +522,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                         />
                       ))}
                       {message.content && message.content.trim() && (
-                        <div className={`px-4 py-2 rounded-2xl text-sm ${isOwn
+                        <div className={`inline-block px-4 py-2 rounded-2xl text-sm max-w-full ${isOwn
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-muted text-foreground'
                           }`}>
@@ -494,7 +549,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                 <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
                   {!isOwn && <div className="w-11" />}
                   <div className="relative flex items-center gap-2">
-                    <div className="max-w-xs space-y-2">
+                    <div className="max-w-xs space-y-1">
                       {message.video_urls.map((videoUrl, index) => (
                         <VideoPlayer
                           key={index}
@@ -506,7 +561,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                         />
                       ))}
                       {message.content && message.content.trim() && (
-                        <div className={`px-4 py-2 rounded-2xl text-sm ${isOwn
+                        <div className={`inline-block px-4 py-2 rounded-2xl text-sm max-w-full ${isOwn
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-muted text-foreground'
                           }`}>
@@ -539,9 +594,16 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
               )}
 
               <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                <p className={`text-xs text-muted-foreground ${isOwn ? 'mr-3' : 'ml-11'}`}>
-                  {formatTime(message.timestamp)}
-                </p>
+                <div className={`flex flex-col items-end space-y-1 ${isOwn ? 'mr-3' : 'ml-11'}`}>
+                  <p className="text-xs text-muted-foreground">
+                    {formatTime(message.timestamp)}
+                  </p>
+                  <MessageStatus 
+                    message={message} 
+                    isOwn={isOwn} 
+                    onRetry={() => handleRetryMessage(message)}
+                  />
+                </div>
               </div>
             </div>
           );

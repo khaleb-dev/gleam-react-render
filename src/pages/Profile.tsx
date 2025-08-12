@@ -482,8 +482,8 @@ const Profile = () => {
                     )}
                     {displayUser.is_verified && <Check className="h-5 w-5 sm:h-6 sm:w-6 text-beembyte-green" />}
                   </div>
-                  <p className="text-sm sm:text-lg font-medium mb-2 text-muted-foreground">
-                    {displayUser.responder_id?.job_title || "Professional"}
+                  <p className="text-sm sm:text-sm font-medium mb-2 text-muted-foreground">
+                    {displayUser.responder_id?.job_title}
                   </p>
                   <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-3">
                     <div className="flex items-center gap-1">
@@ -589,19 +589,22 @@ const Profile = () => {
                   <Mail className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                   <span className="text-primary hover:underline cursor-pointer break-all">{displayUser.email}</span>
                 </div>
-                <div className="flex items-center gap-3 text-xs sm:text-sm">
-                  <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-                  {isEditing ? (
-                    <Input
-                      value={displayUser.phone_number || ""}
-                      onChange={(e) => handleInputChange("phone_number", e.target.value)}
-                      className="text-xs sm:text-sm h-6 px-2"
-                      placeholder="Phone number"
-                    />
-                  ) : (
-                    <span className="text-foreground">{displayUser.phone_number || "Not provided"}</span>
-                  )}
-                </div>
+                {isOwnProfile &&
+                  <div className="flex items-center gap-3 text-xs sm:text-sm">
+                    <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                    {isEditing ? (
+                      <Input
+                        value={displayUser.phone_number || ""}
+                        onChange={(e) => handleInputChange("phone_number", e.target.value)}
+                        className="text-xs sm:text-sm h-6 px-2"
+                        placeholder="Phone number"
+                      />
+                    ) : (
+                      <span className="text-foreground">{displayUser.phone_number || "Not provided"}</span>
+                    )}
+                  </div>
+                }
+
                 <div className="flex items-center gap-3 text-xs sm:text-sm">
                   <Globe className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                   {isEditing ? (

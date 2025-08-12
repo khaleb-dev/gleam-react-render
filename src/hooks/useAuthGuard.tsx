@@ -14,12 +14,30 @@ export const useAuthGuard = (requireAuth = true) => {
   // Check only cookie for auth (no localStorage dependency)
   const hasAuthCookie = document.cookie.includes('authToken=');
 
-  // Verify token on every page load
+  // Verify token on every page load but with optimization
   useEffect(() => {
     // Prevent multiple verification attempts
     if (hasVerified) return;
 
     const verifyAuth = async () => {
+      // If no auth cookie and route requires auth, skip verification and go to login
+      if (!hasAuthCookie && requireAuth) {
+        console.log("No auth cookie found, skipping verification for protected route");
+        setIsAuthenticated(false);
+        setIsLoading(false);
+        setHasVerified(true);
+        return;
+      }
+
+      // If no auth cookie and route doesn't require auth, skip verification
+      if (!hasAuthCookie && !requireAuth) {
+        console.log("No auth cookie found, public route access");
+        setIsAuthenticated(false);
+        setIsLoading(false);
+        setHasVerified(true);
+        return;
+      }
+
       if (hasAuthCookie) {
         console.log("Verifying auth token for route:", location.pathname);
         try {
@@ -38,15 +56,14 @@ export const useAuthGuard = (requireAuth = true) => {
           // Clear the cookie on error
           document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         }
-      } else {
-        setIsAuthenticated(false);
       }
+      
       setIsLoading(false);
       setHasVerified(true);
     };
 
     verifyAuth();
-  }, [hasAuthCookie, location.pathname, hasVerified, verifyAuthToken]);
+  }, [hasAuthCookie, location.pathname, hasVerified, verifyAuthToken, requireAuth]);
 
   // Handle redirect to login when not authenticated (only for protected routes)
   useEffect(() => {

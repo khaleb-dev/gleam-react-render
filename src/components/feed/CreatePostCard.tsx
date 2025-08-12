@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { RichTextEditor } from "@/components/ui/RichTextEditor"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -243,11 +244,12 @@ export const CreatePostCard: React.FC<CreatePostCardProps> = ({ user, onPostCrea
 
                 {/* Description Input */}
                 <div className="space-y-2">
-                  <Textarea
+                  <RichTextEditor
                     value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="What do you want to talk about? (Optional)"
-                    className="min-h-[120px] border-0 p-0 focus:ring-0 focus:border-0 resize-none placeholder:text-gray-400 text-base"
+                    onChange={(value) => setFormData({ ...formData, description: value })}
+                    placeholder="What do you want to talk about? Use **bold**, *italic*, or create lists..."
+                    className="border-0"
+                    minHeight="120px"
                   />
                 </div>
 

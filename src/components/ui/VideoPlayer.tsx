@@ -28,10 +28,10 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [isMuted, setIsMuted] = useState(autoPlayWithSound ? false : muted)
+  const [isMuted, setIsMuted] = useState(false) // Start unmuted by default
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
-  const [volume, setVolume] = useState(autoPlayWithSound ? 0.8 : 1)
+  const [volume, setVolume] = useState(0.8) // Start with reasonable volume
   const [showControls, setShowControls] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [hasNetworkError, setHasNetworkError] = useState(false)
@@ -54,9 +54,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     const video = videoRef.current
     if (!video) return
 
-    // Set initial video properties
-    video.muted = autoPlayWithSound ? false : true
-    video.volume = autoPlayWithSound ? 0.8 : 1
+    // Set initial video properties - start unmuted for better UX
+    video.muted = false
+    video.volume = 0.8
     
     console.log('Video initialized with autoPlayWithSound:', autoPlayWithSound)
     console.log('Video muted:', video.muted, 'Volume:', video.volume)
@@ -219,21 +219,21 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         }
         setShowControls(false)
       }}
+      onClick={togglePlay} // Move click handler to container for better coverage
     >
       <video
         ref={videoRef}
         src={src}
         className="w-full h-full object-contain bg-black"
         autoPlay={false} // Let the hook handle auto-play
-        muted={autoPlayWithSound ? false : true}
-        onClick={togglePlay}
+        muted={false} // Start unmuted for better UX
         playsInline
         preload="metadata"
       />
       
       {/* Controls Overlay */}
       <div 
-        className={`absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent transition-opacity duration-300 ${
+        className={`absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent transition-opacity duration-300 pointer-events-none ${
           showControls || !isPlaying ? 'opacity-100' : 'opacity-0'
         }`}
       >
@@ -281,7 +281,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         )}
         
         {/* Bottom Controls */}
-        <div className="absolute bottom-0 left-0 right-0 p-4">
+        <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-auto">
           {/* Progress Bar */}
           <div className={showMinimalControls ? "" : "mb-3"}>
             <Slider
@@ -295,7 +295,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           
           {/* Control Buttons - Hidden in minimal mode */}
           {!showMinimalControls && (
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pointer-events-auto">
               <div className="flex items-center space-x-2">
                 <Button
                   size="sm"

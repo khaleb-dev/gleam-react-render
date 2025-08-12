@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MessageCircle } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -73,7 +72,8 @@ export const MessageButton: React.FC<MessageButtonProps> = ({
         <Avatar className="h-10 w-10 border-2 border-white shadow-md">
           <AvatarImage
             src={user.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`}
-            className="object-cover"
+            className="object-cover w-full h-full"
+            alt={`${user.first_name} ${user.last_name}`}
           />
           <AvatarFallback className="text-sm bg-gradient-to-br from-blue-500 to-purple-600 text-white">
             {user.first_name[0]}{user.last_name[0]}

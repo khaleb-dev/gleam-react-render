@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { MessageSquare, Star, Calendar } from 'lucide-react';
 import { useUserFeed } from '@/hooks/useUserFeed';
 import { useNavigate } from 'react-router-dom';
+import { RichTextDisplay } from '@/components/ui/RichTextDisplay';
 
 interface UserFeedSectionProps {
   userId: string;
@@ -118,9 +119,9 @@ export const UserFeedSection: React.FC<UserFeedSectionProps> = ({ userId, userNa
               </h3>
 
               {post.description && (
-                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                  {post.description}
-                </p>
+                <div className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                  <RichTextDisplay text={post.description} showLinkPreview={false} />
+                </div>
               )}
 
               {post.tags.length > 0 && (

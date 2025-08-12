@@ -486,13 +486,20 @@ export const authApi = {
 
   verifyAuthToken: async () => {
     try {
+      // Add timeout controller to prevent hanging
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
       const response = await fetch(`${API_BASE_URL}/users/verify-auth-token`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include",
+        signal: controller.signal, // Add abort signal
       });
+
+      clearTimeout(timeoutId); // Clear timeout on successful response
 
       // If request failed completely, clear the cookie and return failure
       if (!response.ok) {
@@ -515,6 +522,17 @@ export const authApi = {
       return data;
     } catch (error) {
       console.error("verify auth token error:", error);
+      
+      // Handle timeout specifically
+      if (error.name === 'AbortError') {
+        console.log("🔐 Auth token verification timed out, clearing cookie");
+        clearAuthTokenCookie();
+        return {
+          success: false,
+          message: "Token verification timed out",
+        };
+      }
+      
       // Clear cookie on any error
       clearAuthTokenCookie();
       return {

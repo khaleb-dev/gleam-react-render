@@ -85,6 +85,11 @@ interface PeopleScoreResponse {
   success: boolean
 }
 
+interface FeedFilters {
+  hashtag?: string
+  search?: string
+}
+
 const getAuthToken = () => {
   return document.cookie
     .split("; ")
@@ -120,12 +125,26 @@ export const useFeed = () => {
   const queryClient = useQueryClient()
   const [isLoading, setIsLoading] = useState(false)
 
-  // Get feed posts
-  const getFeedPosts = (page: number = 1, limit: number = 10) => {
+  // Get feed posts with filters
+  const getFeedPosts = (page: number = 1, limit: number = 10, filters?: FeedFilters) => {
     return useQuery({
-      queryKey: ['feed', page, limit],
+      queryKey: ['feed', page, limit, filters],
       queryFn: async () => {
-        const response = await fetch(`${API_BASE_URL}/feed/all-posts?page=${page}&limit=${limit}`, {
+        // Build query parameters
+        const params = new URLSearchParams({
+          page: page.toString(),
+          limit: limit.toString(),
+        })
+        
+        if (filters?.hashtag) {
+          params.append('hashtag', filters.hashtag)
+        }
+        
+        if (filters?.search) {
+          params.append('search', filters.search)
+        }
+
+        const response = await fetch(`${API_BASE_URL}/feed/all-posts?${params.toString()}`, {
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
@@ -134,9 +153,14 @@ export const useFeed = () => {
         if (!response.ok) throw new Error('Failed to fetch feed')
         const apiResponse: ApiResponse = await response.json()
 
-        // Return the data directly without transformation to preserve all fields
+        // Sort posts by created_at in descending order to ensure consistent ordering
+        const sortedPosts = apiResponse.data.sort((a, b) => 
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )
+
+        // Return the data with sorted posts
         return {
-          posts: apiResponse.data,
+          posts: sortedPosts,
           message: apiResponse.message,
           success: apiResponse.success
         }

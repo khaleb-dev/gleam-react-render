@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Send, Minimize2, MessageCircle, Phone, Video, Smile, Image } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -15,6 +14,11 @@ import { EmojiPicker } from '@/components/chat/EmojiPicker';
 import { FilePreview } from '@/components/chat/FilePreview';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { isSingleEmoji } from '@/utils/emojiUtils';
+import { ImagePreviewModal } from '@/components/chat/ImagePreviewModal';
+import { VideoPlayer } from '@/components/ui/VideoPlayer';
+import { MessageStatus } from './MessageStatus';
+import { MessageActions } from './MessageActions';
+import { RepliedMessage } from './RepliedMessage';
 
 interface MessagePopupProps {
   user: {
@@ -41,6 +45,10 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
   const [isTyping, setIsTyping] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [replyToMessage, setReplyToMessage] = useState<MessageData | null>(null);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { uploadFiles, isUploading } = useFileUpload();
@@ -79,8 +87,13 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
     setIsSending(true);
     const tempMessage = newMessage.trim();
     const filesToUpload = [...selectedFiles];
+    const replyTo = replyToMessage?._id;
 
-    // Create optimistic message with proper image_urls
+    // Separate files by type
+    const imageFiles = filesToUpload.filter(file => file.type.startsWith('image/'));
+    const videoFiles = filesToUpload.filter(file => file.type.startsWith('video/'));
+
+    // Create optimistic message with proper image_urls and video_urls
     const optimisticMessage: MessageData = {
       _id: `temp-${Date.now()}`,
       content: tempMessage,
@@ -90,30 +103,39 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       isRead: false,
-      image_urls: filesToUpload.map(file => URL.createObjectURL(file)) // Use blob URLs temporarily
+      status: 'sending',
+      image_urls: imageFiles.map(file => URL.createObjectURL(file)),
+      video_urls: videoFiles.map(file => URL.createObjectURL(file)),
+      reply_to: replyTo || undefined
     };
 
     // Show message immediately
     setMessages(prev => [...prev, optimisticMessage]);
     setNewMessage('');
     setSelectedFiles([]);
+    setReplyToMessage(null); // Clear reply context
 
     try {
       let imageUrls: string[] = [];
+      let videoUrls: string[] = [];
 
       // Upload files if any
       if (filesToUpload.length > 0) {
         const uploadedUrls = await uploadFiles(filesToUpload);
         if (uploadedUrls) {
-          imageUrls = uploadedUrls;
+          // Separate uploaded URLs by original file type
+          imageUrls = uploadedUrls.slice(0, imageFiles.length);
+          videoUrls = uploadedUrls.slice(imageFiles.length);
         }
       }
 
-      // Send message with content and/or images
+      // Send message with content and/or media
       const response = await messageApi.sendMessage({
         recipient_id: user.user_id,
         content: tempMessage,
-        image_urls: imageUrls
+        image_urls: imageUrls.length > 0 ? imageUrls : undefined,
+        video_urls: videoUrls.length > 0 ? videoUrls : undefined,
+        reply_to: replyTo
       });
 
       if (response.success && response.data) {
@@ -123,16 +145,25 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
             URL.revokeObjectURL(url);
           }
         });
+        optimisticMessage.video_urls?.forEach(url => {
+          if (url.startsWith('blob:')) {
+            URL.revokeObjectURL(url);
+          }
+        });
 
-        // Replace optimistic message with real one
+        // Replace optimistic message with real one and update status
         setMessages(prev =>
           prev.map(msg =>
-            msg._id === optimisticMessage._id ? response.data : msg
+            msg._id === optimisticMessage._id ? { ...response.data, status: 'sent' } : msg
           )
         );
       } else {
-        // Remove optimistic message on failure
-        setMessages(prev => prev.filter(msg => msg._id !== optimisticMessage._id));
+        // Mark message as failed instead of removing
+        setMessages(prev =>
+          prev.map(msg =>
+            msg._id === optimisticMessage._id ? { ...msg, status: 'failed' } : msg
+          )
+        );
         handleApiErrors(response);
       }
     } catch (error) {
@@ -142,7 +173,17 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
           URL.revokeObjectURL(url);
         }
       });
-      setMessages(prev => prev.filter(msg => msg._id !== optimisticMessage._id));
+      optimisticMessage.video_urls?.forEach(url => {
+        if (url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
+      });
+      // Mark message as failed instead of removing
+      setMessages(prev =>
+        prev.map(msg =>
+          msg._id === optimisticMessage._id ? { ...msg, status: 'failed' } : msg
+        )
+      );
       console.error('Failed to send message:', error);
       toast.error('Failed to send message');
     } finally {
@@ -166,6 +207,114 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
 
   const handleRemoveFile = (index: number) => {
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleReply = (message: MessageData) => {
+    setReplyToMessage(message);
+  };
+
+  const handleDeleteMessage = async (messageId: string) => {
+    // Check if message is older than 1 day
+    const message = messages.find(msg => msg._id === messageId);
+    if (message) {
+      const messageDate = new Date(message.timestamp);
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      
+      if (messageDate < oneDayAgo) {
+        toast.error('Cannot delete messages older than 24 hours');
+        return;
+      }
+    }
+
+    // Optimistically remove the message
+    const originalMessages = [...messages];
+    setMessages(prev => prev.filter(msg => msg._id !== messageId));
+
+    try {
+      const response = await messageApi.deleteMessage(messageId);
+      if (response.success) {
+        toast.success('Message deleted');
+      } else {
+        // Revert on failure
+        setMessages(originalMessages);
+        toast.error('Failed to delete message');
+      }
+    } catch (error) {
+      // Revert on failure
+      setMessages(originalMessages);
+      console.error('Failed to delete message:', error);
+      toast.error('Failed to delete message');
+    }
+  };
+
+  const handleImageClick = (images: string[], index: number) => {
+    setSelectedImages(images);
+    setSelectedImageIndex(index);
+    setShowImageModal(true);
+  };
+
+  const getRepliedMessage = (replyTo: MessageData | string | undefined): MessageData | undefined => {
+    if (!replyTo) return undefined;
+    
+    // If reply_to is already a full message object, return it
+    if (typeof replyTo === 'object' && '_id' in replyTo) {
+      return replyTo;
+    }
+    
+    // If reply_to is just an ID string, find it in messages
+    if (typeof replyTo === 'string') {
+      return messages.find(msg => msg._id === replyTo);
+    }
+    
+    return undefined;
+  };
+
+  const handleRetryMessage = async (failedMessage: MessageData) => {
+    // Mark message as sending again
+    setMessages(prev =>
+      prev.map(msg =>
+        msg._id === failedMessage._id ? { ...msg, status: 'sending' } : msg
+      )
+    );
+
+    try {
+      const response = await messageApi.sendMessage({
+        recipient_id: failedMessage.recipient_id,
+        content: failedMessage.content,
+        image_urls: failedMessage.image_urls,
+        video_urls: failedMessage.video_urls,
+        reply_to: typeof failedMessage.reply_to === 'string' ? failedMessage.reply_to : failedMessage.reply_to?._id
+      });
+
+      if (response.success && response.data) {
+        // Replace failed message with successful one
+        setMessages(prev =>
+          prev.map(msg =>
+            msg._id === failedMessage._id ? { 
+              ...response.data, 
+              status: response.data?.isRead ? 'read' : 'sent'
+            } : msg
+          )
+        );
+      } else {
+        // Mark as failed again
+        setMessages(prev =>
+          prev.map(msg =>
+            msg._id === failedMessage._id ? { ...msg, status: 'failed' } : msg
+          )
+        );
+        toast.error('Failed to resend message');
+      }
+    } catch (error) {
+      // Mark as failed again
+      setMessages(prev =>
+        prev.map(msg =>
+          msg._id === failedMessage._id ? { ...msg, status: 'failed' } : msg
+        )
+      );
+      console.error('Failed to resend message:', error);
+      toast.error('Failed to resend message');
+    }
   };
 
   const formatTime = (timestamp: string) => {
@@ -264,12 +413,28 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
           const isOwn = message.sender_id.user_id === currentUser?.user_id || message.sender_id === currentUser.user_id;
           const url = findFirstUrl(message.content);
           const isEmojiOnly = isSingleEmoji(message.content);
+          const repliedMessage = getRepliedMessage(message.reply_to);
+          
+          // Check if message can be deleted (less than 1 day old)
+          const messageDate = new Date(message.timestamp);
+          const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+          const canDelete = messageDate >= oneDayAgo;
 
           return (
             <div key={message._id} className="space-y-1">
-              {/* Message Content */}
-              {(message.content && message.content.trim()) && (!message.image_urls || message.image_urls.length === 0) && (
-                <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+              {/* Replied Message Context */}
+              {repliedMessage && (
+                <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-1`}>
+                  {!isOwn && <div className="w-8" />}
+                  <div className="max-w-[70%]">
+                    <RepliedMessage repliedMessage={repliedMessage} isOwn={isOwn} />
+                  </div>
+                </div>
+              )}
+              {/* Media Content (Images/Videos) or Text-only Messages */}
+              {(message.image_urls && message.image_urls.length > 0) || (message.video_urls && message.video_urls.length > 0) ? (
+                // Messages with media (images or videos)
+                <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-1`}>
                   {!isOwn && (
                     <Avatar className="h-6 w-6 mr-2 mt-1">
                       <AvatarImage
@@ -281,34 +446,41 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
                       </AvatarFallback>
                     </Avatar>
                   )}
-                   <div className={`${isEmojiOnly ? 'bg-transparent px-0 py-0' : `max-w-[70%] px-3 py-2 rounded-2xl ${isOwn
-                     ? 'bg-primary text-primary-foreground'
-                     : 'bg-muted text-foreground'
-                     }`} ${isEmojiOnly ? 'text-2xl' : 'text-sm'}`}>
-                     {isEmojiOnly ? (
-                       <span className="text-2xl">{message.content}</span>
-                     ) : (
-                       <ChatMessageText text={message.content} isOwn={isOwn} />
-                     )}
-                  </div>
-                </div>
-              )}
-
-              {/* Images */}
-              {message.image_urls && message.image_urls.length > 0 && (
-                <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                  {!isOwn && <div className="w-8" />}
-                  <div className="max-w-[70%] space-y-1">
-                    {message.image_urls.map((imageUrl, index) => (
-                      <img
-                        key={index}
-                        src={imageUrl}
-                        alt="Shared image"
-                        className="rounded-lg max-w-full h-auto"
-                      />
-                    ))}
+                  <div className="max-w-[200px] space-y-1">
+                    {/* Images */}
+                    {message.image_urls && message.image_urls.length > 0 && (
+                      <>
+                        {message.image_urls.map((imageUrl, index) => (
+                          <img
+                            key={index}
+                            src={imageUrl}
+                            alt="Shared image"
+                            className="rounded-lg max-w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
+                            onClick={() => handleImageClick(message.image_urls!, index)}
+                          />
+                        ))}
+                      </>
+                    )}
+                    
+                    {/* Videos */}
+                    {message.video_urls && message.video_urls.length > 0 && (
+                      <>
+                        {message.video_urls.map((videoUrl, index) => (
+                          <VideoPlayer
+                            key={index}
+                            src={videoUrl}
+                            className="rounded-lg max-w-full"
+                            enableScrollAutoPlay={false}
+                            enablePictureInPicture={false}
+                            showMinimalControls={true}
+                          />
+                        ))}
+                      </>
+                    )}
+                    
+                    {/* Text content below media - fixed background styling */}
                     {message.content && message.content.trim() && (
-                      <div className={`px-3 py-2 rounded-2xl text-sm ${isOwn
+                      <div className={`inline-block px-3 py-2 rounded-2xl text-sm max-w-full ${isOwn
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted text-foreground'
                         }`}>
@@ -317,6 +489,33 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
                     )}
                   </div>
                 </div>
+              ) : (
+                // Text-only messages (no media)
+                message.content && message.content.trim() && (
+                  <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                    {!isOwn && (
+                      <Avatar className="h-6 w-6 mr-2 mt-1">
+                        <AvatarImage
+                          src={message.sender_id.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(message.sender_id.first_name || 'User')}`}
+                          className="object-cover"
+                        />
+                        <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                          {message.sender_id.first_name?.[0] || 'U'}{message.sender_id.last_name?.[0] || 'N'}
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                    <div className={`${isEmojiOnly ? 'bg-transparent px-0 py-0' : `max-w-[70%] px-3 py-2 rounded-2xl ${isOwn
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-foreground'
+                      }`} ${isEmojiOnly ? 'text-2xl' : 'text-sm'}`}>
+                      {isEmojiOnly ? (
+                        <span className="text-2xl">{message.content}</span>
+                      ) : (
+                        <ChatMessageText text={message.content} isOwn={isOwn} />
+                      )}
+                    </div>
+                  </div>
+                )
               )}
 
               {/* Link Preview */}
@@ -329,10 +528,32 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
                 </div>
               )}
 
+              {/* Action buttons for messages */}
+              {(message.content || message.image_urls?.length || message.video_urls?.length) && !isEmojiOnly && (
+                <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                  {!isOwn && <div className="w-8" />}
+                  <div className="flex items-center gap-1">
+                    <MessageActions
+                      isOwn={isOwn}
+                      onReply={() => handleReply(message)}
+                      onDelete={canDelete ? () => handleDeleteMessage(message._id) : undefined}
+                      className={isOwn ? 'order-first' : ''}
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                <p className={`text-xs text-muted-foreground ${isOwn ? 'mr-2' : 'ml-8'}`}>
-                  {formatTime(message.timestamp)}
-                </p>
+                <div className={`flex flex-col items-end space-y-1 ${isOwn ? 'mr-2' : 'ml-8'}`}>
+                  <p className="text-xs text-muted-foreground">
+                    {formatTime(message.timestamp)}
+                  </p>
+                  <MessageStatus 
+                    message={message} 
+                    isOwn={isOwn} 
+                    onRetry={() => handleRetryMessage(message)}
+                  />
+                </div>
               </div>
             </div>
           );
@@ -360,6 +581,25 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
         )}
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Reply Context */}
+      {replyToMessage && (
+        <div className="px-3 py-2 border-t border-border bg-muted/30">
+          <div className="flex items-center justify-between">
+            <div className="flex-1 text-sm text-muted-foreground">
+              Replying to {replyToMessage.sender_id?.first_name || 'Unknown'}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setReplyToMessage(null)}
+              className="p-1 h-auto text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Message Input */}
       <div className="p-3 border-t border-border">
@@ -412,6 +652,15 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
           className="hidden"
         />
       </div>
+
+      {/* Image Preview Modal */}
+      {showImageModal && selectedImages.length > 0 && (
+        <ImagePreviewModal
+          images={selectedImages}
+          startIndex={selectedImageIndex}
+          onClose={() => setShowImageModal(false)}
+        />
+      )}
     </div>
   );
 };

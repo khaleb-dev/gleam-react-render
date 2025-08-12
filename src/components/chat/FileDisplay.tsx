@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ImagePreviewModal } from './ImagePreviewModal';
 import { ImageIcon, FileText, File } from 'lucide-react';

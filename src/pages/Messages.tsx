@@ -8,6 +8,7 @@ import { messageApi, InboxUser } from '@/services/messageApi';
 import { MessagesContainer } from '@/components/messaging/MessagesContainer';
 import { useMessageUnread } from '@/hooks/useMessageUnread';
 import { MessagePopup } from '@/components/messaging/MessagePopup';
+import { MessageStatus } from '@/components/messaging/MessageStatus';
 import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -287,9 +288,11 @@ export default function Messages() {
                         <h3 className="font-medium text-foreground truncate">
                           {conversation.recipient.first_name} {conversation.recipient.last_name}
                         </h3>
-                        <span className="text-xs text-muted-foreground">
-                          {formatTime(conversation.lastMessageTime)}
-                        </span>
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs text-muted-foreground">
+                            {formatTime(conversation.lastMessageTime)}
+                          </span>
+                        </div>
                       </div>
                       <p className="text-sm text-muted-foreground truncate">
                         {conversation.lastMessage}
