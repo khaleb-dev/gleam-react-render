@@ -274,7 +274,7 @@ const CompanyProfile = () => {
         <div className="flex gap-6 mt-6">
           
           {/* Left Sidebar */}
-          <div className="w-64 space-y-6 ml-4">
+          <div className="w-56 space-y-6 ml-4">
             {/* About Section */}
             <Card>
               <CardContent className="space-y-3 pt-6">
@@ -406,7 +406,7 @@ const CompanyProfile = () => {
           </div>
 
           {/* Right Sidebar */}
-          <div className="w-64 space-y-6">
+          <div className="w-56 space-y-6">
             {/* Company Stats */}
             <Card>
               <CardHeader>

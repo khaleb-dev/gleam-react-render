@@ -376,11 +376,11 @@ const Profile = () => {
   const displayUser = isEditing ? editedUser : user
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <div className="container mx-auto p-2 max-w-7xl pt-6">
-        <Card className="mb-6 overflow-hidden shadow-sm border-0">
+        <Card className="mb-6 overflow-hidden shadow-sm border-0 bg-card">
           <div
-            className="relative h-40 md:h-48 bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900"
+            className="relative h-40 md:h-48 bg-card border-b"
             style={{
               backgroundImage: selectedCoverImage
                 ? `url(${URL.createObjectURL(selectedCoverImage)})`
