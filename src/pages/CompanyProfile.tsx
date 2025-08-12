@@ -201,9 +201,9 @@ const CompanyProfile = () => {
       {/* Header Banner */}
       <Card className="border-none rounded-none shadow-none bg-card">
         <div className="relative">
-          <div className="w-full h-48 relative overflow-hidden border-b bg-cover bg-center" style={{backgroundImage: 'url(https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200&h=300&fit=crop)'}}>
+          <div className="w-full h-48 relative overflow-hidden border-b bg-cover bg-center" style={{ backgroundImage: 'url(https://eatability.com.au/wp-content/uploads/2022/05/20-Nigerian-Catering-Foods-Ideas-13.jpg)' }}>
             <div className="absolute inset-0 bg-black/20"></div>
-            <div className="absolute top-4 right-4 z-10">
+            <div className="absolute top-4 right-4 z-9">
               <Button variant="secondary" size="sm">
                 <Camera className="w-4 h-4 mr-2" />
                 Edit Cover
