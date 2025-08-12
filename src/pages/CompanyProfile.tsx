@@ -199,7 +199,7 @@ const CompanyProfile = () => {
   return (
     <div className="min-h-screen">
       {/* Header Banner */}
-      <Card className="border-none rounded-none shadow-none">
+      <Card className="border-none rounded-none shadow-none bg-card">
         <div className="relative">
           <div className="w-full h-48 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 relative overflow-hidden">
             <div className="absolute inset-0 bg-black/20"></div>
@@ -210,8 +210,8 @@ const CompanyProfile = () => {
               </Button>
             </div>
             
-            {/* Company Logo - Positioned at bottom of cover */}
-            <div className="absolute bottom-4 left-6">
+            {/* Company Logo - Positioned lower and more to the right */}
+            <div className="absolute bottom-[-12px] left-8">
               <div className="w-24 h-24 rounded-lg border-4 border-white shadow-lg overflow-hidden bg-card">
                 {companyData.logo ? (
                   <img 
@@ -228,8 +228,8 @@ const CompanyProfile = () => {
             </div>
           </div>
 
-          {/* Company Info in Header */}
-          <CardContent className="pt-6 pb-4 px-6">
+          {/* Company Info in Header - Moved right */}
+          <CardContent className="pt-6 pb-4 px-8 ml-24">
             <div className="flex justify-between items-start">
               <div>
                 <h1 className="text-3xl font-bold mb-1">{companyData.name}</h1>

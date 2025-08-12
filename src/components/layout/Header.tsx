@@ -3,7 +3,7 @@
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { LogOut, Bell, MessageCircle, UserIcon, Home, LayoutDashboard, ClipboardList } from "lucide-react"
+import { LogOut, Bell, MessageCircle, UserIcon, Home, LayoutDashboard, ClipboardList, Hash } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,6 +63,7 @@ export const Header = () => {
 
   const menuItems = [
     { label: "Explore", path: "/feed", icon: Home },
+    { label: "Trending", path: "/trending", icon: Hash },
     { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { label: "Task History", path: "/task-history", icon: ClipboardList },
   ]
