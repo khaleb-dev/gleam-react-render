@@ -202,20 +202,20 @@ const CompanyProfile = () => {
       <Card className="border-none rounded-none shadow-none bg-card">
         <div className="relative">
           <div className="w-full h-48 bg-card relative overflow-hidden border-b">
-            
+
             <div className="absolute top-4 right-4">
               <Button variant="secondary" size="sm">
                 <Camera className="w-4 h-4 mr-2" />
                 Edit Cover
               </Button>
             </div>
-            
+
             {/* Company Logo - Positioned below the cover area */}
-            <div className="absolute bottom-[-48px] left-8">
+            <div className="absolute bottom-[-50px] left-8">
               <div className="w-24 h-24 rounded-lg border-4 border-white shadow-lg overflow-hidden bg-card">
                 {companyData.logo ? (
-                  <img 
-                    src={companyData.logo} 
+                  <img
+                    src={companyData.logo}
                     alt={companyData.name}
                     className="w-full h-full object-cover"
                   />
@@ -235,13 +235,13 @@ const CompanyProfile = () => {
                 <h1 className="text-3xl font-bold mb-1">{companyData.name}</h1>
                 <p className="text-muted-foreground mb-2">@{companyData.company_url}</p>
                 <p className="mb-3">{companyData.tag_line}</p>
-                
+
                 <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
                   <div className="flex items-center gap-1">
                     <LinkIcon className="w-4 h-4" />
-                    <a 
-                      href={companyData.website} 
-                      target="_blank" 
+                    <a
+                      href={companyData.website}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:underline"
                     >
@@ -255,7 +255,7 @@ const CompanyProfile = () => {
                   <span><strong>5.8K</strong> <span className="text-muted-foreground">Followers</span></span>
                 </div>
               </div>
-              
+
               <div className="flex gap-2">
                 <Button variant="outline" className="rounded-full px-6">
                   Message
@@ -270,16 +270,16 @@ const CompanyProfile = () => {
       </Card>
 
       {/* Main Content */}
-      <div className="max-w-[1400px] mx-auto px-8">
+      <div className=" mx-auto">
         <div className="flex gap-6 mt-6">
-          
+
           {/* Left Sidebar */}
-          <div className="w-80 space-y-6">
+          <div className="w-[25%] space-y-6">
             {/* About Section */}
             <Card>
               <CardContent className="space-y-3 pt-6">
                 <p className="text-sm text-muted-foreground">{companyData.tag_line}</p>
-                
+
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Building2 className="w-4 h-4 text-muted-foreground" />
@@ -304,8 +304,8 @@ const CompanyProfile = () => {
                     <div className="flex items-start gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                       <div className="relative flex-shrink-0">
                         <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted">
-                          <img 
-                            src={product.logo} 
+                          <img
+                            src={product.logo}
                             alt={product.name}
                             className="w-full h-full object-cover"
                           />
@@ -362,7 +362,7 @@ const CompanyProfile = () => {
           {/* Middle Feed */}
           <div className="flex-1 space-y-6">
             {/* Create Post - Using CreatePostCard Component */}
-            <CreatePostCard 
+            <CreatePostCard
               user={{
                 ...companyData.admin_id,
                 profile_avatar: companyData.logo,
@@ -395,18 +395,18 @@ const CompanyProfile = () => {
                 <FeedCard
                   key={post._id}
                   post={post}
-                  onLike={() => {}}
-                  onUnlike={() => {}}
-                  onComment={() => {}}
-                  onDeleteComment={() => {}}
-                  onDeletePost={() => {}}
+                  onLike={() => { }}
+                  onUnlike={() => { }}
+                  onComment={() => { }}
+                  onDeleteComment={() => { }}
+                  onDeletePost={() => { }}
                 />
               ))}
             </div>
           </div>
 
           {/* Right Sidebar */}
-          <div className="w-80 space-y-6">
+          <div className="w-[25%] space-y-6">
             {/* Company Stats */}
             <Card>
               <CardHeader>
