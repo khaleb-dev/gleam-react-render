@@ -212,7 +212,7 @@ const CompanyProfile = () => {
           </div>
 
           {/* Company Logo - Positioned below the cover area */}
-          <div className="absolute bottom-[-60px] left-8 z-10">
+          <div className="absolute top-[150px] left-8 z-9">
             <div className="w-24 h-24 rounded-lg border-4 border-white shadow-lg overflow-hidden bg-card">
               {companyData.logo ? (
                 <img
@@ -229,9 +229,9 @@ const CompanyProfile = () => {
           </div>
 
           {/* Company Info in Header - Moved right */}
-          <CardContent className="pt-16 pb-4 px-8 ml-24">
+          <CardContent className="pt-10 pb-4 px-8 ml-24">
             <div className="flex justify-between items-start">
-              <div>
+              <div className='ml-5 mt-[-30px]'>
                 <h1 className="text-3xl font-bold mb-1">{companyData.name}</h1>
                 <p className="text-muted-foreground mb-2">@{companyData.company_url}</p>
                 <p className="mb-3">{companyData.tag_line}</p>
