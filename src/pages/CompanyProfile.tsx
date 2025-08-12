@@ -209,27 +209,27 @@ const CompanyProfile = () => {
                 Edit Cover
               </Button>
             </div>
+          </div>
 
-            {/* Company Logo - Positioned below the cover area */}
-            <div className="absolute bottom-[-50px] left-8">
-              <div className="w-24 h-24 rounded-lg border-4 border-white shadow-lg overflow-hidden bg-card">
-                {companyData.logo ? (
-                  <img
-                    src={companyData.logo}
-                    alt={companyData.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-muted flex items-center justify-center">
-                    <Building2 className="w-12 h-12 text-muted-foreground" />
-                  </div>
-                )}
-              </div>
+          {/* Company Logo - Positioned below the cover area */}
+          <div className="absolute bottom-[-60px] left-8 z-10">
+            <div className="w-24 h-24 rounded-lg border-4 border-white shadow-lg overflow-hidden bg-card">
+              {companyData.logo ? (
+                <img
+                  src={companyData.logo}
+                  alt={companyData.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-muted flex items-center justify-center">
+                  <Building2 className="w-12 h-12 text-muted-foreground" />
+                </div>
+              )}
             </div>
           </div>
 
           {/* Company Info in Header - Moved right */}
-          <CardContent className="pt-12 pb-4 px-8 ml-24">
+          <CardContent className="pt-16 pb-4 px-8 ml-24">
             <div className="flex justify-between items-start">
               <div>
                 <h1 className="text-3xl font-bold mb-1">{companyData.name}</h1>
