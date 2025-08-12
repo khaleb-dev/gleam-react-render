@@ -19,7 +19,7 @@ const Company = () => {
       icon: <Package className="h-12 w-12 text-primary" />,
       title: "Product",
       description: "What new product is your company working on",
-      action: () => console.log("Product setup coming soon")
+      action: () => navigate("/new/company/product/setup")
     },
   ]
 

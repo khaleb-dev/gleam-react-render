@@ -39,6 +39,7 @@ import Search from "./pages/Search"
 import Company from "./pages/Company"
 import CompanySetup from "./pages/CompanySetup"
 import CompanyProfile from "./pages/CompanyProfile"
+import ProductSetup from "./pages/ProductSetup"
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -366,6 +367,17 @@ function App() {
                 <CompanySetup />
               </Layout>
 
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/new/company/product/setup"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ProductSetup />
+              </Layout>
             </ProtectedRoute>
           }
         />
