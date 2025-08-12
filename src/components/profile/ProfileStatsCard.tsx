@@ -8,32 +8,13 @@ import { useLinkup } from '@/hooks/useLinkup';
 import { LinkupFollowersModal } from './LinkupFollowersModal';
 import type { User } from '@/types';
 
-export const ProfileStatsCard = () => {
-  const { loggedInUser } = useAuth();
-  const [user, setUser] = useState<User | null>(null);
+interface ProfileStatsCardProps {
+  user?: User | null;
+}
+
+export const ProfileStatsCard = ({ user }: ProfileStatsCardProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalInitialTab, setModalInitialTab] = useState<'linkups' | 'followers'>('linkups');
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const getUser = async () => {
-      try {
-        const userData = await loggedInUser();
-        if (userData && isMounted) {
-          setUser(userData);
-        }
-      } catch (error) {
-        console.error("Error fetching user:", error);
-      }
-    };
-
-    getUser();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const { data: profileStats, isLoading: statsLoading } = useProfileStats(user?._id);
   const { counts } = useLinkup(user?._id || '');

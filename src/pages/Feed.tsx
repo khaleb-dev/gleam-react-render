@@ -272,7 +272,7 @@ const Feed = () => {
             {/* Left Sidebar - Profile Stats and Top Responders (Only show on large screens) */}
             <div className="hidden lg:block lg:w-75 lg:flex-shrink-0 lg:pt-4">
               <div className="space-y-4">
-                <ProfileStatsCard />
+                <ProfileStatsCard user={user} />
                 <UserPagesCard />
                 <ChallengeCard />
                 <WeeklyTopResponders />
