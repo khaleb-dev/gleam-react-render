@@ -340,7 +340,7 @@ const CompanyProfile = () => {
                   <Input
                     value={editedData.name}
                     onChange={(e) => setEditedData({...editedData, name: e.target.value})}
-                    className="text-3xl font-bold mb-1 border-none shadow-none bg-transparent p-0 h-auto"
+                    className="text-3xl font-bold mb-1 border border-border/50 shadow-none bg-transparent p-2 h-auto rounded-md"
                   />
                 ) : (
                   <h1 className="text-3xl font-bold mb-1">{companyData.name}</h1>
@@ -350,7 +350,7 @@ const CompanyProfile = () => {
                   <Input
                     value={editedData.tag_line}
                     onChange={(e) => setEditedData({...editedData, tag_line: e.target.value})}
-                    className="mb-3 border-none shadow-none bg-transparent p-0 h-auto"
+                    className="mb-3 border border-border/50 shadow-none bg-transparent p-2 h-auto rounded-md"
                   />
                 ) : (
                   <p className="mb-3">{companyData.tag_line}</p>
@@ -363,7 +363,7 @@ const CompanyProfile = () => {
                       <Input
                         value={editedData.website}
                         onChange={(e) => setEditedData({...editedData, website: e.target.value})}
-                        className="text-primary border-none shadow-none bg-transparent p-0 h-auto"
+                        className="text-primary border border-border/50 shadow-none bg-transparent p-1 h-auto rounded-md"
                       />
                     ) : (
                       <a
@@ -429,16 +429,44 @@ const CompanyProfile = () => {
             {/* About Section */}
             <Card>
               <CardContent className="space-y-3 pt-6">
-                <p className="text-sm text-muted-foreground">{companyData.tag_line}</p>
+                {isEditing ? (
+                  <Textarea
+                    value={editedData.tag_line}
+                    onChange={(e) => setEditedData({...editedData, tag_line: e.target.value})}
+                    placeholder="Company tagline or description"
+                    className="text-sm border border-border/50 bg-transparent rounded-md resize-none"
+                    rows={3}
+                  />
+                ) : (
+                  <p className="text-sm text-muted-foreground">{companyData.tag_line}</p>
+                )}
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Building2 className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm">{companyData.industry}</span>
+                    {isEditing ? (
+                      <Input
+                        value={editedData.industry}
+                        onChange={(e) => setEditedData({...editedData, industry: e.target.value})}
+                        placeholder="Industry type"
+                        className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
+                      />
+                    ) : (
+                      <span className="text-sm">{companyData.industry}</span>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm">{companyData.size} employees</span>
+                    {isEditing ? (
+                      <Input
+                        value={editedData.size}
+                        onChange={(e) => setEditedData({...editedData, size: e.target.value})}
+                        placeholder="Company size"
+                        className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
+                      />
+                    ) : (
+                      <span className="text-sm">{companyData.size} employees</span>
+                    )}
                   </div>
                 </div>
               </CardContent>
