@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input"
 import { useSearchParams } from "react-router-dom"
 import type { User } from "@/types"
 import { ProfileStatsCard } from "@/components/profile/ProfileStatsCard"
+import { UserPagesCard } from "@/components/feed/UserPagesCard"
 
 interface FeedPost {
   _id: string
@@ -272,6 +273,7 @@ const Feed = () => {
             <div className="hidden lg:block lg:w-75 lg:flex-shrink-0 lg:pt-4">
               <div className="space-y-4">
                 <ProfileStatsCard />
+                <UserPagesCard />
                 <ChallengeCard />
                 <WeeklyTopResponders />
               </div>
