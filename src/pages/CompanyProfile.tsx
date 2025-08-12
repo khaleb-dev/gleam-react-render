@@ -1,13 +1,15 @@
 
 import React from 'react';
-import { useParams } from 'react-router-dom';
-import { Building2, Users, Globe, Calendar, Camera, MapPin, Link as LinkIcon, ExternalLink, Plus, MessageCircle } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Building2, Users, Globe, Calendar, Camera, MapPin, Link as LinkIcon, ExternalLink, Plus, MessageCircle, Settings, Edit, Save, X, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useCompanyPageData } from '@/hooks/useCompanyPageData';
 import { toast } from 'sonner';
 import { FeedCard } from '@/components/feed/FeedCard';
@@ -135,9 +137,113 @@ const ProgressCircle = ({ percentage, size = 60 }: { percentage: number; size?: 
 
 const CompanyProfile = () => {
   const { identifier } = useParams<{ identifier: string }>();
+  const navigate = useNavigate();
   const [postContent, setPostContent] = React.useState('');
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [editedData, setEditedData] = React.useState({
+    name: '',
+    tag_line: '',
+    website: '',
+    industry: '',
+    size: ''
+  });
+  const [inviteModalOpen, setInviteModalOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [selectedUsers, setSelectedUsers] = React.useState<any[]>([]);
 
   const { data, isLoading, error } = useCompanyPageData(identifier || '');
+  const companyData = data?.data;
+
+  // Mock users data for search
+  const mockUsers = [
+    {
+      _id: "user1",
+      first_name: "John",
+      last_name: "Doe", 
+      email: "john.doe@example.com",
+      profile_avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=center"
+    },
+    {
+      _id: "user2",
+      first_name: "Jane",
+      last_name: "Smith",
+      email: "jane.smith@example.com", 
+      profile_avatar: "https://images.unsplash.com/photo-1494790108755-2616b332c9ad?w=100&h=100&fit=crop&crop=center"
+    },
+    {
+      _id: "user3",
+      first_name: "Mike",
+      last_name: "Johnson",
+      email: "mike.johnson@example.com",
+      profile_avatar: null
+    }
+  ];
+
+  const filteredUsers = mockUsers.filter(user => 
+    user.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.last_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Initialize edited data when company data loads
+  React.useEffect(() => {
+    if (companyData) {
+      setEditedData({
+        name: companyData.name,
+        tag_line: companyData.tag_line,
+        website: companyData.website,
+        industry: companyData.industry,
+        size: companyData.size
+      });
+    }
+  }, [companyData]);
+
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing);
+    if (isEditing) {
+      // Reset to original data if canceling
+      setEditedData({
+        name: companyData.name,
+        tag_line: companyData.tag_line,
+        website: companyData.website,
+        industry: companyData.industry,
+        size: companyData.size
+      });
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      // Here you would make an API call to save the changes
+      toast.success('Company profile updated successfully!');
+      setIsEditing(false);
+    } catch (error) {
+      toast.error('Failed to update company profile');
+    }
+  };
+
+  const toggleUserSelection = (user: any) => {
+    setSelectedUsers(prev => {
+      const isSelected = prev.some(u => u._id === user._id);
+      if (isSelected) {
+        return prev.filter(u => u._id !== user._id);
+      } else {
+        return [...prev, user];
+      }
+    });
+  };
+
+  const handleInviteUsers = async () => {
+    try {
+      // Here you would make an API call to invite users
+      toast.success(`Invited ${selectedUsers.length} user(s) successfully!`);
+      setInviteModalOpen(false);
+      setSelectedUsers([]);
+      setSearchQuery('');
+    } catch (error) {
+      toast.error('Failed to invite users');
+    }
+  };
 
   if (!identifier) {
     return (
@@ -175,8 +281,6 @@ const CompanyProfile = () => {
       </div>
     );
   }
-
-  const companyData = data.data;
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -232,21 +336,45 @@ const CompanyProfile = () => {
           <CardContent className="pt-10 pb-4 px-8 ml-24">
             <div className="flex justify-between items-start">
               <div className='ml-5 mt-[-30px]'>
-                <h1 className="text-3xl font-bold mb-1">{companyData.name}</h1>
+                {isEditing ? (
+                  <Input
+                    value={editedData.name}
+                    onChange={(e) => setEditedData({...editedData, name: e.target.value})}
+                    className="text-3xl font-bold mb-1 border-none shadow-none bg-transparent p-0 h-auto"
+                  />
+                ) : (
+                  <h1 className="text-3xl font-bold mb-1">{companyData.name}</h1>
+                )}
                 <p className="text-muted-foreground mb-2">@{companyData.company_url}</p>
-                <p className="mb-3">{companyData.tag_line}</p>
+                {isEditing ? (
+                  <Input
+                    value={editedData.tag_line}
+                    onChange={(e) => setEditedData({...editedData, tag_line: e.target.value})}
+                    className="mb-3 border-none shadow-none bg-transparent p-0 h-auto"
+                  />
+                ) : (
+                  <p className="mb-3">{companyData.tag_line}</p>
+                )}
 
                 <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
                   <div className="flex items-center gap-1">
                     <LinkIcon className="w-4 h-4" />
-                    <a
-                      href={companyData.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline"
-                    >
-                      {companyData.website}
-                    </a>
+                    {isEditing ? (
+                      <Input
+                        value={editedData.website}
+                        onChange={(e) => setEditedData({...editedData, website: e.target.value})}
+                        className="text-primary border-none shadow-none bg-transparent p-0 h-auto"
+                      />
+                    ) : (
+                      <a
+                        href={companyData.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        {companyData.website}
+                      </a>
+                    )}
                   </div>
                 </div>
 
@@ -257,7 +385,10 @@ const CompanyProfile = () => {
               </div>
 
               <div className="flex gap-2">
-                <Button variant="outline" className="rounded-full px-6 border-primary text-primary bg-background hover:bg-primary hover:text-primary-foreground">
+                <Button 
+                  variant="outline" 
+                  className="rounded-full px-6 border-primary text-primary bg-white hover:bg-primary hover:text-white"
+                >
                   <MessageCircle className="w-4 h-4 mr-2" />
                   Message
                 </Button>
@@ -265,6 +396,24 @@ const CompanyProfile = () => {
                   <Plus className="w-4 h-4 mr-2" />
                   Follow
                 </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={isEditing ? handleSaveChanges : handleEditToggle}
+                  className="rounded-full"
+                >
+                  {isEditing ? <Save className="w-4 h-4" /> : <Settings className="w-4 h-4" />}
+                </Button>
+                {isEditing && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={handleEditToggle}
+                    className="rounded-full"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
             </div>
           </CardContent>
@@ -298,7 +447,17 @@ const CompanyProfile = () => {
             {/* Products Section - Redesigned */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Products</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">Products</CardTitle>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => navigate('/create-product')}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 {mockProducts.map((product) => (
@@ -333,7 +492,82 @@ const CompanyProfile = () => {
             {/* Team Members */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Team</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">Members</CardTitle>
+                  <Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
+                    <DialogTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 w-8 p-0"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Invite Members</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            placeholder="Search users..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-10"
+                          />
+                        </div>
+                        
+                        <div className="max-h-60 overflow-y-auto space-y-2">
+                          {filteredUsers.map((user) => {
+                            const isSelected = selectedUsers.some(u => u._id === user._id);
+                            return (
+                              <div
+                                key={user._id}
+                                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                                  isSelected ? 'bg-primary/10 border-primary' : 'hover:bg-muted/50'
+                                }`}
+                                onClick={() => toggleUserSelection(user)}
+                              >
+                                <Avatar className="w-10 h-10">
+                                  <AvatarImage src={user.profile_avatar || ''} />
+                                  <AvatarFallback>
+                                    {user.first_name[0]}{user.last_name[0]}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-sm">
+                                    {user.first_name} {user.last_name}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {user.email}
+                                  </p>
+                                </div>
+                                {isSelected && (
+                                  <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                                    <Plus className="w-3 h-3 text-primary-foreground rotate-45" />
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        
+                        {selectedUsers.length > 0 && (
+                          <div className="flex items-center justify-between pt-4 border-t">
+                            <span className="text-sm text-muted-foreground">
+                              {selectedUsers.length} user(s) selected
+                            </span>
+                            <Button onClick={handleInviteUsers}>
+                              Invite Selected
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 {companyData.members.slice(0, 5).map((member) => (
