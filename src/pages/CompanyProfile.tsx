@@ -145,7 +145,8 @@ const CompanyProfile = () => {
     tag_line: '',
     website: '',
     industry: '',
-    size: ''
+    size: '',
+    description: ''
   });
   const [inviteModalOpen, setInviteModalOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -193,7 +194,8 @@ const CompanyProfile = () => {
         tag_line: companyData.tag_line,
         website: companyData.website,
         industry: companyData.industry,
-        size: companyData.size
+        size: companyData.size,
+        description: ''
       });
     }
   }, [companyData]);
@@ -207,7 +209,8 @@ const CompanyProfile = () => {
         tag_line: companyData.tag_line,
         website: companyData.website,
         industry: companyData.industry,
-        size: companyData.size
+        size: companyData.size,
+        description: ''
       });
     }
   };
@@ -428,20 +431,24 @@ const CompanyProfile = () => {
           <div className="w-[25%] space-y-6">
             {/* About Section */}
             <Card>
-              <CardContent className="space-y-3 pt-6">
+              <CardContent className="space-y-4 pt-6">
+                <h3 className="font-semibold text-lg">About {companyData.name}</h3>
+                
                 {isEditing ? (
                   <Textarea
-                    value={editedData.tag_line}
-                    onChange={(e) => setEditedData({...editedData, tag_line: e.target.value})}
-                    placeholder="Company tagline or description"
-                    className="text-sm border border-border/50 bg-transparent rounded-md resize-none"
-                    rows={3}
+                    value={editedData.description}
+                    onChange={(e) => setEditedData({...editedData, description: e.target.value})}
+                    placeholder="Company description"
+                    className="text-sm border border-border/50 bg-transparent rounded-md resize-none min-h-[120px]"
+                    rows={5}
                   />
                 ) : (
-                  <p className="text-sm text-muted-foreground">{companyData.tag_line}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    We are a leading software company dedicated to delivering innovative solutions that help businesses streamline their operations and achieve their goals. Our team of experienced developers and designers work tirelessly to create cutting-edge applications that meet the evolving needs of our clients in today's digital landscape.
+                  </p>
                 )}
 
-                <div className="space-y-2">
+                <div className="space-y-2 pt-2">
                   <div className="flex items-center gap-2">
                     <Building2 className="w-4 h-4 text-muted-foreground" />
                     {isEditing ? (
