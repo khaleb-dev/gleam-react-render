@@ -201,8 +201,8 @@ const CompanyProfile = () => {
       {/* Header Banner */}
       <Card className="border-none rounded-none shadow-none bg-card">
         <div className="relative">
-          <div className="w-full h-48 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 relative overflow-hidden">
-            <div className="absolute inset-0 bg-black/20"></div>
+          <div className="w-full h-48 bg-card relative overflow-hidden border-b">
+            
             <div className="absolute top-4 right-4">
               <Button variant="secondary" size="sm">
                 <Camera className="w-4 h-4 mr-2" />
