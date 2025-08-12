@@ -270,11 +270,11 @@ const CompanyProfile = () => {
       </Card>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex gap-6 mt-6">
+      <div className="max-w-7xl mx-auto px-8">
+        <div className="flex gap-4 mt-6">
           
           {/* Left Sidebar */}
-          <div className="w-72 space-y-6 ml-8">
+          <div className="w-80 space-y-6">
             {/* About Section */}
             <Card>
               <CardContent className="space-y-3 pt-6">
@@ -406,7 +406,7 @@ const CompanyProfile = () => {
           </div>
 
           {/* Right Sidebar */}
-          <div className="w-72 space-y-6">
+          <div className="w-80 space-y-6">
             {/* Company Stats */}
             <Card>
               <CardHeader>
