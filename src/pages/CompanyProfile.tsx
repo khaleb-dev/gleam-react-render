@@ -146,7 +146,8 @@ const CompanyProfile = () => {
     website: '',
     industry: '',
     size: '',
-    description: ''
+    description: '',
+    aboutDescription: ''
   });
   const [inviteModalOpen, setInviteModalOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -195,7 +196,8 @@ const CompanyProfile = () => {
         website: companyData.website,
         industry: companyData.industry,
         size: companyData.size,
-        description: ''
+        description: '',
+        aboutDescription: 'We are a leading software company dedicated to delivering innovative solutions that help businesses streamline their operations and achieve their goals. Our team of experienced developers and designers work tirelessly to create cutting-edge applications that meet the evolving needs of our clients in today\'s digital landscape.'
       });
     }
   }, [companyData]);
@@ -210,7 +212,8 @@ const CompanyProfile = () => {
         website: companyData.website,
         industry: companyData.industry,
         size: companyData.size,
-        description: ''
+        description: '',
+        aboutDescription: 'We are a leading software company dedicated to delivering innovative solutions that help businesses streamline their operations and achieve their goals. Our team of experienced developers and designers work tirelessly to create cutting-edge applications that meet the evolving needs of our clients in today\'s digital landscape.'
       });
     }
   };
@@ -637,9 +640,19 @@ const CompanyProfile = () => {
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {companyData.tag_line}
                   </p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    We are a leading software company dedicated to delivering innovative solutions that help businesses streamline their operations and achieve their goals. Our team of experienced developers and designers work tirelessly to create cutting-edge applications that meet the evolving needs of our clients in today's digital landscape.
-                  </p>
+                  {isEditing ? (
+                    <Textarea
+                      value={editedData.aboutDescription}
+                      onChange={(e) => setEditedData({ ...editedData, aboutDescription: e.target.value })}
+                      className="text-sm border border-border/50 bg-transparent p-3 rounded-md resize-none"
+                      rows={4}
+                      placeholder="Describe your company..."
+                    />
+                  ) : (
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {editedData.aboutDescription}
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
