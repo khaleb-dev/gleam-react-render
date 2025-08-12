@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { Building2, Users, Globe, Calendar, Camera, MapPin, Link as LinkIcon, ExternalLink } from 'lucide-react';
+import { Building2, Users, Globe, Calendar, Camera, MapPin, Link as LinkIcon, ExternalLink, Plus, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -201,9 +201,9 @@ const CompanyProfile = () => {
       {/* Header Banner */}
       <Card className="border-none rounded-none shadow-none bg-card">
         <div className="relative">
-          <div className="w-full h-48 bg-card relative overflow-hidden border-b">
-
-            <div className="absolute top-4 right-4">
+          <div className="w-full h-48 relative overflow-hidden border-b bg-cover bg-center" style={{backgroundImage: 'url(https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200&h=300&fit=crop)'}}>
+            <div className="absolute inset-0 bg-black/20"></div>
+            <div className="absolute top-4 right-4 z-10">
               <Button variant="secondary" size="sm">
                 <Camera className="w-4 h-4 mr-2" />
                 Edit Cover
@@ -257,10 +257,12 @@ const CompanyProfile = () => {
               </div>
 
               <div className="flex gap-2">
-                <Button variant="outline" className="rounded-full px-6">
+                <Button variant="outline" className="rounded-full px-6 border-primary text-primary bg-background hover:bg-primary hover:text-primary-foreground">
+                  <MessageCircle className="w-4 h-4 mr-2" />
                   Message
                 </Button>
                 <Button className="rounded-full px-6">
+                  <Plus className="w-4 h-4 mr-2" />
                   Follow
                 </Button>
               </div>
