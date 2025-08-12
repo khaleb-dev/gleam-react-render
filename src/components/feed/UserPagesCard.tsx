@@ -11,7 +11,7 @@ export const UserPagesCard = () => {
   const navigate = useNavigate();
 
   const handlePageClick = (companyUrl: string) => {
-    navigate(`/company/${companyUrl}`);
+    navigate(`/company/page/${companyUrl}`);
   };
 
   if (isLoading) {
@@ -48,9 +48,9 @@ export const UserPagesCard = () => {
   return (
     <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-semibold flex items-center gap-2">
+        <CardTitle className="text-sm font-semibold flex items-center gap-2">
           <Building2 className="h-5 w-5" />
-          My Pages ({count})
+          Pages {count}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -67,6 +67,7 @@ export const UserPagesCard = () => {
                 onError={(e) => {
                   e.currentTarget.src = `https://api.dicebear.com/7.x/initials/svg?seed=${page.name}`;
                 }}
+                className="cover"
               />
               <AvatarFallback>
                 {page.name.substring(0, 2).toUpperCase()}
