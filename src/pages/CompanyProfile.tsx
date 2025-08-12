@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useCompanyPageData } from '@/hooks/useCompanyPageData';
 import { toast } from 'sonner';
 import { FeedCard } from '@/components/feed/FeedCard';
+import { CreatePostCard } from '@/components/feed/CreatePostCard';
 
 // Mock products data with images
 const mockProducts = [
@@ -185,10 +186,14 @@ const CompanyProfile = () => {
     });
   };
 
-  const handlePostSubmit = () => {
-    if (!postContent.trim()) return;
-    toast.success('Post created successfully!');
-    setPostContent('');
+  const handlePostSubmit = async (postData: any) => {
+    try {
+      toast.success('Post created successfully!');
+      setPostContent('');
+    } catch (error) {
+      console.error('Error creating post:', error);
+      toast.error('Failed to create post');
+    }
   };
 
   return (
@@ -269,13 +274,10 @@ const CompanyProfile = () => {
         <div className="flex gap-6 mt-6">
           
           {/* Left Sidebar */}
-          <div className="w-72 space-y-6">
+          <div className="w-72 space-y-6 ml-4">
             {/* About Section */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">About</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-3 pt-6">
                 <p className="text-sm text-muted-foreground">{companyData.tag_line}</p>
                 
                 <div className="space-y-2">
@@ -359,41 +361,16 @@ const CompanyProfile = () => {
 
           {/* Middle Feed */}
           <div className="flex-1 space-y-6">
-            {/* Create Post - Using Feed Style */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex gap-4">
-                  <Avatar className="w-12 h-12">
-                    <AvatarImage src={companyData.logo} />
-                    <AvatarFallback>
-                      <Building2 className="w-6 h-6" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <Textarea
-                      placeholder={`What's happening at ${companyData.name}?`}
-                      value={postContent}
-                      onChange={(e) => setPostContent(e.target.value)}
-                      className="min-h-[120px] resize-none border-0 shadow-none focus-visible:ring-0 text-base placeholder:text-base p-0"
-                    />
-                    <div className="flex justify-between items-center mt-4 pt-4 border-t">
-                      <div className="flex gap-3">
-                        <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/10">
-                          <Camera className="w-5 h-5" />
-                        </Button>
-                      </div>
-                      <Button 
-                        onClick={handlePostSubmit} 
-                        disabled={!postContent.trim()}
-                        className="rounded-full px-8"
-                      >
-                        Post
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Create Post - Using CreatePostCard Component */}
+            <CreatePostCard 
+              user={{
+                ...companyData.admin_id,
+                profile_avatar: companyData.logo,
+                user_id: companyData.admin_id._id,
+                role: 'admin'
+              } as any}
+              onPostCreate={handlePostSubmit}
+            />
 
             {/* Company About Description */}
             <Card>
@@ -405,31 +382,9 @@ const CompanyProfile = () => {
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {companyData.tag_line}
                   </p>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium text-card-foreground">Industry:</span>
-                      <p className="text-muted-foreground">{companyData.industry}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-card-foreground">Company Size:</span>
-                      <p className="text-muted-foreground">{companyData.size} employees</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-card-foreground">Website:</span>
-                      <a 
-                        href={companyData.website} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline block"
-                      >
-                        {companyData.website}
-                      </a>
-                    </div>
-                    <div>
-                      <span className="font-medium text-card-foreground">Founded:</span>
-                      <p className="text-muted-foreground">{formatDate(companyData.createdAt)}</p>
-                    </div>
-                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    We are a leading software company dedicated to delivering innovative solutions that help businesses streamline their operations and achieve their goals. Our team of experienced developers and designers work tirelessly to create cutting-edge applications that meet the evolving needs of our clients in today's digital landscape.
+                  </p>
                 </div>
               </CardContent>
             </Card>
