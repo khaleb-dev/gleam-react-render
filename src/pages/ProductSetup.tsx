@@ -110,7 +110,7 @@ const ProductSetup = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {isLoadingPages ? (
-                        <SelectItem value="" disabled>Loading pages...</SelectItem>
+                        <SelectItem value="loading" disabled>Loading pages...</SelectItem>
                       ) : userPagesData.length > 0 ? (
                         userPagesData.map((page: any) => (
                           <SelectItem key={page._id} value={page._id}>
@@ -118,7 +118,7 @@ const ProductSetup = () => {
                           </SelectItem>
                         ))
                       ) : (
-                        <SelectItem value="" disabled>No pages available</SelectItem>
+                        <SelectItem value="no-pages" disabled>No pages available</SelectItem>
                       )}
                     </SelectContent>
                   </Select>
