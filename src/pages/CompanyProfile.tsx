@@ -11,49 +11,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useCompanyPageData } from '@/hooks/useCompanyPageData';
+import { useProducts } from '@/hooks/useProducts';
 import { toast } from 'sonner';
 import { FeedCard } from '@/components/feed/FeedCard';
 import { CreatePostCard } from '@/components/feed/CreatePostCard';
-
-// Mock products data with images
-const mockProducts = [
-  {
-    _id: "689afa289cb6d83447161f1b",
-    page_id: "6898c2362ea5da920c341732",
-    name: "Chat System",
-    description: "A private chat system for secure communication",
-    percentage: 75,
-    logo: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=100&h=100&fit=crop&crop=center",
-    is_live: true,
-    createdAt: "2025-08-12T08:24:08.247Z",
-    updatedAt: "2025-08-12T08:24:08.247Z",
-    __v: 0
-  },
-  {
-    _id: "689afa289cb6d83447161f2b",
-    page_id: "6898c2362ea5da920c341732",
-    name: "Analytics Dashboard",
-    description: "Real-time analytics and reporting platform",
-    percentage: 90,
-    logo: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=100&h=100&fit=crop&crop=center",
-    is_live: true,
-    createdAt: "2025-08-11T08:24:08.247Z",
-    updatedAt: "2025-08-11T08:24:08.247Z",
-    __v: 0
-  },
-  {
-    _id: "689afa289cb6d83447161f3c",
-    page_id: "6898c2362ea5da920c341732",
-    name: "Mobile App",
-    description: "Cross-platform mobile application",
-    percentage: 30,
-    logo: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=100&h=100&fit=crop&crop=center",
-    is_live: false,
-    createdAt: "2025-08-10T08:24:08.247Z",
-    updatedAt: "2025-08-10T08:24:08.247Z",
-    __v: 0
-  }
-];
 
 // Mock posts data for feed
 const mockPosts = [
@@ -155,6 +116,9 @@ const CompanyProfile = () => {
 
   const { data, isLoading, error } = useCompanyPageData(identifier || '');
   const companyData = data?.data;
+  
+  const { data: productsData, isLoading: isLoadingProducts } = useProducts(companyData?._id || '');
+  const products = productsData?.data?.products || [];
 
   // Mock users data for search
   const mockUsers = [
@@ -482,8 +446,15 @@ const CompanyProfile = () => {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {mockProducts.map((product) => (
+              <CardContent className="space-y-3">
+                {isLoadingProducts ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <Skeleton key={i} className="h-16 w-full" />
+                    ))}
+                  </div>
+                ) : products.length > 0 ? (
+                  products.map((product) => (
                   <div key={product._id} className="group">
                     <div className="flex items-start gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                       <div className="relative flex-shrink-0">
@@ -508,7 +479,12 @@ const CompanyProfile = () => {
                       </div>
                     </div>
                   </div>
-                ))}
+                  ))
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-sm text-muted-foreground">No products found</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -687,7 +663,7 @@ const CompanyProfile = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Products</span>
-                  <span className="text-sm font-medium">{mockProducts.length}</span>
+                  <span className="text-sm font-medium">{products.length}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Team Members</span>
