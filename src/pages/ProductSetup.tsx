@@ -11,7 +11,7 @@ import { useCreateProduct } from '@/hooks/useCreateProduct'
 import { useUserPages } from '@/hooks/useUserPages'
 import { ProductPreview } from '@/components/product/ProductPreview'
 import { toast } from 'sonner'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 const ProductSetup = () => {
   const [formData, setFormData] = useState({
@@ -27,6 +27,18 @@ const ProductSetup = () => {
   const { mutate: createProduct, isPending: isCreatingProduct } = useCreateProduct()
   const { data: userPages, isLoading: isLoadingPages } = useUserPages()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  
+  // Get company info from URL params if available
+  const companyId = searchParams.get('companyId')
+  const companyName = searchParams.get('companyName')
+  
+  // Set default pageId if coming from company profile
+  React.useEffect(() => {
+    if (companyId && !formData.pageId) {
+      setFormData(prev => ({ ...prev, pageId: companyId }))
+    }
+  }, [companyId, formData.pageId])
 
   const handleInputChange = (field: string, value: string | boolean | number) => {
     setFormData(prev => ({
@@ -66,7 +78,12 @@ const ProductSetup = () => {
       onSuccess: (response) => {
         console.log('Product created successfully:', response)
         toast.success('Product created successfully!')
-        navigate('/feed')
+        // Navigate to company profile if we came from there, otherwise to feed
+        if (companyId && companyName) {
+          navigate(`/company/${encodeURIComponent(companyName)}`)
+        } else {
+          navigate('/feed')
+        }
       },
       onError: (error) => {
         console.error('Failed to create product:', error)
@@ -104,24 +121,24 @@ const ProductSetup = () => {
                   <Label htmlFor="pageId" className="text-sm font-medium text-gray-700">
                     Select Company Page<span className="text-red-500">*</span>
                   </Label>
-                  <Select value={formData.pageId} onValueChange={(value) => handleInputChange('pageId', value)} required>
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Select a company page" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {isLoadingPages ? (
-                        <SelectItem value="loading" disabled>Loading pages...</SelectItem>
-                      ) : userPagesData.length > 0 ? (
-                        userPagesData.map((page: any) => (
-                          <SelectItem key={page._id} value={page._id}>
-                            {page.name}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="no-pages" disabled>No pages available</SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
+                    <Select value={formData.pageId} onValueChange={(value) => handleInputChange('pageId', value)} required>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder={companyName ? `${companyName} (Selected)` : "Select a company page"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {isLoadingPages ? (
+                          <SelectItem value="loading" disabled>Loading pages...</SelectItem>
+                        ) : userPagesData.length > 0 ? (
+                          userPagesData.map((page: any) => (
+                            <SelectItem key={page._id} value={page._id}>
+                              {page.name}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="no-pages" disabled>No pages available</SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
                 </div>
 
                 {/* Product Name */}

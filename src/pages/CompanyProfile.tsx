@@ -439,7 +439,7 @@ const CompanyProfile = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => navigate('/create-product')}
+                    onClick={() => navigate(`/create-product?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}`)}
                     className="h-8 w-8 p-0"
                   >
                     <Plus className="w-4 h-4" />
@@ -468,14 +468,13 @@ const CompanyProfile = () => {
                         <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-card ${product.is_live ? 'bg-green-500' : 'bg-orange-500'}`}></div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center justify-between">
                           <h4 className="font-semibold text-sm truncate">{product.name}</h4>
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-muted-foreground">{product.percentage}%</span>
                             <ProgressCircle percentage={product.percentage} size={32} />
                           </div>
                         </div>
-                        <p className="text-xs text-muted-foreground line-clamp-2">{product.description}</p>
                       </div>
                     </div>
                   </div>
