@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { Plus, FileText, CheckSquare } from "lucide-react"
+import { Plus, FileText, CheckSquare, Users } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { CreatePostCard } from "./CreatePostCard"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
@@ -8,9 +8,10 @@ import type { User } from "@/types"
 
 interface SpeedDialProps {
   onPostCreate?: (postData: any) => Promise<void>
+  onInviteMembers?: () => void
 }
 
-export const SpeedDial: React.FC<SpeedDialProps> = ({ onPostCreate }) => {
+export const SpeedDial: React.FC<SpeedDialProps> = ({ onPostCreate, onInviteMembers }) => {
   const [isVisible, setIsVisible] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
   const [showCreatePost, setShowCreatePost] = useState(false)
@@ -87,6 +88,21 @@ export const SpeedDial: React.FC<SpeedDialProps> = ({ onPostCreate }) => {
             <FileText className="h-5 w-5 text-green-600" />
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Create Post</span>
           </button>
+
+          {/* Invite Members Button */}
+          {onInviteMembers && (
+            <button
+              onClick={() => {
+                onInviteMembers()
+                setIsExpanded(false)
+              }}
+              className="flex items-center space-x-2 bg-white dark:bg-gray-800 shadow-lg rounded-full px-4 py-3 hover:shadow-xl transition-all duration-200 border border-gray-200 dark:border-gray-700"
+              title="Invite Members"
+            >
+              <Users className="h-5 w-5 text-purple-600" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Invite Members</span>
+            </button>
+          )}
         </div>
 
         {/* Main Speed Dial Button */}

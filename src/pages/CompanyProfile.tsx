@@ -20,6 +20,7 @@ import { useUpdateCompanyPage } from '@/hooks/useUpdateCompanyPage';
 import { useSingleFileUpload } from '@/hooks/useSingleFileUpload';
 import { useCompanyPageStats } from '@/hooks/useCompanyPageStats';
 import { useFollowStatus, useFollowCompanyPage, useUnfollowCompanyPage } from '@/hooks/useCompanyPageFollow';
+import { useCompanyPageRoles } from '@/hooks/useCompanyPageRoles';
 
 // Mock posts data for feed
 const mockPosts = [
@@ -127,6 +128,7 @@ const CompanyProfile = () => {
   const unfollowMutation = useUnfollowCompanyPage();
 
   const updateCompanyPage = useUpdateCompanyPage();
+  const { data: rolesData } = useCompanyPageRoles();
   const { uploadFile, isUploading } = useSingleFileUpload();
 
   // Search users using API
@@ -1000,23 +1002,31 @@ const CompanyProfile = () => {
                                           </p>
                                         </div>
                                       </div>
-                                      <div className="space-y-2">
-                                        <label className="text-xs font-medium">Role:</label>
-                                        <select 
-                                          className="w-full px-2 py-1 border rounded text-xs"
-                                          defaultValue="member"
-                                          onChange={(e) => {
-                                            const updatedUsers = selectedUsers.map(u => 
-                                              u._id === user._id ? { ...u, selectedRole: e.target.value } : u
-                                            );
-                                            setSelectedUsers(updatedUsers as any);
-                                          }}
-                                        >
-                                          <option value="member">Member</option>
-                                          <option value="admin">Admin</option>
-                                          <option value="manager">Manager</option>
-                                        </select>
-                                      </div>
+                                        <div className="space-y-2">
+                                          <label className="text-xs font-medium">Role:</label>
+                                          <select 
+                                            className="w-full px-2 py-1 border rounded text-xs"
+                                            defaultValue={rolesData?.data.find(r => r.role_name === 'employee')?._id || rolesData?.data[0]?._id || ''}
+                                            onChange={(e) => {
+                                              const updatedUsers = selectedUsers.map(u => 
+                                                u._id === user._id ? { ...u, selectedRole: e.target.value } : u
+                                              );
+                                              setSelectedUsers(updatedUsers as any);
+                                            }}
+                                          >
+                                            {rolesData?.data?.map((role) => (
+                                              <option key={role._id} value={role._id}>
+                                                {role.role_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                              </option>
+                                            )) || (
+                                              <>
+                                                <option value="employee">Employee</option>
+                                                <option value="admin">Admin</option>
+                                                <option value="moderator">Moderator</option>
+                                              </>
+                                            )}
+                                          </select>
+                                        </div>
                                     </div>
                                   ))}
                                 </div>
