@@ -814,7 +814,7 @@ const CompanyProfile = () => {
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Calendar className="w-4 h-4 text-muted-foreground" />
-                      <span>Founded {formatDate(companyData.created_at)}</span>
+                      <span>Founded {formatDate(companyData.createdAt)}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -840,7 +840,7 @@ const CompanyProfile = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Posts</span>
-                        <span className="font-medium">{stats?.posts_count || 0}</span>
+                        <span className="font-medium">{stats?.posts || 0}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Followers</span>
@@ -848,7 +848,7 @@ const CompanyProfile = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Following</span>
-                        <span className="font-medium">{companyData.followingCount || 0}</span>
+                        <span className="font-medium">0</span>
                       </div>
                     </div>
                   )}
@@ -861,7 +861,18 @@ const CompanyProfile = () => {
           <div className={`${isMobile ? '' : 'col-span-6'} space-y-6`}>
             {activeTab === 'feed' && (
               <>
-                {permissions.canCreatePosts && <CreatePostCard />}
+                {permissions.canCreatePosts && (
+                  <CreatePostCard 
+                    user={companyData?.admin_id ? { 
+                      first_name: companyData.admin_id.first_name, 
+                      last_name: companyData.admin_id.last_name, 
+                      email: companyData.admin_id.email, 
+                      user_id: companyData.admin_id._id, 
+                      role: 'admin' 
+                    } : { first_name: 'Company', last_name: 'Admin', email: '', user_id: '', role: 'admin' }} 
+                    onPostCreate={handlePostSubmit} 
+                  />
+                )}
                 
                 <div className="space-y-6">
                   {mockPosts.map((post) => (
@@ -918,7 +929,7 @@ const CompanyProfile = () => {
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-muted-foreground" />
                           <span className="text-sm">Founded</span>
-                          <span className="text-sm ml-auto">{formatDate(companyData.created_at)}</span>
+                          <span className="text-sm ml-auto">{formatDate(companyData.createdAt)}</span>
                         </div>
                       </div>
                     </div>
@@ -932,7 +943,7 @@ const CompanyProfile = () => {
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Posts</span>
-                          <span className="font-medium">{stats?.postsCount || 0}</span>
+                          <span className="font-medium">{stats?.posts || 0}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Followers</span>
@@ -1009,7 +1020,7 @@ const CompanyProfile = () => {
                         <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                         <h3 className="text-lg font-semibold mb-2">No products yet</h3>
                         <p className="text-muted-foreground mb-6">Add your first product to showcase what your company offers.</p>
-                        {permissions.canManage && (
+                        {permissions.canManageMembers && (
                           <Button onClick={() => navigate('/product-setup')}>
                             <Plus className="w-4 h-4 mr-2" />
                             Add Product
