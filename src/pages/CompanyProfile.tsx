@@ -20,8 +20,6 @@ import { useUpdateCompanyPage } from '@/hooks/useUpdateCompanyPage';
 import { useSingleFileUpload } from '@/hooks/useSingleFileUpload';
 import { useCompanyPageStats } from '@/hooks/useCompanyPageStats';
 import { useFollowStatus, useFollowCompanyPage, useUnfollowCompanyPage } from '@/hooks/useCompanyPageFollow';
-import { useCompanyPageRoles } from '@/hooks/useCompanyPageRoles';
-import { usePermissions } from '@/hooks/usePermissions';
 
 // Mock posts data for feed
 const mockPosts = [
@@ -130,8 +128,6 @@ const CompanyProfile = () => {
 
   const updateCompanyPage = useUpdateCompanyPage();
   const { uploadFile, isUploading } = useSingleFileUpload();
-  const { data: rolesData } = useCompanyPageRoles();
-  const permissions = usePermissions(companyData);
 
   // Search users using API
   const searchUsersApi = async (query: string) => {
@@ -365,102 +361,6 @@ const CompanyProfile = () => {
     }
   };
 
-  // Invite Modal Component
-  const InviteModal = () => (
-    <Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Invite Team Members</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search users to invite..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          
-          {/* Search Results */}
-          {isSearching && (
-            <div className="text-center py-4">
-              <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-            </div>
-          )}
-          
-          {searchUsers.length > 0 && (
-            <div className="max-h-48 overflow-y-auto space-y-2">
-              {searchUsers.map((user) => (
-                <div
-                  key={user._id}
-                  onClick={() => toggleUserSelection(user)}
-                  className={`flex items-center space-x-3 p-2 rounded-lg border cursor-pointer transition-colors ${
-                    selectedUsers.some(u => u._id === user._id)
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:bg-muted/50'
-                  }`}
-                >
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.profile_avatar || ''} />
-                    <AvatarFallback>{user.first_name?.[0]}{user.last_name?.[0]}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">
-                      {user.first_name} {user.last_name}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          
-          {/* Selected Users */}
-          {selectedUsers.length > 0 && (
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Selected Users ({selectedUsers.length})</h4>
-              <div className="max-h-32 overflow-y-auto space-y-1">
-                {selectedUsers.map((user) => (
-                  <div key={user._id} className="flex items-center justify-between p-2 bg-muted rounded-lg">
-                    <div className="flex items-center space-x-2">
-                      <Avatar className="h-6 w-6">
-                        <AvatarImage src={user.profile_avatar || ''} />
-                        <AvatarFallback className="text-xs">{user.first_name?.[0]}{user.last_name?.[0]}</AvatarFallback>
-                      </Avatar>
-                      <span className="text-sm">{user.first_name} {user.last_name}</span>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleUserSelection(user)}
-                      className="h-6 w-6 p-0"
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setInviteModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleInviteUsers}
-              disabled={selectedUsers.length === 0}
-            >
-              Invite {selectedUsers.length > 0 ? `(${selectedUsers.length})` : ''}
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-
   return (
     <div className="min-h-screen">
       {/* Header Banner */}
@@ -560,62 +460,32 @@ const CompanyProfile = () => {
                           value={editedData.website}
                           onChange={(e) => setEditedData({ ...editedData, website: e.target.value })}
                           className="text-primary border border-border/50 shadow-none bg-transparent p-1 h-auto rounded-md text-center"
-                          placeholder="Website URL"
                         />
                       ) : (
-                        <a href={companyData.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                        <a
+                          href={companyData.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
                           {companyData.website}
                         </a>
                       )}
                     </div>
-
-                    <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground mb-4">
-                      <div className="flex items-center gap-1">
-                        <Building2 className="w-4 h-4" />
-                        {isEditing ? (
-                          <Input
-                            value={editedData.industry}
-                            onChange={(e) => setEditedData({ ...editedData, industry: e.target.value })}
-                            className="border border-border/50 shadow-none bg-transparent p-1 h-auto rounded-md text-center"
-                            placeholder="Industry"
-                          />
-                        ) : (
-                          <span>{companyData.industry}</span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        {isEditing ? (
-                          <Input
-                            value={editedData.size}
-                            onChange={(e) => setEditedData({ ...editedData, size: e.target.value })}
-                            className="border border-border/50 shadow-none bg-transparent p-1 h-auto rounded-md text-center"
-                            placeholder="Size"
-                          />
-                        ) : (
-                          <span>{companyData.size}</span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
-                      <Calendar className="w-4 h-4" />
-                      <span>Founded {formatDate(companyData.createdAt)}</span>
-                    </div>
                   </>
                 ) : (
                   <>
+                    {/* Desktop layout */}
                     {isEditing ? (
                       <Input
                         value={editedData.name}
                         onChange={(e) => setEditedData({ ...editedData, name: e.target.value })}
-                        className="text-3xl font-bold mb-2 border border-border/50 shadow-none bg-transparent p-2 h-auto rounded-md"
+                        className="text-3xl font-bold mb-1 border border-border/50 shadow-none bg-transparent p-2 h-auto rounded-md"
                       />
                     ) : (
-                      <h1 className="text-3xl font-bold mb-2">{companyData.name}</h1>
+                      <h1 className="text-3xl font-bold mb-1">{companyData.name}</h1>
                     )}
                     <p className="text-muted-foreground mb-2">@{companyData.company_url}</p>
-                    
                     {isEditing ? (
                       <Input
                         value={editedData.tag_line}
@@ -626,7 +496,7 @@ const CompanyProfile = () => {
                       <p className="mb-3">{companyData.tag_line}</p>
                     )}
 
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
                       <div className="flex items-center gap-1">
                         <LinkIcon className="w-4 h-4" />
                         {isEditing ? (
@@ -636,42 +506,19 @@ const CompanyProfile = () => {
                             className="text-primary border border-border/50 shadow-none bg-transparent p-1 h-auto rounded-md"
                           />
                         ) : (
-                          <a href={companyData.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                          <a
+                            href={companyData.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline"
+                          >
                             {companyData.website}
                           </a>
                         )}
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Building2 className="w-4 h-4" />
-                        {isEditing ? (
-                          <Input
-                            value={editedData.industry}
-                            onChange={(e) => setEditedData({ ...editedData, industry: e.target.value })}
-                            className="border border-border/50 shadow-none bg-transparent p-1 h-auto rounded-md"
-                          />
-                        ) : (
-                          <span>{companyData.industry}</span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        {isEditing ? (
-                          <Input
-                            value={editedData.size}
-                            onChange={(e) => setEditedData({ ...editedData, size: e.target.value })}
-                            className="border border-border/50 shadow-none bg-transparent p-1 h-auto rounded-md"
-                          />
-                        ) : (
-                          <span>{companyData.size}</span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        <span>Founded {formatDate(companyData.createdAt)}</span>
-                      </div>
                     </div>
 
-                    <div className="flex gap-6 text-sm">
+                    <div className="flex gap-4 text-sm">
                       <span><strong>{stats?.total_score || 0}</strong> <span className="text-muted-foreground">Score</span></span>
                       <span><strong>{companyData.followersCount || 0}</strong> <span className="text-muted-foreground">Followers</span></span>
                     </div>
@@ -679,63 +526,56 @@ const CompanyProfile = () => {
                 )}
               </div>
 
-              <div className={`flex ${isMobile ? 'flex-row gap-2 mt-4' : 'flex-col gap-2'}`}>
-                {!permissions.canManageMembers && (
-                  <Button 
-                    onClick={handleFollowToggle}
-                    variant={isFollowing ? "outline" : "default"}
-                    disabled={followMutation.isPending || unfollowMutation.isPending}
-                    className={isMobile ? 'flex-1' : ''}
-                  >
-                    {isFollowing ? 'Following' : 'Follow'}
-                  </Button>
-                )}
-                
-                {permissions.canManageMembers && !isEditing && (
-                  <Button 
-                    onClick={handleEditToggle}
-                    variant="outline"
-                    className={isMobile ? 'flex-1' : ''}
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit
-                  </Button>
-                )}
-                
-                {isEditing && (
-                  <>
-                    <Button 
-                      onClick={handleSaveChanges}
-                      disabled={updateCompanyPage.isPending || isUploading}
-                      className={isMobile ? 'flex-1' : ''}
-                    >
-                      <Save className="w-4 h-4 mr-2" />
-                      Save
-                    </Button>
-                    <Button 
-                      onClick={handleEditToggle}
-                      variant="outline"
-                      className={isMobile ? 'flex-1' : ''}
-                    >
-                      <X className="w-4 h-4 mr-2" />
-                      Cancel
-                    </Button>
-                  </>
-                )}
-
-                <Button variant="outline" className={isMobile ? 'flex-1' : ''}>
-                  <MessageCircle className="w-4 h-4 mr-2" />
+              <div className={`flex gap-2 ${isMobile ? 'w-full justify-center mt-4' : ''}`}>
+                <Button
+                  variant="outline"
+                  size={isMobile ? "sm" : "sm"}
+                  className={`rounded-full ${isMobile ? 'flex-1 px-2 text-xs' : 'px-4'} border-primary text-primary bg-white hover:bg-primary hover:text-white`}
+                >
+                  <MessageCircle className={`${isMobile ? 'w-3 h-3 mr-1' : 'w-3 h-3 mr-1'}`} />
                   Message
                 </Button>
+                
+                {/* Follow/Unfollow Button */}
+                <Button 
+                  size={isMobile ? "sm" : "sm"}
+                  className={`rounded-full ${isMobile ? 'flex-1 px-2 text-xs' : 'px-4'}`}
+                  onClick={handleFollowToggle}
+                  disabled={isLoadingFollowStatus || followMutation.isPending || unfollowMutation.isPending}
+                >
+                  {followMutation.isPending || unfollowMutation.isPending ? (
+                    <div className={`${isMobile ? 'w-3 h-3 mr-1' : 'w-3 h-3 mr-1'} border-2 border-current border-t-transparent rounded-full animate-spin`} />
+                  ) : isFollowing ? (
+                    <UserMinus className={`${isMobile ? 'w-3 h-3 mr-1' : 'w-3 h-3 mr-1'}`} />
+                  ) : (
+                    <Plus className={`${isMobile ? 'w-3 h-3 mr-1' : 'w-3 h-3 mr-1'}`} />
+                  )}
+                  {isFollowing ? 'Unfollow' : 'Follow'}
+                </Button>
 
-                {permissions.canManageMembers && (
-                  <Button 
-                    variant="outline" 
-                    className={isMobile ? 'flex-1' : ''}
-                    onClick={() => setInviteModalOpen(true)}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={isEditing ? handleSaveChanges : handleEditToggle}
+                  className="rounded-full"
+                  disabled={isUploading || updateCompanyPage.isPending}
+                >
+                  {isUploading || updateCompanyPage.isPending ? (
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : isEditing ? (
+                    <Save className="w-4 h-4" />
+                  ) : (
+                    <Settings className="w-4 h-4" />
+                  )}
+                </Button>
+                {isEditing && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleEditToggle}
+                    className="rounded-full"
                   >
-                    <Plus className="w-4 h-4 mr-2" />
-                    {isMobile ? 'Add' : 'Add Member'}
+                    <X className="w-4 h-4" />
                   </Button>
                 )}
               </div>
@@ -745,450 +585,561 @@ const CompanyProfile = () => {
       </Card>
 
       {/* Navigation Tabs - Sticky */}
-      <div className="sticky top-16 z-10 bg-background border-b">
-        <div className="max-w-6xl mx-auto">
-          <div className={`flex ${isMobile ? 'overflow-x-auto scrollbar-hide' : 'justify-center'} bg-background`}>
-            {['feed', 'about', 'products', 'members', 'analytics'].map((tab) => {
-              // Hide analytics tab if user doesn't have permission
-              if (tab === 'analytics' && !permissions.canViewAnalytics) {
-                return null;
-              }
-              
-              return (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-3 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                    activeTab === tab
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                </button>
-              );
-            })}
-          </div>
+      <div className="sticky top-[64px] z-10 bg-white border-b shadow-sm w-full left-0 right-0">
+        <div className={`${isMobile ? 'flex overflow-x-auto scrollbar-hide px-2 py-1 gap-2' : 'flex items-center justify-center gap-8 py-2'} max-w-none w-full`}>
+          {[
+            { id: 'feed', label: 'Feed' },
+            { id: 'members', label: 'Members' },
+            { id: 'analytics', label: 'Analytics' },
+            { id: 'products', label: 'Products' },
+            { id: 'activities', label: 'Activities' },
+            { id: 'jobs', label: 'Jobs' },
+          ].map((tab) => (
+            <button 
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`${isMobile ? 'whitespace-nowrap min-w-fit px-3 py-2' : 'px-6 py-3'} text-sm font-medium transition-all ${
+                activeTab === tab.id 
+                  ? 'text-primary border-b-2 border-primary' 
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Content Area */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className={`${isMobile ? 'space-y-6' : 'grid grid-cols-12 gap-6'}`}>
-          {/* Left Sidebar - Company Info */}
-          {!isMobile && (
-            <div className="col-span-3 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">About</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {isEditing ? (
-                    <Textarea
-                      value={editedData.about}
-                      onChange={(e) => setEditedData({ ...editedData, about: e.target.value })}
-                      placeholder="Tell us about your company..."
-                      rows={4}
-                      className="resize-none"
-                    />
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      {companyData.about || "No description available."}
-                    </p>
-                  )}
-
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Globe className="w-4 h-4 text-muted-foreground" />
-                      <a href={companyData.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                        {companyData.website}
-                      </a>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
+      {/* Main Content */}
+      <div className="mx-auto">
+        {activeTab === 'feed' ? (
+          <div className={`${isMobile ? 'px-1 mt-4' : 'flex gap-6 mt-6'}`}>
+            {/* Left Sidebar - Only show on desktop */}
+            {!isMobile && <div className="w-[25%] space-y-6">
+              {/* About Section */}
+              <Card className={isMobile ? 'mx-1' : ''}>
+                <CardContent className="space-y-4 pt-6">
+                  <div className="space-y-2 pt-2">
+                    <div className="flex items-center gap-2">
                       <Building2 className="w-4 h-4 text-muted-foreground" />
-                      <span>{companyData.industry}</span>
+                      {isEditing ? (
+                        <Input
+                          value={editedData.industry}
+                          onChange={(e) => setEditedData({ ...editedData, industry: e.target.value })}
+                          placeholder="Industry type"
+                          className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
+                        />
+                      ) : (
+                        <span className="text-sm">{companyData.industry}</span>
+                      )}
                     </div>
-                    <div className="flex items-center gap-2 text-sm">
+                    <div className="flex items-center gap-2">
                       <Users className="w-4 h-4 text-muted-foreground" />
-                      <span>{companyData.size} employees</span>
+                      {isEditing ? (
+                        <Input
+                          value={editedData.size}
+                          onChange={(e) => setEditedData({ ...editedData, size: e.target.value })}
+                          placeholder="Company size"
+                          className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
+                        />
+                      ) : (
+                        <span className="text-sm">{companyData.size} employees</span>
+                      )}
                     </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="w-4 h-4 text-muted-foreground" />
-                      <span>Founded {formatDate(companyData.createdAt)}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Company Stats */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Statistics</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {isLoadingStats ? (
-                    <div className="space-y-2">
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-3/4" />
-                      <Skeleton className="h-4 w-1/2" />
-                    </div>
-                  ) : (
-                    <div className="space-y-3 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Total Score</span>
-                        <span className="font-medium">{stats?.total_score || 0}</span>
+                    {isEditing && (
+                      <div className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-muted-foreground" />
+                        <Input
+                          value={editedData.industry_type}
+                          onChange={(e) => setEditedData({ ...editedData, industry_type: e.target.value })}
+                          placeholder="Industry type (e.g., private company)"
+                          className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
+                        />
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Posts</span>
-                        <span className="font-medium">{stats?.posts || 0}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Followers</span>
-                        <span className="font-medium">{companyData.followersCount || 0}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Following</span>
-                        <span className="font-medium">0</span>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          {/* Main Content */}
-          <div className={`${isMobile ? '' : 'col-span-6'} space-y-6`}>
-            {activeTab === 'feed' && (
-              <>
-                {permissions.canCreatePosts && (
-                  <CreatePostCard 
-                    user={companyData?.admin_id ? { 
-                      first_name: companyData.admin_id.first_name, 
-                      last_name: companyData.admin_id.last_name, 
-                      email: companyData.admin_id.email, 
-                      user_id: companyData.admin_id._id, 
-                      role: 'admin' 
-                    } : { first_name: 'Company', last_name: 'Admin', email: '', user_id: '', role: 'admin' }} 
-                    onPostCreate={handlePostSubmit} 
-                  />
-                )}
-                
-                <div className="space-y-6">
-                  {mockPosts.map((post) => (
-                    <FeedCard key={post._id} post={post} />
-                  ))}
-                </div>
-              </>
-            )}
-
-            {activeTab === 'about' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>About {companyData.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div>
-                    <h3 className="font-semibold mb-2">Overview</h3>
-                    {isEditing ? (
-                      <Textarea
-                        value={editedData.about}
-                        onChange={(e) => setEditedData({ ...editedData, about: e.target.value })}
-                        placeholder="Tell us about your company..."
-                        rows={6}
-                        className="resize-none"
-                      />
-                    ) : (
-                      <p className="text-muted-foreground">
-                        {companyData.about || "No description available."}
-                      </p>
                     )}
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h3 className="font-semibold mb-3">Company Info</h3>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <Globe className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm">Website</span>
-                          <a href={companyData.website} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline ml-auto">
-                            {companyData.website}
-                          </a>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Building2 className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm">Industry</span>
-                          <span className="text-sm ml-auto">{companyData.industry}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm">Company Size</span>
-                          <span className="text-sm ml-auto">{companyData.size}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm">Founded</span>
-                          <span className="text-sm ml-auto">{formatDate(companyData.createdAt)}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold mb-3">Statistics</h3>
-                      <div className="space-y-3">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Total Score</span>
-                          <span className="font-medium">{stats?.total_score || 0}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Posts</span>
-                          <span className="font-medium">{stats?.posts || 0}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Followers</span>
-                          <span className="font-medium">{companyData.followersCount || 0}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Following</span>
-                          <span className="font-medium">0</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
-            )}
 
-            {activeTab === 'products' && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">Products</h2>
-                  {permissions.canManageMembers && (
-                    <Button onClick={() => navigate('/product-setup')}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Product
+              {/* Products Section - Redesigned */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">Products</CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate(`/new/company/product/setup?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}&companyUrl=${companyData.company_url}`)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Plus className="w-4 h-4" />
                     </Button>
-                  )}
-                </div>
-
-                {isLoadingProducts ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {[1, 2, 3, 4].map((i) => (
-                      <Card key={i}>
-                        <CardContent className="p-6">
-                          <Skeleton className="h-48 w-full mb-4" />
-                          <Skeleton className="h-6 w-3/4 mb-2" />
-                          <Skeleton className="h-4 w-full" />
-                        </CardContent>
-                      </Card>
-                    ))}
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {products.length > 0 ? (
-                      products.map((product: any) => (
-                        <Card key={product._id} className="overflow-hidden">
-                          <div className="aspect-video bg-muted flex items-center justify-center">
-                            {product.images && product.images[0] ? (
-                              <img 
-                                src={product.images[0]} 
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {isLoadingProducts ? (
+                    <div className="space-y-3">
+                      {[1, 2, 3].map((i) => (
+                        <Skeleton key={i} className="h-16 w-full" />
+                      ))}
+                    </div>
+                  ) : products.length > 0 ? (
+                    products.map((product) => (
+                      <div key={product._id} className="group">
+                        <div className="flex items-start gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                          <div className="relative flex-shrink-0">
+                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted">
+                              <img
+                                src={product.logo}
                                 alt={product.name}
                                 className="w-full h-full object-cover"
                               />
-                            ) : (
-                              <Building2 className="w-12 h-12 text-muted-foreground" />
-                            )}
+                            </div>
+                            <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-card ${product.is_live ? 'bg-green-500' : 'bg-orange-500'}`}></div>
                           </div>
-                          <CardContent className="p-6">
-                            <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-                            <p className="text-muted-foreground text-sm mb-4">{product.description}</p>
+                          <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
-                              <span className="text-2xl font-bold text-primary">
-                                ${product.price}
-                              </span>
-                              <Button size="sm">
-                                <ExternalLink className="w-4 h-4 mr-2" />
-                                View
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))
-                    ) : (
-                      <div className="col-span-2 text-center py-12">
-                        <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">No products yet</h3>
-                        <p className="text-muted-foreground mb-6">Add your first product to showcase what your company offers.</p>
-                        {permissions.canManageMembers && (
-                          <Button onClick={() => navigate('/product-setup')}>
-                            <Plus className="w-4 h-4 mr-2" />
-                            Add Product
-                          </Button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === 'members' && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">Team Members</h2>
-                  {permissions.canManageMembers && (
-                    <Button onClick={() => setInviteModalOpen(true)}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Member
-                    </Button>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {companyData.members?.map((member: any) => (
-                    <Card key={member._id} className="text-center">
-                      <CardContent className="p-6">
-                        <Avatar className="w-16 h-16 mx-auto mb-4">
-                          <AvatarImage src={member.user_id?.profile_avatar} />
-                          <AvatarFallback>
-                            {member.user_id?.first_name?.[0]}{member.user_id?.last_name?.[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        <h3 className="font-semibold mb-1">
-                          {member.user_id?.first_name} {member.user_id?.last_name}
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-2">{member.role}</p>
-                        <div className="flex gap-2 justify-center">
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => navigateMemberProfile(member.user_id?._id)}
-                          >
-                            View Profile
-                          </Button>
-                          {permissions.canManageMembers && member.role !== 'super_admin' && (
-                            <Button size="sm" variant="ghost">
-                              <UserMinus className="w-4 h-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )) || (
-                    <div className="col-span-3 text-center py-12">
-                      <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">No team members yet</h3>
-                      <p className="text-muted-foreground mb-6">Invite your team members to showcase your company together.</p>
-                      {permissions.canManageMembers && (
-                        <Button onClick={() => setInviteModalOpen(true)}>
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add Member
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'analytics' && (
-              <div className="space-y-6">
-                {permissions.canViewAnalytics ? (
-                  <>
-                    <h2 className="text-2xl font-bold">Analytics</h2>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <Card>
-                        <CardContent className="p-6 text-center">
-                          <ProgressCircle percentage={75} />
-                          <h3 className="font-semibold mt-4 mb-2">Engagement Rate</h3>
-                          <p className="text-sm text-muted-foreground">75% increase from last month</p>
-                        </CardContent>
-                      </Card>
-                      
-                      <Card>
-                        <CardContent className="p-6 text-center">
-                          <ProgressCircle percentage={60} />
-                          <h3 className="font-semibold mt-4 mb-2">Follower Growth</h3>
-                          <p className="text-sm text-muted-foreground">60% growth this quarter</p>
-                        </CardContent>
-                      </Card>
-                      
-                      <Card>
-                        <CardContent className="p-6 text-center">
-                          <ProgressCircle percentage={85} />
-                          <h3 className="font-semibold mt-4 mb-2">Content Performance</h3>
-                          <p className="text-sm text-muted-foreground">85% above average</p>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Recent Activity</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-4">
-                          {[
-                            { action: "New follower", user: "John Doe", time: "2 hours ago" },
-                            { action: "Post liked", user: "Jane Smith", time: "4 hours ago" },
-                            { action: "Comment received", user: "Mike Johnson", time: "6 hours ago" },
-                          ].map((activity, i) => (
-                            <div key={i} className="flex items-center justify-between py-2 border-b last:border-b-0">
-                              <div>
-                                <p className="font-medium">{activity.action}</p>
-                                <p className="text-sm text-muted-foreground">{activity.user}</p>
+                              <h4 className="font-semibold text-sm truncate">{product.name}</h4>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground">{product.percentage}%</span>
+                                <ProgressCircle percentage={product.percentage} size={32} />
                               </div>
-                              <span className="text-sm text-muted-foreground">{activity.time}</span>
                             </div>
-                          ))}
+                          </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </>
-                ) : (
-                  <Card>
-                    <CardContent className="p-12 text-center">
-                      <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">Access Restricted</h3>
-                      <p className="text-muted-foreground">You don't have permission to view analytics for this company.</p>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            )}
-          </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-sm text-muted-foreground">No products found</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
-          {/* Right Sidebar - Suggested connections, etc. */}
-          {!isMobile && (
-            <div className="col-span-3 space-y-6">
+              {/* Team Members */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Similar Companies</CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">Members</CardTitle>
+                    <Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Invite Members</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Input
+                              placeholder="Search users..."
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              className="pl-10"
+                            />
+                          </div>
+
+                          <div className="max-h-60 overflow-y-auto space-y-2">
+                            {isSearching ? (
+                              <div className="flex items-center justify-center py-8">
+                                <div className="text-sm text-muted-foreground">Searching...</div>
+                              </div>
+                            ) : searchUsers.length === 0 && searchQuery ? (
+                              <div className="flex items-center justify-center py-8">
+                                <div className="text-sm text-muted-foreground">No users found</div>
+                              </div>
+                            ) : (
+                              searchUsers.map((user) => {
+                              const isSelected = selectedUsers.some(u => u._id === user._id);
+                              return (
+                                <div
+                                  key={user._id}
+                                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${isSelected ? 'bg-primary/10 border-primary' : 'hover:bg-muted/50'
+                                    }`}
+                                  onClick={() => toggleUserSelection(user)}
+                                >
+                                  <Avatar className="w-10 h-10">
+                                    <AvatarImage src={user.profile_avatar || ''} />
+                                    <AvatarFallback>
+                                      {user.first_name[0]}{user.last_name[0]}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-sm">
+                                      {user.first_name} {user.last_name}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {user.email}
+                                    </p>
+                                  </div>
+                                  {isSelected && (
+                                    <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                                      <Plus className="w-3 h-3 text-primary-foreground rotate-45" />
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })
+                            )}
+                          </div>
+
+                          {selectedUsers.length > 0 && (
+                            <div className="flex items-center justify-between pt-4 border-t">
+                              <span className="text-sm text-muted-foreground">
+                                {selectedUsers.length} user(s) selected
+                              </span>
+                              <Button onClick={handleInviteUsers}>
+                                Invite Selected
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center gap-3">
+                <CardContent className="space-y-3">
+                  {companyData.members.slice(0, 5).map((member) => (
+                    <div key={member._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                      onClick={(e) => navigateMemberProfile(member.user_id._id)}
+                    >
                       <Avatar className="w-10 h-10">
-                        <AvatarFallback>C{i}</AvatarFallback>
+                        <AvatarImage src="" />
+                        <AvatarFallback>
+                          {member.user_id.first_name[0]}{member.user_id.last_name[0]}
+                        </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">Company {i}</p>
-                        <p className="text-xs text-muted-foreground">Technology</p>
+                        <p className="font-medium text-sm">
+                          {member.user_id.first_name} {member.user_id.last_name}
+                        </p>
+                        <p className="text-xs text-muted-foreground capitalize">
+                          {member.role_id.role_name.replace(/_/g, ' ')}
+                        </p>
                       </div>
-                      <Button size="sm" variant="outline">Follow</Button>
                     </div>
                   ))}
                 </CardContent>
               </Card>
-            </div>
-          )}
-        </div>
-      </div>
+            </div>}
 
-      {/* Invite Modal */}
-      <InviteModal />
+            {/* Feed Content */}
+            <div className={`${isMobile ? 'w-full' : 'flex-1'} space-y-6`}>
+              {/* Create Post - Only show on desktop */}
+              {!isMobile && (
+                <CreatePostCard
+                  user={{
+                    ...companyData.admin_id,
+                    profile_avatar: companyData.logo,
+                    user_id: companyData.admin_id._id,
+                    role: 'admin'
+                  } as any}
+                  onPostCreate={handlePostSubmit}
+                />
+              )}
+
+              {/* Posts Feed */}
+              <div className="space-y-0">
+                {mockPosts.map((post) => (
+                  <FeedCard
+                    key={post._id}
+                    post={post}
+                    onLike={() => { }}
+                    onUnlike={() => { }}
+                    onComment={() => { }}
+                    onDeleteComment={() => { }}
+                    onDeletePost={() => { }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Right Sidebar - Only show on desktop */}
+            {!isMobile && <div className="w-[25%] space-y-6">
+              {/* Company Stats */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Company Stats</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Posts</span>
+                    {isLoadingStats ? (
+                      <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
+                    ) : (
+                      <span className="text-sm font-medium">{stats?.posts || 0}</span>
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Products</span>
+                    {isLoadingStats ? (
+                      <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
+                    ) : (
+                      <span className="text-sm font-medium">{stats?.products || 0}</span>
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Team Members</span>
+                    {isLoadingStats ? (
+                      <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
+                    ) : (
+                      <span className="text-sm font-medium">{stats?.team_members || 0}</span>
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Total Score</span>
+                    {isLoadingStats ? (
+                      <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
+                    ) : (
+                      <span className="text-sm font-medium">{stats?.total_score || 0}</span>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>}
+          </div>
+        ) : (
+          <div className={`w-full ${isMobile ? 'px-1 py-4' : 'px-6 py-8'}`}>
+            <Card className={`max-w-6xl mx-auto ${isMobile ? 'mx-1' : ''}`}>
+              <CardContent className="p-8">
+                {activeTab === 'members' && (
+                  <div>
+                    <div className="flex justify-end items-center mb-6">
+                      <Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
+                        <DialogTrigger asChild>
+                          <Button size="sm" className="flex items-center gap-2">
+                            <Plus className="w-4 h-4" />
+                            Add Members
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className={`${isMobile ? 'max-w-[95vw] max-h-[90vh] p-4' : 'sm:max-w-4xl max-h-[80vh]'} overflow-hidden flex flex-col`}>
+                          <DialogHeader>
+                            <DialogTitle>Add Team Members</DialogTitle>
+                          </DialogHeader>
+                          <div className={`flex-1 overflow-hidden ${isMobile ? 'flex flex-col space-y-4' : 'flex space-x-6'}`}>
+                            {/* Left side - User search */}
+                            <div className={`${isMobile ? 'w-full' : 'flex-1'} flex flex-col space-y-4`}>
+                              <div className="relative">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                <Input
+                                  placeholder="Search users..."
+                                  value={searchQuery}
+                                  onChange={(e) => setSearchQuery(e.target.value)}
+                                  className="pl-10"
+                                />
+                              </div>
+
+                              <div className="flex-1 overflow-y-auto space-y-3">
+                                {isSearching ? (
+                                  <div className="flex items-center justify-center py-8">
+                                    <div className="text-sm text-muted-foreground">Searching...</div>
+                                  </div>
+                                ) : searchUsers.length === 0 && searchQuery ? (
+                                  <div className="flex items-center justify-center py-8">
+                                    <div className="text-sm text-muted-foreground">No users found</div>
+                                  </div>
+                                ) : (
+                                  searchUsers.map((user) => {
+                                    const isSelected = selectedUsers.some(u => u._id === user._id);
+                                    return (
+                                      <div
+                                        key={user._id}
+                                        className={`flex items-center gap-4 p-3 rounded-lg border cursor-pointer transition-colors ${isSelected ? 'bg-primary/10 border-primary' : 'hover:bg-muted/50'
+                                          }`}
+                                        onClick={() => toggleUserSelection(user)}
+                                      >
+                                        <Avatar className="w-10 h-10">
+                                          <AvatarImage src={user.profile_avatar || ''} />
+                                          <AvatarFallback>
+                                            {user.first_name[0]}{user.last_name[0]}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1 min-w-0">
+                                          <p className="font-medium text-sm">
+                                            {user.first_name} {user.last_name}
+                                          </p>
+                                          <p className="text-xs text-muted-foreground">
+                                            @{user.email.split('@')[0]}
+                                          </p>
+                                        </div>
+                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? 'bg-primary border-primary' : 'border-muted-foreground'}`}>
+                                          {isSelected && <Plus className="w-3 h-3 text-primary-foreground rotate-45" />}
+                                        </div>
+                                      </div>
+                                    );
+                                  })
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Right side - Selected users and roles */}
+                            {selectedUsers.length > 0 && (
+                              <div className={`${isMobile ? 'w-full border-t pt-4 mt-4' : 'w-80 border-l pl-6'} flex flex-col space-y-4`}>
+                                <h3 className="font-semibold">Selected Members ({selectedUsers.length})</h3>
+                                <div className="flex-1 overflow-y-auto space-y-3">
+                                  {selectedUsers.map((user) => (
+                                    <div key={user._id} className="p-3 rounded-lg border bg-muted/30 space-y-3">
+                                      <div className="flex items-center gap-3">
+                                        <Avatar className="w-8 h-8">
+                                          <AvatarImage src={user.profile_avatar || ''} />
+                                          <AvatarFallback className="text-xs">
+                                            {user.first_name[0]}{user.last_name[0]}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1 min-w-0">
+                                          <p className="font-medium text-xs">
+                                            {user.first_name} {user.last_name}
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <div className="space-y-2">
+                                        <label className="text-xs font-medium">Role:</label>
+                                        <select 
+                                          className="w-full px-2 py-1 border rounded text-xs"
+                                          defaultValue="member"
+                                          onChange={(e) => {
+                                            const updatedUsers = selectedUsers.map(u => 
+                                              u._id === user._id ? { ...u, selectedRole: e.target.value } : u
+                                            );
+                                            setSelectedUsers(updatedUsers as any);
+                                          }}
+                                        >
+                                          <option value="member">Member</option>
+                                          <option value="admin">Admin</option>
+                                          <option value="manager">Manager</option>
+                                        </select>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                                <Button onClick={handleInviteUsers} className="w-full">
+                                  Add Selected Members
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                      {companyData.members.map((member) => (
+                        <Card key={member._id} className="p-4 hover:shadow-md transition-all duration-300 cursor-pointer border border-border/50 bg-card"
+                          onClick={() => navigateMemberProfile(member.user_id._id)}
+                        >
+                          <div className="flex flex-col items-center text-center space-y-3">
+                            <Avatar className="w-12 h-12">
+                              <AvatarImage src="" />
+                              <AvatarFallback className="text-sm font-semibold bg-muted">
+                                {member.user_id.first_name[0]}{member.user_id.last_name[0]}
+                              </AvatarFallback>
+                            </Avatar>
+                            
+                            <div className="space-y-1">
+                              <h3 className="text-sm font-medium text-foreground">
+                                {member.user_id.first_name} {member.user_id.last_name}
+                              </h3>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                 {activeTab === 'analytics' && (
+                   <div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                      <Card className="p-6 text-center">
+                        <h3 className="text-3xl font-bold text-primary">{stats?.posts || 0}</h3>
+                        <p className="text-muted-foreground">Total Posts</p>
+                      </Card>
+                      <Card className="p-6 text-center">
+                        <h3 className="text-3xl font-bold text-primary">{stats?.products || 0}</h3>
+                        <p className="text-muted-foreground">Products</p>
+                      </Card>
+                      <Card className="p-6 text-center">
+                        <h3 className="text-3xl font-bold text-primary">{stats?.team_members || 0}</h3>
+                        <p className="text-muted-foreground">Team Members</p>
+                      </Card>
+                      <Card className="p-6 text-center">
+                        <h3 className="text-3xl font-bold text-primary">{stats?.total_score || 0}</h3>
+                        <p className="text-muted-foreground">Total Score</p>
+                      </Card>
+                    </div>
+                    <Card className="p-6">
+                      <h3 className="text-xl font-semibold mb-4">Performance Overview</h3>
+                      <p className="text-muted-foreground">Detailed analytics coming soon...</p>
+                    </Card>
+                  </div>
+                )}
+
+                 {activeTab === 'products' && (
+                   <div>
+                     <div className="flex justify-end items-center mb-6">
+                      <Button
+                        onClick={() => navigate(`/new/company/product/setup?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}&companyUrl=${companyData.company_url}`)}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Product
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {products.map((product) => (
+                        <Card key={product._id} className="p-6 hover:shadow-md transition-shadow">
+                          <div className="flex items-start gap-4">
+                            <div className="relative">
+                              <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted">
+                                <img
+                                  src={product.logo}
+                                  alt={product.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-card ${product.is_live ? 'bg-green-500' : 'bg-orange-500'}`}></div>
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">{product.percentage}% Complete</span>
+                                <ProgressCircle percentage={product.percentage} size={40} />
+                              </div>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                 {activeTab === 'activities' && (
+                   <div>
+                    <Card className="p-6">
+                      <p className="text-muted-foreground">Recent activities will be displayed here...</p>
+                    </Card>
+                  </div>
+                )}
+
+                 {activeTab === 'jobs' && (
+                   <div>
+                    <Card className="p-6">
+                      <p className="text-muted-foreground">Job listings will be displayed here...</p>
+                    </Card>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
