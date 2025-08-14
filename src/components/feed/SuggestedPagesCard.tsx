@@ -107,7 +107,7 @@ const SuggestedPageItem: React.FC<SuggestedPageItemProps> = ({ page }) => {
   };
 
   const handlePageClick = () => {
-    navigate(`/company/${page.company_url}`);
+    navigate(`/company/page/${page.company_url}`);
   };
 
   return (

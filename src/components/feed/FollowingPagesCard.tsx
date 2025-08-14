@@ -108,7 +108,7 @@ const FollowingPageItem: React.FC<FollowingPageItemProps> = ({ page }) => {
   const navigate = useNavigate();
 
   const handlePageClick = () => {
-    navigate(`/company/${page.company_url}`);
+    navigate(`/company/page/${page.company_url}`);
   };
 
   return (

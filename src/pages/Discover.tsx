@@ -206,7 +206,7 @@ const SuggestedPageCard: React.FC<SuggestedPageCardProps> = ({ page }) => {
   };
 
   const handlePageClick = () => {
-    navigate(`/company/${page.company_url}`);
+    navigate(`/company/page/${page.company_url}`);
   };
 
   return (
@@ -294,7 +294,7 @@ const FollowingPageCard: React.FC<FollowingPageCardProps> = ({ page }) => {
   };
 
   const handlePageClick = () => {
-    navigate(`/company/${page.company_url}`);
+    navigate(`/company/page/${page.company_url}`);
   };
 
   return (
