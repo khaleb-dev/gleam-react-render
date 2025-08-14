@@ -36,6 +36,7 @@ import SuggestedUsers from "./pages/SuggestedUsers"
 import Messages from "./pages/Messages"
 import TopWeeklyChallengers from "./pages/TopWeeklyChallengers"
 import Search from "./pages/Search"
+import { Discover } from "./pages/Discover"
 import Company from "./pages/Company"
 import CompanySetup from "./pages/CompanySetup"
 import CompanyProfile from "./pages/CompanyProfile"
@@ -333,6 +334,17 @@ function App() {
           element={
             <ProtectedRoute>
               <TopWeeklyChallengers />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/discover"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Discover />
+              </Layout>
             </ProtectedRoute>
           }
         />

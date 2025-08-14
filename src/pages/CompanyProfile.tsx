@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Building2, Users, Globe, Calendar, Camera, MapPin, Link as LinkIcon, ExternalLink, Plus, MessageCircle, Settings, Edit, Save, X, Search } from 'lucide-react';
+import { Building2, Users, Globe, Calendar, Camera, MapPin, Link as LinkIcon, ExternalLink, Plus, MessageCircle, Settings, Edit, Save, X, Search, UserMinus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +14,11 @@ import { useProducts } from '@/hooks/useProducts';
 import { toast } from 'sonner';
 import { FeedCard } from '@/components/feed/FeedCard';
 import { CreatePostCard } from '@/components/feed/CreatePostCard';
+import { userApiService, type SearchUser } from '@/services/userApi';
+import { useUpdateCompanyPage } from '@/hooks/useUpdateCompanyPage';
+import { useSingleFileUpload } from '@/hooks/useSingleFileUpload';
+import { useCompanyPageStats } from '@/hooks/useCompanyPageStats';
+import { useFollowStatus, useFollowCompanyPage, useUnfollowCompanyPage } from '@/hooks/useCompanyPageFollow';
 
 // Mock posts data for feed
 const mockPosts = [
@@ -35,26 +39,10 @@ const mockPosts = [
     __v: 0,
     user: {
       profile_avatar: null,
-      first_name: "Tech",
-      last_name: "Company",
+      first_name: "Myaza",
+      last_name: "",
       email: "admin@techcompany.com",
       is_vetted: true,
-      responder_info: {
-        job_title: "Company Admin",
-        years_of_experience: 5,
-        skills: ["Leadership", "Product Management"],
-        rank_status: {
-          _id: "rank1",
-          rank_name: "platinum",
-          rank_color: "#e5e7eb",
-          min_tasks_completed: 100,
-          min_rating: 4.5,
-          __v: 0,
-          createdAt: "2025-01-01T00:00:00.000Z",
-          updatedAt: "2025-01-01T00:00:00.000Z"
-        },
-        availability_status: "available"
-      }
     },
     has_scored: false,
     people_score_count: 42
@@ -106,63 +94,86 @@ const CompanyProfile = () => {
     tag_line: '',
     website: '',
     industry: '',
+    industry_type: '',
     size: '',
-    description: '',
-    aboutDescription: ''
+    about: ''
   });
+  const [logoFile, setLogoFile] = React.useState<File | null>(null);
+  const [coverFile, setCoverFile] = React.useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = React.useState<string>('');
+  const [coverPreview, setCoverPreview] = React.useState<string>('');
   const [inviteModalOpen, setInviteModalOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [selectedUsers, setSelectedUsers] = React.useState<any[]>([]);
+  const [selectedUsers, setSelectedUsers] = React.useState<SearchUser[]>([]);
+  const [searchUsers, setSearchUsers] = React.useState<SearchUser[]>([]);
+  const [isSearching, setIsSearching] = React.useState(false);
 
   const { data, isLoading, error } = useCompanyPageData(identifier || '');
   const companyData = data?.data;
-  
+
   const { data: productsData, isLoading: isLoadingProducts } = useProducts(companyData?._id || '');
   const products = productsData?.data?.products || [];
 
-  // Mock users data for search
-  const mockUsers = [
-    {
-      _id: "user1",
-      first_name: "John",
-      last_name: "Doe",
-      email: "john.doe@example.com",
-      profile_avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=center"
-    },
-    {
-      _id: "user2",
-      first_name: "Jane",
-      last_name: "Smith",
-      email: "jane.smith@example.com",
-      profile_avatar: "https://images.unsplash.com/photo-1494790108755-2616b332c9ad?w=100&h=100&fit=crop&crop=center"
-    },
-    {
-      _id: "user3",
-      first_name: "Mike",
-      last_name: "Johnson",
-      email: "mike.johnson@example.com",
-      profile_avatar: null
-    }
-  ];
+  const { data: companyStats, isLoading: isLoadingStats } = useCompanyPageStats(companyData?._id || '');
+  const stats = companyStats?.data;
 
-  const filteredUsers = mockUsers.filter(user =>
-    user.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.last_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Follow functionality hooks
+  const { data: followStatusData, isLoading: isLoadingFollowStatus } = useFollowStatus(companyData?._id || '');
+  const isFollowing = followStatusData?.data?.isFollowing || false;
+  const followMutation = useFollowCompanyPage();
+  const unfollowMutation = useUnfollowCompanyPage();
+
+  const updateCompanyPage = useUpdateCompanyPage();
+  const { uploadFile, isUploading } = useSingleFileUpload();
+
+  // Search users using API
+  const searchUsersApi = async (query: string) => {
+    if (!query.trim()) {
+      setSearchUsers([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const response = await userApiService.searchUsers(query);
+      if (response.success) {
+        setSearchUsers(response.data);
+      }
+    } catch (error) {
+      console.error('Error searching users:', error);
+      toast.error('Failed to search users');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Debounce search
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchQuery) {
+        searchUsersApi(searchQuery);
+      } else {
+        setSearchUsers([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // Initialize edited data when company data loads
   React.useEffect(() => {
     if (companyData) {
       setEditedData({
-        name: companyData.name,
-        tag_line: companyData.tag_line,
-        website: companyData.website,
-        industry: companyData.industry,
-        size: companyData.size,
-        description: '',
-        aboutDescription: 'We are a leading software company dedicated to delivering innovative solutions that help businesses streamline their operations and achieve their goals. Our team of experienced developers and designers work tirelessly to create cutting-edge applications that meet the evolving needs of our clients in today\'s digital landscape.'
+        name: companyData.name || '',
+        tag_line: companyData.tag_line || '',
+        website: companyData.website || '',
+        industry: companyData.industry || '',
+        industry_type: companyData.industry_type || '',
+        size: companyData.size || '',
+        about: companyData.about || ''
       });
+      setLogoPreview(companyData.logo || '');
+      setCoverPreview(companyData.cover_logo || '');
     }
   }, [companyData]);
 
@@ -171,28 +182,59 @@ const CompanyProfile = () => {
     if (isEditing) {
       // Reset to original data if canceling
       setEditedData({
-        name: companyData.name,
-        tag_line: companyData.tag_line,
-        website: companyData.website,
-        industry: companyData.industry,
-        size: companyData.size,
-        description: '',
-        aboutDescription: 'We are a leading software company dedicated to delivering innovative solutions that help businesses streamline their operations and achieve their goals. Our team of experienced developers and designers work tirelessly to create cutting-edge applications that meet the evolving needs of our clients in today\'s digital landscape.'
+        name: companyData?.name || '',
+        tag_line: companyData?.tag_line || '',
+        website: companyData?.website || '',
+        industry: companyData?.industry || '',
+        industry_type: companyData?.industry_type || '',
+        size: companyData?.size || '',
+        about: companyData?.about || ''
       });
+      setLogoFile(null);
+      setCoverFile(null);
+      setLogoPreview(companyData?.logo || '');
+      setCoverPreview(companyData?.cover_logo || '');
     }
   };
 
   const handleSaveChanges = async () => {
+    if (!companyData?._id) return;
+
     try {
-      // Here you would make an API call to save the changes
+      const updateData: any = { ...editedData };
+
+      // Upload logo if new file selected
+      if (logoFile) {
+        const logoUrl = await uploadFile(logoFile);
+        if (logoUrl) {
+          updateData.logo = logoUrl;
+        }
+      }
+
+      // Upload cover if new file selected
+      if (coverFile) {
+        const coverUrl = await uploadFile(coverFile);
+        if (coverUrl) {
+          updateData.cover_logo = coverUrl;
+        }
+      }
+
+      await updateCompanyPage.mutateAsync({
+        pageId: companyData._id,
+        data: updateData
+      });
+
       toast.success('Company profile updated successfully!');
       setIsEditing(false);
+      setLogoFile(null);
+      setCoverFile(null);
     } catch (error) {
+      console.error('Error updating company profile:', error);
       toast.error('Failed to update company profile');
     }
   };
 
-  const toggleUserSelection = (user: any) => {
+  const toggleUserSelection = (user: SearchUser) => {
     setSelectedUsers(prev => {
       const isSelected = prev.some(u => u._id === user._id);
       if (isSelected) {
@@ -212,6 +254,52 @@ const CompanyProfile = () => {
       setSearchQuery('');
     } catch (error) {
       toast.error('Failed to invite users');
+    }
+  };
+
+  const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setLogoPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCoverFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCoverFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setCoverPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const getDefaultCoverImage = () => {
+    return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDgwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkaWVudCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6aHNsKDIyMCwgOCUsIDk1JSk7c3RvcC1vcGFjaXR5OjEiIC8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjpoc2woMjIwLCAxNCUsIDkxJSk7c3RvcC1vcGFjaXR5OjEiIC8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjgwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9InVybCgjZ3JhZGllbnQpIi8+PC9zdmc+";
+  };
+
+  const navigateMemberProfile = async (user_id: string) => {
+    navigate(`/profile/${user_id}`)
+  }
+
+  const handleFollowToggle = async () => {
+    if (!companyData?._id) return;
+
+    try {
+      if (isFollowing) {
+        await unfollowMutation.mutateAsync(companyData._id);
+      } else {
+        await followMutation.mutateAsync(companyData._id);
+      }
+    } catch (error) {
+      console.error('Error toggling follow status:', error);
     }
   };
 
@@ -275,28 +363,53 @@ const CompanyProfile = () => {
       {/* Header Banner */}
       <Card className="border-none rounded-none shadow-none bg-card">
         <div className="relative">
-          <div className="w-full h-48 relative overflow-hidden border-b bg-cover bg-center" style={{ backgroundImage: 'url(https://eatability.com.au/wp-content/uploads/2022/05/20-Nigerian-Catering-Foods-Ideas-13.jpg)' }}>
+          <div className="w-full h-48 relative overflow-hidden border-b bg-cover bg-center" style={{ backgroundImage: `url(${coverPreview || companyData.cover_logo || getDefaultCoverImage()})` }}>
             <div className="absolute inset-0 bg-black/20"></div>
-            <div className="absolute top-4 right-4 z-9">
-              <Button variant="secondary" size="sm">
-                <Camera className="w-4 h-4 mr-2" />
-                Edit Cover
-              </Button>
-            </div>
+            {isEditing && (
+              <div className="absolute top-4 right-4 z-9">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleCoverFileChange}
+                  className="hidden"
+                  id="cover-upload"
+                />
+                <Button variant="secondary" size="sm" asChild>
+                  <label htmlFor="cover-upload" className="cursor-pointer">
+                    <Camera className="w-4 h-4 mr-2" />
+                    Edit Cover
+                  </label>
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Company Logo - Positioned below the cover area */}
           <div className="absolute top-[150px] left-8 z-9">
-            <div className="w-24 h-24 rounded-lg border-4 border-white shadow-lg overflow-hidden bg-card">
-              {companyData.logo ? (
+            <div className="w-24 h-24 rounded-lg border-4 border-white shadow-lg overflow-hidden bg-card relative group">
+              {logoPreview || companyData.logo ? (
                 <img
-                  src={companyData.logo}
+                  src={logoPreview || companyData.logo}
                   alt={companyData.name}
                   className="w-full h-full object-cover"
                 />
               ) : (
                 <div className="w-full h-full bg-muted flex items-center justify-center">
                   <Building2 className="w-12 h-12 text-muted-foreground" />
+                </div>
+              )}
+              {isEditing && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoFileChange}
+                    className="hidden"
+                    id="logo-upload"
+                  />
+                  <label htmlFor="logo-upload" className="cursor-pointer">
+                    <Camera className="w-6 h-6 text-white" />
+                  </label>
                 </div>
               )}
             </div>
@@ -349,30 +462,52 @@ const CompanyProfile = () => {
                 </div>
 
                 <div className="flex gap-4 text-sm">
-                  <span><strong>1.2K</strong> <span className="text-muted-foreground">Following</span></span>
-                  <span><strong>5.8K</strong> <span className="text-muted-foreground">Followers</span></span>
+                  <span><strong>{stats?.total_score || 0}</strong> <span className="text-muted-foreground">Score</span></span>
+                  <span><strong>{companyData.followersCount || 0}</strong> <span className="text-muted-foreground">Followers</span></span>
                 </div>
               </div>
 
               <div className="flex gap-2">
                 <Button
                   variant="outline"
-                  className="rounded-full px-6 border-primary text-primary bg-white hover:bg-primary hover:text-white"
+                  size="sm"
+                  className="rounded-full px-4 border-primary text-primary bg-white hover:bg-primary hover:text-white"
                 >
-                  <MessageCircle className="w-4 h-4 mr-2" />
+                  <MessageCircle className="w-3 h-3 mr-1" />
                   Message
                 </Button>
-                <Button className="rounded-full px-6">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Follow
+                
+                {/* Follow/Unfollow Button */}
+                <Button 
+                  size="sm"
+                  className="rounded-full px-4"
+                  onClick={handleFollowToggle}
+                  disabled={isLoadingFollowStatus || followMutation.isPending || unfollowMutation.isPending}
+                >
+                  {followMutation.isPending || unfollowMutation.isPending ? (
+                    <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin mr-1" />
+                  ) : isFollowing ? (
+                    <UserMinus className="w-3 h-3 mr-1" />
+                  ) : (
+                    <Plus className="w-3 h-3 mr-1" />
+                  )}
+                  {isFollowing ? 'Unfollow' : 'Follow'}
                 </Button>
+
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={isEditing ? handleSaveChanges : handleEditToggle}
                   className="rounded-full"
+                  disabled={isUploading || updateCompanyPage.isPending}
                 >
-                  {isEditing ? <Save className="w-4 h-4" /> : <Settings className="w-4 h-4" />}
+                  {isUploading || updateCompanyPage.isPending ? (
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : isEditing ? (
+                    <Save className="w-4 h-4" />
+                  ) : (
+                    <Settings className="w-4 h-4" />
+                  )}
                 </Button>
                 {isEditing && (
                   <Button
@@ -389,6 +524,25 @@ const CompanyProfile = () => {
           </CardContent>
         </div>
       </Card>
+
+      {/* Navigation Tabs */}
+      <div className="flex items-center gap-4 mt-6 px-1 border-b">
+        <button className="px-4 py-2 text-sm font-medium text-primary border-b-2 border-primary">
+          Members
+        </button>
+        <button className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
+          Analytics
+        </button>
+        <button className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
+          Products
+        </button>
+        <button className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
+          Activities
+        </button>
+        <button className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
+          Jobs
+        </button>
+      </div>
 
       {/* Main Content */}
       <div className=" mx-auto">
@@ -427,6 +581,17 @@ const CompanyProfile = () => {
                       <span className="text-sm">{companyData.size} employees</span>
                     )}
                   </div>
+                  {isEditing && (
+                    <div className="flex items-center gap-2">
+                      <Building2 className="w-4 h-4 text-muted-foreground" />
+                      <Input
+                        value={editedData.industry_type}
+                        onChange={(e) => setEditedData({ ...editedData, industry_type: e.target.value })}
+                        placeholder="Industry type (e.g., private company)"
+                        className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
+                      />
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -439,7 +604,7 @@ const CompanyProfile = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => navigate(`/create-product?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}`)}
+                    onClick={() => navigate(`/new/company/product/setup?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}&companyUrl=${companyData.company_url}`)}
                     className="h-8 w-8 p-0"
                   >
                     <Plus className="w-4 h-4" />
@@ -455,29 +620,29 @@ const CompanyProfile = () => {
                   </div>
                 ) : products.length > 0 ? (
                   products.map((product) => (
-                  <div key={product._id} className="group">
-                    <div className="flex items-start gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                      <div className="relative flex-shrink-0">
-                        <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted">
-                          <img
-                            src={product.logo}
-                            alt={product.name}
-                            className="w-full h-full object-cover"
-                          />
+                    <div key={product._id} className="group">
+                      <div className="flex items-start gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                        <div className="relative flex-shrink-0">
+                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted">
+                            <img
+                              src={product.logo}
+                              alt={product.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-card ${product.is_live ? 'bg-green-500' : 'bg-orange-500'}`}></div>
                         </div>
-                        <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-card ${product.is_live ? 'bg-green-500' : 'bg-orange-500'}`}></div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-semibold text-sm truncate">{product.name}</h4>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground">{product.percentage}%</span>
-                            <ProgressCircle percentage={product.percentage} size={32} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-semibold text-sm truncate">{product.name}</h4>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-muted-foreground">{product.percentage}%</span>
+                              <ProgressCircle percentage={product.percentage} size={32} />
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
                   ))
                 ) : (
                   <div className="text-center py-4">
@@ -518,7 +683,16 @@ const CompanyProfile = () => {
                         </div>
 
                         <div className="max-h-60 overflow-y-auto space-y-2">
-                          {filteredUsers.map((user) => {
+                          {isSearching ? (
+                            <div className="flex items-center justify-center py-8">
+                              <div className="text-sm text-muted-foreground">Searching...</div>
+                            </div>
+                          ) : searchUsers.length === 0 && searchQuery ? (
+                            <div className="flex items-center justify-center py-8">
+                              <div className="text-sm text-muted-foreground">No users found</div>
+                            </div>
+                          ) : (
+                            searchUsers.map((user) => {
                             const isSelected = selectedUsers.some(u => u._id === user._id);
                             return (
                               <div
@@ -548,7 +722,8 @@ const CompanyProfile = () => {
                                 )}
                               </div>
                             );
-                          })}
+                          })
+                          )}
                         </div>
 
                         {selectedUsers.length > 0 && (
@@ -568,7 +743,9 @@ const CompanyProfile = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 {companyData.members.slice(0, 5).map((member) => (
-                  <div key={member._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                  <div key={member._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                    onClick={(e) => navigateMemberProfile(member.user_id._id)}
+                  >
                     <Avatar className="w-10 h-10">
                       <AvatarImage src="" />
                       <AvatarFallback>
@@ -583,9 +760,6 @@ const CompanyProfile = () => {
                         {member.role_id.role_name.replace(/_/g, ' ')}
                       </p>
                     </div>
-                    <Button variant="ghost" size="sm" className="text-xs">
-                      View
-                    </Button>
                   </div>
                 ))}
               </CardContent>
@@ -617,15 +791,15 @@ const CompanyProfile = () => {
                   </p>
                   {isEditing ? (
                     <Textarea
-                      value={editedData.aboutDescription}
-                      onChange={(e) => setEditedData({ ...editedData, aboutDescription: e.target.value })}
+                      value={editedData.about}
+                      onChange={(e) => setEditedData({ ...editedData, about: e.target.value })}
                       className="text-sm border border-border/50 bg-transparent p-3 rounded-md resize-none"
                       rows={4}
                       placeholder="Describe your company..."
                     />
                   ) : (
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      {editedData.aboutDescription}
+                      {companyData.about || 'No description available.'}
                     </p>
                   )}
                 </div>
@@ -658,19 +832,35 @@ const CompanyProfile = () => {
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Posts</span>
-                  <span className="text-sm font-medium">142</span>
+                  {isLoadingStats ? (
+                    <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
+                  ) : (
+                    <span className="text-sm font-medium">{stats?.posts || 0}</span>
+                  )}
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Products</span>
-                  <span className="text-sm font-medium">{products.length}</span>
+                  {isLoadingStats ? (
+                    <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
+                  ) : (
+                    <span className="text-sm font-medium">{stats?.products || 0}</span>
+                  )}
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Team Members</span>
-                  <span className="text-sm font-medium">{companyData.members.length}</span>
+                  {isLoadingStats ? (
+                    <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
+                  ) : (
+                    <span className="text-sm font-medium">{stats?.team_members || 0}</span>
+                  )}
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Total Score</span>
-                  <span className="text-sm font-medium">12.5K</span>
+                  {isLoadingStats ? (
+                    <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
+                  ) : (
+                    <span className="text-sm font-medium">{stats?.total_score || 0}</span>
+                  )}
                 </div>
               </CardContent>
             </Card>

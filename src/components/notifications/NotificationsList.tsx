@@ -52,13 +52,13 @@ export const NotificationsList = ({ notifications, onMarkAllAsRead, onReadNotifi
     <div className="w-full bg-background">
       {/* Mobile Activity Dropdown */}
       {isMobile && (
-        <div className="px-4 py-3 border-b border-gray-100">
+        <div className="px-2 py-3 border-b border-border">
           <Button
             variant="outline"
-            className="w-auto h-10 px-4 bg-green-600 text-white border-green-600 hover:bg-green-700 hover:border-green-700 rounded-full font-medium"
+            className="w-auto h-10 px-3 bg-primary text-primary-foreground border-primary hover:bg-primary/90 hover:border-primary/90 rounded-full font-medium text-sm"
           >
             Activity
-            <ChevronDown className="h-4 w-4 ml-2" />
+            <ChevronDown className="h-4 w-4 ml-1" />
           </Button>
         </div>
       )}
@@ -81,17 +81,17 @@ export const NotificationsList = ({ notifications, onMarkAllAsRead, onReadNotifi
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className={`border-b border-border ${isMobile ? "px-1" : "px-4 lg:px-6"}`}>
-          <div className="overflow-x-auto">
-            <TabsList className="inline-flex h-auto p-0 gap-0 bg-transparent min-w-max">
+          <div className="overflow-x-auto scrollbar-hide">
+            <TabsList className="inline-flex h-auto p-0 gap-0 bg-transparent w-full min-w-max">
               <TabsTrigger
                 value="all"
-                className={`text-sm py-4 px-3 lg:px-4 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-green-600 data-[state=active]:text-green-700 rounded-none border-b-2 border-transparent hover:text-gray-900 font-medium transition-colors whitespace-nowrap ${isMobile ? "text-xs" : ""}`}
+                className={`text-sm py-4 px-2 lg:px-4 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none border-b-2 border-transparent hover:text-foreground font-medium transition-colors whitespace-nowrap ${isMobile ? "text-xs px-1.5" : ""}`}
               >
                 All
                 {notifications.length > 0 && !isMobile && (
                   <Badge
                     variant="secondary"
-                    className="ml-2 text-xs px-2 py-0.5 h-5 bg-gray-100 text-gray-600 font-normal"
+                    className="ml-2 text-xs px-2 py-0.5 h-5 bg-muted text-muted-foreground font-normal"
                   >
                     {notifications.length}
                   </Badge>
@@ -99,13 +99,13 @@ export const NotificationsList = ({ notifications, onMarkAllAsRead, onReadNotifi
               </TabsTrigger>
               <TabsTrigger
                 value="comments"
-                className={`text-sm py-4 px-3 lg:px-4 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-green-600 data-[state=active]:text-green-700 rounded-none border-b-2 border-transparent hover:text-gray-900 font-medium transition-colors whitespace-nowrap ${isMobile ? "text-xs" : ""}`}
+                className={`text-sm py-4 px-2 lg:px-4 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none border-b-2 border-transparent hover:text-foreground font-medium transition-colors whitespace-nowrap ${isMobile ? "text-xs px-1.5" : ""}`}
               >
                 Comments
                 {getTabCount("comments") > 0 && !isMobile && (
                   <Badge
                     variant="secondary"
-                    className="ml-2 text-xs px-2 py-0.5 h-5 bg-gray-100 text-gray-600 font-normal"
+                    className="ml-2 text-xs px-2 py-0.5 h-5 bg-muted text-muted-foreground font-normal"
                   >
                     {getTabCount("comments")}
                   </Badge>
@@ -113,13 +113,13 @@ export const NotificationsList = ({ notifications, onMarkAllAsRead, onReadNotifi
               </TabsTrigger>
               <TabsTrigger
                 value="mentions"
-                className={`text-sm py-4 px-3 lg:px-4 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-green-600 data-[state=active]:text-green-700 rounded-none border-b-2 border-transparent hover:text-gray-900 font-medium transition-colors whitespace-nowrap ${isMobile ? "text-xs" : ""}`}
+                className={`text-sm py-4 px-2 lg:px-4 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none border-b-2 border-transparent hover:text-foreground font-medium transition-colors whitespace-nowrap ${isMobile ? "text-xs px-1.5" : ""}`}
               >
                 Mentions
                 {getTabCount("mentions") > 0 && !isMobile && (
                   <Badge
                     variant="secondary"
-                    className="ml-2 text-xs px-2 py-0.5 h-5 bg-gray-100 text-gray-600 font-normal"
+                    className="ml-2 text-xs px-2 py-0.5 h-5 bg-muted text-muted-foreground font-normal"
                   >
                     {getTabCount("mentions")}
                   </Badge>
@@ -127,13 +127,13 @@ export const NotificationsList = ({ notifications, onMarkAllAsRead, onReadNotifi
               </TabsTrigger>
               <TabsTrigger
                 value="reactions"
-                className={`text-sm py-4 px-3 lg:px-4 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-green-600 data-[state=active]:text-green-700 rounded-none border-b-2 border-transparent hover:text-gray-900 font-medium transition-colors whitespace-nowrap ${isMobile ? "text-xs" : ""}`}
+                className={`text-sm py-4 px-2 lg:px-4 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none border-b-2 border-transparent hover:text-foreground font-medium transition-colors whitespace-nowrap ${isMobile ? "text-xs px-1.5" : ""}`}
               >
                 Reactions
                 {getTabCount("reactions") > 0 && !isMobile && (
                   <Badge
                     variant="secondary"
-                    className="ml-2 text-xs px-2 py-0.5 h-5 bg-gray-100 text-gray-600 font-normal"
+                    className="ml-2 text-xs px-2 py-0.5 h-5 bg-muted text-muted-foreground font-normal"
                   >
                     {getTabCount("reactions")}
                   </Badge>
@@ -141,13 +141,13 @@ export const NotificationsList = ({ notifications, onMarkAllAsRead, onReadNotifi
               </TabsTrigger>
               <TabsTrigger
                 value="linkups"
-                className={`text-sm py-4 px-3 lg:px-4 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-green-600 data-[state=active]:text-green-700 rounded-none border-b-2 border-transparent hover:text-gray-900 font-medium transition-colors whitespace-nowrap ${isMobile ? "text-xs" : ""}`}
+                className={`text-sm py-4 px-2 lg:px-4 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none border-b-2 border-transparent hover:text-foreground font-medium transition-colors whitespace-nowrap ${isMobile ? "text-xs px-1.5" : ""}`}
               >
                 Linkups
                 {getTabCount("linkups") > 0 && !isMobile && (
                   <Badge
                     variant="secondary"
-                    className="ml-2 text-xs px-2 py-0.5 h-5 bg-gray-100 text-gray-600 font-normal"
+                    className="ml-2 text-xs px-2 py-0.5 h-5 bg-muted text-muted-foreground font-normal"
                   >
                     {getTabCount("linkups")}
                   </Badge>
@@ -155,13 +155,13 @@ export const NotificationsList = ({ notifications, onMarkAllAsRead, onReadNotifi
               </TabsTrigger>
               <TabsTrigger
                 value="tasks"
-                className={`text-sm py-4 px-3 lg:px-4 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-green-600 data-[state=active]:text-green-700 rounded-none border-b-2 border-transparent hover:text-gray-900 font-medium transition-colors whitespace-nowrap ${isMobile ? "text-xs" : ""}`}
+                className={`text-sm py-4 px-2 lg:px-4 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none border-b-2 border-transparent hover:text-foreground font-medium transition-colors whitespace-nowrap ${isMobile ? "text-xs px-1.5" : ""}`}
               >
                 Tasks
                 {getTabCount("tasks") > 0 && !isMobile && (
                   <Badge
                     variant="secondary"
-                    className="ml-2 text-xs px-2 py-0.5 h-5 bg-gray-100 text-gray-600 font-normal"
+                    className="ml-2 text-xs px-2 py-0.5 h-5 bg-muted text-muted-foreground font-normal"
                   >
                     {getTabCount("tasks")}
                   </Badge>
@@ -181,7 +181,7 @@ export const NotificationsList = ({ notifications, onMarkAllAsRead, onReadNotifi
                     onRead={onReadNotification}
                   />
                   {index < filteredNotifications.length - 1 && (
-                    <div className="border-b border-gray-100 dark:border-gray-800" />
+                    <div className="border-b border-border" />
                   )}
                 </div>
               ))}

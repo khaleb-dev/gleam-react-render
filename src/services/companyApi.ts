@@ -1,4 +1,3 @@
-
 import { API_BASE_URL } from "@/config/env";
 import { handleApiErrors, handleNetworkError } from "@/utils/apiResponse";
 
@@ -37,9 +36,11 @@ export interface CreateCompanyPageResponse {
   success: boolean;
 }
 
-export const createCompanyPage = async (data: CreateCompanyPageRequest): Promise<CreateCompanyPageResponse> => {
+export const createCompanyPage = async (
+  data: CreateCompanyPageRequest
+): Promise<CreateCompanyPageResponse> => {
   try {
-    const response = await fetch(`http://localhost:7000/api/v1/page/create`, {
+    const response = await fetch(`${API_BASE_URL}/page/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

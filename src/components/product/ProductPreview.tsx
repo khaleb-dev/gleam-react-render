@@ -21,16 +21,16 @@ interface ProductPreviewProps {
 export const ProductPreview: React.FC<ProductPreviewProps> = ({ formData }) => {
   return (
     <div>
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">Product Preview</h3>
-      
-      <Card className="border border-gray-200">
+      <h3 className="text-lg font-semibold text-card-foreground mb-4">Product Preview</h3>
+
+      <Card className="border border-border">
         <CardHeader className="pb-4">
           <div className="flex items-center space-x-4">
             <Avatar className="h-16 w-16">
               {formData.logo ? (
-                <AvatarImage 
-                  src={formData.logo} 
-                  alt={formData.name || 'Product logo'} 
+                <AvatarImage
+                  src={formData.logo}
+                  alt={formData.name || 'Product logo'}
                   className="object-cover"
                 />
               ) : (
@@ -39,9 +39,9 @@ export const ProductPreview: React.FC<ProductPreviewProps> = ({ formData }) => {
                 </AvatarFallback>
               )}
             </Avatar>
-            
+
             <div className="flex-1">
-              <h4 className="text-lg font-semibold text-gray-800">
+              <h4 className="text-lg font-semibold text-card-foreground">
                 {formData.name || 'Product Name'}
               </h4>
               <div className="flex items-center gap-2 mt-1">
@@ -52,41 +52,28 @@ export const ProductPreview: React.FC<ProductPreviewProps> = ({ formData }) => {
             </div>
           </div>
         </CardHeader>
-        
+
         <CardContent>
           <div className="space-y-4">
             {/* Description */}
             <div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 {formData.description || 'Product description will appear here...'}
               </p>
             </div>
-            
+
             {/* Progress */}
             <div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-700">Progress</span>
-                <span className="text-sm text-gray-600">{formData.percentage}%</span>
+                <span className="text-sm font-medium text-card-foreground">Progress</span>
+                <span className="text-sm text-muted-foreground">{formData.percentage}%</span>
               </div>
               <Progress value={formData.percentage} className="h-2" />
-            </div>
-            
-            {/* Action buttons placeholder */}
-            <div className="flex gap-2 pt-2">
-              <button className="flex-1 px-3 py-2 bg-primary text-white text-sm rounded-md hover:bg-primary/90 transition-colors">
-                View Details
-              </button>
-              <button className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors">
-                Follow
-              </button>
             </div>
           </div>
         </CardContent>
       </Card>
-      
-      <p className="text-xs text-gray-500 mt-4 text-center">
-        This is how your product will appear to users
-      </p>
+
     </div>
   )
 }

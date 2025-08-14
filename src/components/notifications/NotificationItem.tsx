@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
@@ -99,16 +100,16 @@ export const NotificationItem = ({ notification, onRead }: NotificationItemProps
         </div>
 
         {/* Content */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 overflow-hidden">
           <div className="flex items-start justify-between">
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <h4 className={cn(
-                "text-sm leading-tight mb-1",
+                "text-sm leading-tight mb-1 break-words",
                 !notification.is_read ? "font-semibold text-gray-900" : "font-medium text-gray-700"
               )}>
                 {notification.title}
               </h4>
-              <p className="text-sm text-gray-600 leading-relaxed mb-2">
+              <p className="text-sm text-gray-600 leading-relaxed mb-2 break-words overflow-hidden">
                 {notification.message}
               </p>
 
@@ -116,11 +117,11 @@ export const NotificationItem = ({ notification, onRead }: NotificationItemProps
               {notification.reference_id?.post_id && (
                 <div className="bg-gray-50 rounded-lg p-3 mt-2 border-l-4 border-blue-500">
                   <p className="text-xs text-gray-500 mb-1">Post</p>
-                  <p className="text-sm font-medium text-gray-700 line-clamp-2">
+                  <p className="text-sm font-medium text-gray-700 line-clamp-2 break-words">
                     {notification.reference_id.post_id.title}
                   </p>
                   {notification.reference_id.post_id.description && (
-                    <p className="text-xs text-gray-600 mt-1 line-clamp-1">
+                    <p className="text-xs text-gray-600 mt-1 line-clamp-1 break-words">
                       {notification.reference_id.post_id.description}
                     </p>
                   )}
@@ -141,7 +142,7 @@ export const NotificationItem = ({ notification, onRead }: NotificationItemProps
               {notification.type === 'comment' && notification.reference_id?.content && (
                 <div className="bg-gray-50 rounded-lg p-3 mt-2 border-l-4 border-green-500">
                   <p className="text-xs text-gray-500 mb-1">Comment</p>
-                  <p className="text-sm text-gray-700 italic">
+                  <p className="text-sm text-gray-700 italic break-words">
                     "{notification.reference_id.content}"
                   </p>
                 </div>

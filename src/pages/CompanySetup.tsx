@@ -90,32 +90,32 @@ const CompanySetup = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-                <Building2 className="w-6 h-6 text-white" />
+                <Building2 className="w-6 h-6 text-primary-foreground" />
               </div>
-              <h1 className="text-2xl font-light text-gray-800">
+              <h1 className="text-2xl font-light text-foreground">
                 Let's get started with a few details about your company.
               </h1>
             </div>
-            <p className="text-sm text-gray-500 ml-15">
-              <span className="text-red-500">*</span> indicates required
+            <p className="text-sm text-muted-foreground ml-15">
+              <span className="text-destructive">*</span> indicates required
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Form Section */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="bg-card rounded-lg shadow-sm border border-border p-6">
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Company Name */}
                 <div>
-                  <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-                    Name<span className="text-red-500">*</span>
+                  <Label htmlFor="name" className="text-sm font-medium text-card-foreground">
+                    Name<span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="name"
@@ -129,8 +129,8 @@ const CompanySetup = () => {
 
                 {/* BeemByte URL */}
                 <div>
-                  <Label htmlFor="beembyteUrl" className="text-sm font-medium text-gray-700">
-                    beembyte.com/company/<span className="text-red-500">*</span>
+                  <Label htmlFor="beembyteUrl" className="text-sm font-medium text-card-foreground">
+                    beembyte.com/company/<span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="beembyteUrl"
@@ -150,7 +150,7 @@ const CompanySetup = () => {
 
                 {/* Website */}
                 <div>
-                  <Label htmlFor="website" className="text-sm font-medium text-gray-700">
+                  <Label htmlFor="website" className="text-sm font-medium text-card-foreground">
                     Website
                   </Label>
                   <Input
@@ -164,8 +164,8 @@ const CompanySetup = () => {
 
                 {/* Industry */}
                 <div>
-                  <Label htmlFor="industry" className="text-sm font-medium text-gray-700">
-                    Industry<span className="text-red-500">*</span>
+                  <Label htmlFor="industry" className="text-sm font-medium text-card-foreground">
+                    Industry<span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="industry"
@@ -179,8 +179,8 @@ const CompanySetup = () => {
 
                 {/* Industry Type */}
                 <div>
-                  <Label htmlFor="industryType" className="text-sm font-medium text-gray-700">
-                    Industry Type<span className="text-red-500">*</span>
+                  <Label htmlFor="industryType" className="text-sm font-medium text-card-foreground">
+                    Industry Type<span className="text-destructive">*</span>
                   </Label>
                   <Select value={formData.industryType} onValueChange={(value) => handleInputChange('industryType', value)} required>
                     <SelectTrigger className="mt-1">
@@ -198,8 +198,8 @@ const CompanySetup = () => {
 
                 {/* Organization Size */}
                 <div>
-                  <Label htmlFor="organizationSize" className="text-sm font-medium text-gray-700">
-                    Organization size<span className="text-red-500">*</span>
+                  <Label htmlFor="organizationSize" className="text-sm font-medium text-card-foreground">
+                    Organization size<span className="text-destructive">*</span>
                   </Label>
                   <Select value={formData.organizationSize} onValueChange={(value) => handleInputChange('organizationSize', value)} required>
                     <SelectTrigger className="mt-1">
@@ -218,15 +218,15 @@ const CompanySetup = () => {
 
                 {/* Logo Upload */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">Logo</Label>
+                  <Label className="text-sm font-medium text-card-foreground">Logo</Label>
                   <div className="mt-1">
-                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80 border-border">
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <Upload className="w-8 h-8 mb-4 text-gray-500" />
-                        <p className="mb-2 text-sm text-gray-500">
+                        <Upload className="w-8 h-8 mb-4 text-muted-foreground" />
+                        <p className="mb-2 text-sm text-muted-foreground">
                           <span className="font-semibold">Choose file</span>
                         </p>
-                        <p className="text-xs text-gray-500">Upload to see preview</p>
+                        <p className="text-xs text-muted-foreground">Upload to see preview</p>
                       </div>
                       <input
                         type="file"
@@ -236,7 +236,7 @@ const CompanySetup = () => {
                         disabled={isUploading}
                       />
                     </label>
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-xs text-muted-foreground mt-2">
                       300 x 300px recommended. JPGs, JPEGs, and PNGs supported.
                     </p>
                   </div>
@@ -244,7 +244,7 @@ const CompanySetup = () => {
 
                 {/* Tagline */}
                 <div>
-                  <Label htmlFor="tagline" className="text-sm font-medium text-gray-700">
+                  <Label htmlFor="tagline" className="text-sm font-medium text-card-foreground">
                     Tagline
                   </Label>
                   <Textarea
@@ -255,7 +255,7 @@ const CompanySetup = () => {
                     className="mt-1"
                     rows={3}
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     Use your tagline to briefly describe what your organization does. This can be changed later. {formData.tagline.length}/120
                   </p>
                 </div>
@@ -268,7 +268,7 @@ const CompanySetup = () => {
                     onCheckedChange={(checked) => handleInputChange('agreedToTerms', checked as boolean)}
                     required
                   />
-                  <Label htmlFor="terms" className="text-xs text-gray-600 leading-relaxed">
+                  <Label htmlFor="terms" className="text-xs text-muted-foreground leading-relaxed">
                     I verify that I am an authorized representative of this organization and have
                     the right to act on its behalf in the creation and management of this page.
                     The organization and I agree to the additional terms for Company Pages.
@@ -286,7 +286,7 @@ const CompanySetup = () => {
                 <div className="pt-4">
                   <Button
                     type="submit"
-                    className="bg-primary text-white hover:bg-primary/90 px-6 py-2 rounded"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-2 rounded"
                     disabled={isCreatingPage || isUploading || !formData.agreedToTerms || !formData.name || !formData.beembyteUrl || !formData.industry || !formData.industryType || !formData.organizationSize}
                   >
                     {isCreatingPage ? 'Creating page...' : 'Create page'}
@@ -296,7 +296,7 @@ const CompanySetup = () => {
             </div>
 
             {/* Page Preview Section */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 h-[fit-content] sticky top-20">
+            <div className="bg-card rounded-lg shadow-sm border border-border p-6 h-[fit-content] sticky top-20">
               <CompanyPagePreview formData={formData} />
             </div>
           </div>

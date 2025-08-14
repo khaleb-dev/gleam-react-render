@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Download, Edit3, Send } from 'lucide-react';
+import { Download, Edit3, Send, MessageCircle } from 'lucide-react';
 import { User } from '@/types';
 import { ProfileCardGenerator } from './ProfileCardGenerator';
 import { LinkupCount } from '@/components/feed/LinkupCount';
@@ -157,10 +157,10 @@ export const ProfileHeader = ({ user, onEditClick, isOwnProfile = false }: Profi
                   variant="outline"
                   size="sm"
                   onClick={() => navigate(`/messages?userId=${user._id || user.user_id}`)}
-                  className="flex items-center gap-1 bg-background hover:bg-accent border-border text-foreground h-9"
+                  className="rounded-full px-4 border-primary text-primary bg-white hover:bg-primary hover:text-white"
                 >
-                  <Send className="h-4 w-4 mr-2" />
-                  <span className="text-xs">Message</span>
+                  <MessageCircle className="w-3 h-3 mr-1" />
+                  Message
                 </Button>
               )}
               <LinkupButton userId={user._id || user.user_id} />

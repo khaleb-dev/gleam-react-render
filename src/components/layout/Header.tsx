@@ -63,7 +63,7 @@ export const Header = () => {
 
   const menuItems = [
     { label: "Explore", path: "/feed", icon: Home },
-    { label: "Trending", path: "/trending", icon: Hash },
+    { label: "Discover", path: "/discover", icon: Hash },
     { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { label: "Task History", path: "/task-history", icon: ClipboardList },
   ]

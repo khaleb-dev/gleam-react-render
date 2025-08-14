@@ -49,9 +49,11 @@ export interface GetProductsResponse {
   success: boolean;
 }
 
-export const createProduct = async (data: CreateProductRequest): Promise<CreateProductResponse> => {
+export const createProduct = async (
+  data: CreateProductRequest
+): Promise<CreateProductResponse> => {
   try {
-    const response = await fetch(`http://localhost:7000/api/v1/page/create-product`, {
+    const response = await fetch(`${API_BASE_URL}/page/create-product`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -74,15 +76,20 @@ export const createProduct = async (data: CreateProductRequest): Promise<CreateP
   }
 };
 
-export const getProducts = async (pageId: string): Promise<GetProductsResponse> => {
+export const getProducts = async (
+  pageId: string
+): Promise<GetProductsResponse> => {
   try {
-    const response = await fetch(`http://localhost:7000/api/v1/page/get-products?page_id=${pageId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/page/get-products?page_id=${pageId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }
+    );
 
     const result = await response.json();
 

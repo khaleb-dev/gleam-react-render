@@ -3,7 +3,9 @@
 import React, { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { TrendingUp, Hash } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { TrendingUp, Hash, ArrowRight } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 import { API_BASE_URL } from "@/config/env"
 
 interface TrendingCategory {
@@ -26,6 +28,11 @@ const getCategoryColor = (category: string) => {
 export const TrendingCategories: React.FC = () => {
   const [trendingCategories, setTrendingCategories] = useState<TrendingCategory[]>([])
   const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
+
+  const handleViewMore = () => {
+    navigate('/discover')
+  }
 
   useEffect(() => {
     const fetchTrendingCategories = async () => {
@@ -48,18 +55,31 @@ export const TrendingCategories: React.FC = () => {
   return (
     <Card className="w-full">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-semibold flex items-center space-x-2">
-          <TrendingUp className="h-4 w-4 text-green-500" />
-          <span>Trending Topics</span>
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm font-semibold flex items-center space-x-2">
+            <TrendingUp className="h-4 w-4 text-green-500" />
+            <span>Discover</span>
+          </CardTitle>
+          {trendingCategories.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleViewMore}
+              className="text-xs h-auto p-1"
+            >
+              View More
+              <ArrowRight className="h-3 w-3 ml-1" />
+            </Button>
+          )}
+        </div>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-1">
         {loading ? (
           <div className="flex items-center justify-center p-4">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
           </div>
         ) : trendingCategories.length === 0 ? (
-          <div className="text-center p-4 text-gray-500 text-sm">
+          <div className="text-center p-4 text-gray-500 text-xs">
             No trending topic
           </div>
         ) : (
@@ -68,10 +88,9 @@ export const TrendingCategories: React.FC = () => {
               key={`${category.category}-${category.tag}-${index}`}
               className="flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors cursor-pointer"
             >
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2">
-                  <div className={`w-2 h-2 rounded-full ${getCategoryColor(category.tag)}`} />
-                  <Hash className="h-3 w-3 text-gray-400" />
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-medium text-xs">
+                  #{index + 1}
                 </div>
                 <div>
                   <p className="text-xs font-medium text-gray-900 dark:text-white">
@@ -90,9 +109,6 @@ export const TrendingCategories: React.FC = () => {
                 >
                   +{category.growth_percentage || 0}%
                 </Badge>
-                <span className="text-xs text-gray-400 font-mono">
-                  #{index + 1}
-                </span>
               </div>
             </div>
           ))

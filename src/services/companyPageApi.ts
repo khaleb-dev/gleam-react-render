@@ -10,7 +10,9 @@ export interface CompanyPageData {
   industry_type: string;
   size: string;
   logo: string;
+  cover_logo?: string;
   tag_line: string;
+  about?: string;
   agreed_terms: boolean;
   admin_id: {
     _id: string;
@@ -45,6 +47,7 @@ export interface CompanyPageData {
     updatedAt: string;
     __v: number;
   }>;
+  followersCount: number;
 }
 
 export interface GetCompanyPageResponse {
@@ -66,7 +69,9 @@ export interface UserPagesResponse {
       industry_type: string;
       size: string;
       logo: string;
+      cover_logo?: string;
       tag_line: string;
+      about?: string;
       agreed_terms: boolean;
       admin_id: {
         _id: string;
@@ -82,15 +87,20 @@ export interface UserPagesResponse {
   success: boolean;
 }
 
-export const getCompanyPage = async (identifier: string): Promise<GetCompanyPageResponse> => {
+export const getCompanyPage = async (
+  identifier: string
+): Promise<GetCompanyPageResponse> => {
   try {
-    const response = await fetch(`http://localhost:7000/api/v1/page/get-page?identifier=${identifier}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/page/get-page?identifier=${identifier}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }
+    );
 
     const result = await response.json();
 
@@ -108,7 +118,7 @@ export const getCompanyPage = async (identifier: string): Promise<GetCompanyPage
 
 export const getUserPages = async (): Promise<UserPagesResponse> => {
   try {
-    const response = await fetch(`http://localhost:7000/api/v1/page/get-user/pages`, {
+    const response = await fetch(`${API_BASE_URL}/page/get-user/pages`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -121,6 +131,52 @@ export const getUserPages = async (): Promise<UserPagesResponse> => {
     if (!response.ok) {
       handleApiErrors(result);
       throw new Error(result.message || "Failed to fetch user pages");
+    }
+
+    return result;
+  } catch (error) {
+    handleNetworkError(error);
+    throw error;
+  }
+};
+
+export interface UpdateCompanyPageRequest {
+  name?: string;
+  website?: string;
+  industry?: string;
+  industry_type?: string;
+  size?: string;
+  cover_logo?: string;
+  logo?: string;
+  tag_line?: string;
+  about?: string;
+}
+
+export interface UpdateCompanyPageResponse {
+  message: string;
+  data: CompanyPageData;
+  success: boolean;
+}
+
+export const updateCompanyPage = async (
+  pageId: string,
+  data: UpdateCompanyPageRequest
+): Promise<UpdateCompanyPageResponse> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/page/update-page/${pageId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      handleApiErrors(result);
+      throw new Error(result.message || "Failed to update company page");
     }
 
     return result;
