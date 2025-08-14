@@ -533,7 +533,7 @@ const CompanyProfile = () => {
             onClick={() => setActiveTab('feed')}
             className={`px-6 py-3 text-sm font-medium transition-all ${
               activeTab === 'feed' 
-                ? 'text-primary border-b-2 border-primary bg-primary/5' 
+                ? 'text-primary border-b-2 border-primary' 
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -543,7 +543,7 @@ const CompanyProfile = () => {
             onClick={() => setActiveTab('members')}
             className={`px-6 py-3 text-sm font-medium transition-all ${
               activeTab === 'members' 
-                ? 'text-primary border-b-2 border-primary bg-primary/5' 
+                ? 'text-primary border-b-2 border-primary' 
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -553,7 +553,7 @@ const CompanyProfile = () => {
             onClick={() => setActiveTab('analytics')}
             className={`px-6 py-3 text-sm font-medium transition-all ${
               activeTab === 'analytics' 
-                ? 'text-primary border-b-2 border-primary bg-primary/5' 
+                ? 'text-primary border-b-2 border-primary' 
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -563,7 +563,7 @@ const CompanyProfile = () => {
             onClick={() => setActiveTab('products')}
             className={`px-6 py-3 text-sm font-medium transition-all ${
               activeTab === 'products' 
-                ? 'text-primary border-b-2 border-primary bg-primary/5' 
+                ? 'text-primary border-b-2 border-primary' 
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -573,7 +573,7 @@ const CompanyProfile = () => {
             onClick={() => setActiveTab('activities')}
             className={`px-6 py-3 text-sm font-medium transition-all ${
               activeTab === 'activities' 
-                ? 'text-primary border-b-2 border-primary bg-primary/5' 
+                ? 'text-primary border-b-2 border-primary' 
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -583,7 +583,7 @@ const CompanyProfile = () => {
             onClick={() => setActiveTab('jobs')}
             className={`px-6 py-3 text-sm font-medium transition-all ${
               activeTab === 'jobs' 
-                ? 'text-primary border-b-2 border-primary bg-primary/5' 
+                ? 'text-primary border-b-2 border-primary' 
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -917,9 +917,8 @@ const CompanyProfile = () => {
           <div className="w-full px-6 py-8">
             <Card className="max-w-6xl mx-auto">
               <CardContent className="p-8">
-                {activeTab === 'members' && (
-                  <div>
-                    <h2 className="text-2xl font-bold mb-6">Team Members</h2>
+                 {activeTab === 'members' && (
+                   <div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {companyData.members.map((member) => (
                         <Card key={member._id} className="p-4 hover:shadow-md transition-shadow cursor-pointer"
@@ -947,9 +946,8 @@ const CompanyProfile = () => {
                   </div>
                 )}
 
-                {activeTab === 'analytics' && (
-                  <div>
-                    <h2 className="text-2xl font-bold mb-6">Analytics</h2>
+                 {activeTab === 'analytics' && (
+                   <div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                       <Card className="p-6 text-center">
                         <h3 className="text-3xl font-bold text-primary">{stats?.posts || 0}</h3>
@@ -975,10 +973,9 @@ const CompanyProfile = () => {
                   </div>
                 )}
 
-                {activeTab === 'products' && (
-                  <div>
-                    <div className="flex justify-between items-center mb-6">
-                      <h2 className="text-2xl font-bold">Products</h2>
+                 {activeTab === 'products' && (
+                   <div>
+                     <div className="flex justify-end items-center mb-6">
                       <Button
                         onClick={() => navigate(`/new/company/product/setup?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}&companyUrl=${companyData.company_url}`)}
                       >
@@ -1014,18 +1011,16 @@ const CompanyProfile = () => {
                   </div>
                 )}
 
-                {activeTab === 'activities' && (
-                  <div>
-                    <h2 className="text-2xl font-bold mb-6">Activities</h2>
+                 {activeTab === 'activities' && (
+                   <div>
                     <Card className="p-6">
                       <p className="text-muted-foreground">Recent activities will be displayed here...</p>
                     </Card>
                   </div>
                 )}
 
-                {activeTab === 'jobs' && (
-                  <div>
-                    <h2 className="text-2xl font-bold mb-6">Job Openings</h2>
+                 {activeTab === 'jobs' && (
+                   <div>
                     <Card className="p-6">
                       <p className="text-muted-foreground">Job listings will be displayed here...</p>
                     </Card>
