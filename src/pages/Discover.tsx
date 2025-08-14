@@ -286,7 +286,12 @@ interface FollowingPageCardProps {
 }
 
 const FollowingPageCard: React.FC<FollowingPageCardProps> = ({ page }) => {
+  const unfollowMutation = useUnfollowCompanyPage();
   const navigate = useNavigate();
+
+  const handleUnfollow = () => {
+    unfollowMutation.mutate(page._id);
+  };
 
   const handlePageClick = () => {
     navigate(`/company/${page.company_url}`);
@@ -315,6 +320,17 @@ const FollowingPageCard: React.FC<FollowingPageCardProps> = ({ page }) => {
               <span>{page.size} employees</span>
             </div>
           </div>
+          <Button
+            variant="outline"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleUnfollow();
+            }}
+            disabled={unfollowMutation.isPending}
+            className="shrink-0"
+          >
+            {unfollowMutation.isPending ? "Unfollowing..." : "Unfollow"}
+          </Button>
         </div>
       </CardContent>
     </Card>
