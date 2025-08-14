@@ -88,11 +88,11 @@ export const TrendingCategories: React.FC = () => {
               key={`${category.category}-${category.tag}-${index}`}
               className="flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors cursor-pointer"
             >
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 flex-1 min-w-0">
                 <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-medium text-xs">
                   #{index + 1}
                 </div>
-                <div>
+                <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-gray-900 dark:text-white">
                     {category.tag || 'Unknown'}
                   </p>
@@ -101,15 +101,13 @@ export const TrendingCategories: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Badge
-                  variant="outline"
-                  className={`text-xs px-1.5 py-0.5 ${(category.growth_percentage || 0) > 0 ? 'text-green-600 border-green-200' : 'text-red-600 border-red-200'
-                    }`}
-                >
-                  +{category.growth_percentage || 0}%
-                </Badge>
-              </div>
+              <Badge
+                variant="outline"
+                className={`text-xs px-1.5 py-0.5 ml-2 ${(category.growth_percentage || 0) > 0 ? 'text-green-600 border-green-200' : 'text-red-600 border-red-200'
+                  }`}
+              >
+                +{category.growth_percentage || 0}%
+              </Badge>
             </div>
           ))
         )}
