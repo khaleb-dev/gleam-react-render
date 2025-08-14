@@ -89,6 +89,7 @@ const CompanyProfile = () => {
   const navigate = useNavigate();
   const [postContent, setPostContent] = React.useState('');
   const [isEditing, setIsEditing] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState('feed');
   const [editedData, setEditedData] = React.useState({
     name: '',
     tag_line: '',
@@ -526,27 +527,75 @@ const CompanyProfile = () => {
       </Card>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center gap-4 mt-6 px-1 border-b">
-        <button className="px-4 py-2 text-sm font-medium text-primary border-b-2 border-primary">
-          Members
-        </button>
-        <button className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
-          Analytics
-        </button>
-        <button className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
-          Products
-        </button>
-        <button className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
-          Activities
-        </button>
-        <button className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
-          Jobs
-        </button>
+      <div className="bg-white border-b shadow-sm">
+        <div className="flex items-center justify-center gap-8 py-2">
+          <button 
+            onClick={() => setActiveTab('feed')}
+            className={`px-6 py-3 text-sm font-medium transition-all ${
+              activeTab === 'feed' 
+                ? 'text-primary border-b-2 border-primary bg-primary/5' 
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Feed
+          </button>
+          <button 
+            onClick={() => setActiveTab('members')}
+            className={`px-6 py-3 text-sm font-medium transition-all ${
+              activeTab === 'members' 
+                ? 'text-primary border-b-2 border-primary bg-primary/5' 
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Members
+          </button>
+          <button 
+            onClick={() => setActiveTab('analytics')}
+            className={`px-6 py-3 text-sm font-medium transition-all ${
+              activeTab === 'analytics' 
+                ? 'text-primary border-b-2 border-primary bg-primary/5' 
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Analytics
+          </button>
+          <button 
+            onClick={() => setActiveTab('products')}
+            className={`px-6 py-3 text-sm font-medium transition-all ${
+              activeTab === 'products' 
+                ? 'text-primary border-b-2 border-primary bg-primary/5' 
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Products
+          </button>
+          <button 
+            onClick={() => setActiveTab('activities')}
+            className={`px-6 py-3 text-sm font-medium transition-all ${
+              activeTab === 'activities' 
+                ? 'text-primary border-b-2 border-primary bg-primary/5' 
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Activities
+          </button>
+          <button 
+            onClick={() => setActiveTab('jobs')}
+            className={`px-6 py-3 text-sm font-medium transition-all ${
+              activeTab === 'jobs' 
+                ? 'text-primary border-b-2 border-primary bg-primary/5' 
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Jobs
+          </button>
+        </div>
       </div>
 
       {/* Main Content */}
-      <div className=" mx-auto">
-        <div className="flex gap-6 mt-6">
+      <div className="mx-auto">
+        {activeTab === 'feed' ? (
+          <div className="flex gap-6 mt-6">
 
           {/* Left Sidebar */}
           <div className="w-[25%] space-y-6">
@@ -865,7 +914,128 @@ const CompanyProfile = () => {
               </CardContent>
             </Card>
           </div>
-        </div>
+        ) : (
+          <div className="w-full px-6 py-8">
+            <Card className="max-w-6xl mx-auto">
+              <CardContent className="p-8">
+                {activeTab === 'members' && (
+                  <div>
+                    <h2 className="text-2xl font-bold mb-6">Team Members</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {companyData.members.map((member) => (
+                        <Card key={member._id} className="p-4 hover:shadow-md transition-shadow cursor-pointer"
+                          onClick={() => navigateMemberProfile(member.user_id._id)}
+                        >
+                          <div className="flex items-center gap-4">
+                            <Avatar className="w-16 h-16">
+                              <AvatarImage src="" />
+                              <AvatarFallback className="text-lg">
+                                {member.user_id.first_name[0]}{member.user_id.last_name[0]}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <h3 className="font-semibold text-lg">
+                                {member.user_id.first_name} {member.user_id.last_name}
+                              </h3>
+                              <p className="text-muted-foreground capitalize">
+                                {member.role_id.role_name.replace(/_/g, ' ')}
+                              </p>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'analytics' && (
+                  <div>
+                    <h2 className="text-2xl font-bold mb-6">Analytics</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                      <Card className="p-6 text-center">
+                        <h3 className="text-3xl font-bold text-primary">{stats?.posts || 0}</h3>
+                        <p className="text-muted-foreground">Total Posts</p>
+                      </Card>
+                      <Card className="p-6 text-center">
+                        <h3 className="text-3xl font-bold text-primary">{stats?.products || 0}</h3>
+                        <p className="text-muted-foreground">Products</p>
+                      </Card>
+                      <Card className="p-6 text-center">
+                        <h3 className="text-3xl font-bold text-primary">{stats?.team_members || 0}</h3>
+                        <p className="text-muted-foreground">Team Members</p>
+                      </Card>
+                      <Card className="p-6 text-center">
+                        <h3 className="text-3xl font-bold text-primary">{stats?.total_score || 0}</h3>
+                        <p className="text-muted-foreground">Total Score</p>
+                      </Card>
+                    </div>
+                    <Card className="p-6">
+                      <h3 className="text-xl font-semibold mb-4">Performance Overview</h3>
+                      <p className="text-muted-foreground">Detailed analytics coming soon...</p>
+                    </Card>
+                  </div>
+                )}
+
+                {activeTab === 'products' && (
+                  <div>
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-2xl font-bold">Products</h2>
+                      <Button
+                        onClick={() => navigate(`/new/company/product/setup?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}&companyUrl=${companyData.company_url}`)}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Product
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {products.map((product) => (
+                        <Card key={product._id} className="p-6 hover:shadow-md transition-shadow">
+                          <div className="flex items-start gap-4">
+                            <div className="relative">
+                              <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted">
+                                <img
+                                  src={product.logo}
+                                  alt={product.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-card ${product.is_live ? 'bg-green-500' : 'bg-orange-500'}`}></div>
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">{product.percentage}% Complete</span>
+                                <ProgressCircle percentage={product.percentage} size={40} />
+                              </div>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'activities' && (
+                  <div>
+                    <h2 className="text-2xl font-bold mb-6">Activities</h2>
+                    <Card className="p-6">
+                      <p className="text-muted-foreground">Recent activities will be displayed here...</p>
+                    </Card>
+                  </div>
+                )}
+
+                {activeTab === 'jobs' && (
+                  <div>
+                    <h2 className="text-2xl font-bold mb-6">Job Openings</h2>
+                    <Card className="p-6">
+                      <p className="text-muted-foreground">Job listings will be displayed here...</p>
+                    </Card>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );
