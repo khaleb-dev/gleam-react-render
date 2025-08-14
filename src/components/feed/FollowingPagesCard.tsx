@@ -11,14 +11,14 @@ export const FollowingPagesCard: React.FC = () => {
   const navigate = useNavigate();
 
   const handleViewMore = () => {
-    navigate("/discover?tab=pages");
+    navigate("/discover?tab=following");
   };
 
   if (isLoading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Pages You Follow</CardTitle>
+          <CardTitle className="text-sm font-bold">Pages You Follow</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -41,7 +41,7 @@ export const FollowingPagesCard: React.FC = () => {
     return (
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-lg">Pages You Follow</CardTitle>
+          <CardTitle className="text-sm font-bold">Pages You Follow</CardTitle>
           <Button
             variant="ghost"
             size="sm"
@@ -71,7 +71,7 @@ export const FollowingPagesCard: React.FC = () => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-lg">Pages You Follow</CardTitle>
+        <CardTitle className="text-sm font-bold">Pages You Follow</CardTitle>
         <Button
           variant="ghost"
           size="sm"

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { API_BASE_URL } from "@/config/env"
 import { useSuggestedPages } from "@/hooks/useSuggestedPages"
+import { useFollowingPages } from "@/hooks/useFollowingPages"
 import { useFollowCompanyPage, useUnfollowCompanyPage, useFollowStatus } from "@/hooks/useCompanyPageFollow"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Plus } from "lucide-react"
@@ -32,8 +33,12 @@ export const Discover: React.FC = () => {
   const [trendingCategories, setTrendingCategories] = useState<TrendingCategory[]>([])
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const activeTab = searchParams.get("tab") || "trends"
+
+  const handleTabChange = (value: string) => {
+    setSearchParams({ tab: value })
+  }
 
   useEffect(() => {
     const fetchTrendingCategories = async () => {
@@ -75,10 +80,11 @@ export const Discover: React.FC = () => {
         </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="trends">Trending Topics</TabsTrigger>
             <TabsTrigger value="pages">Suggested Pages</TabsTrigger>
+            <TabsTrigger value="following">Following</TabsTrigger>
           </TabsList>
           
           <TabsContent value="trends" className="mt-6">
@@ -136,6 +142,10 @@ export const Discover: React.FC = () => {
           
           <TabsContent value="pages" className="mt-6">
             <SuggestedPagesTab />
+          </TabsContent>
+          
+          <TabsContent value="following" className="mt-6">
+            <FollowingPagesTab />
           </TabsContent>
         </Tabs>
       </div>
@@ -233,6 +243,78 @@ const SuggestedPageCard: React.FC<SuggestedPageCardProps> = ({ page }) => {
           >
             {isFollowing ? "Following" : <><Plus className="h-4 w-4 mr-1" />Follow</>}
           </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const FollowingPagesTab: React.FC = () => {
+  const { data: followingPages, isLoading } = useFollowingPages();
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!followingPages?.success || !followingPages.data.pages.length) {
+    return (
+      <Card>
+        <CardContent className="text-center p-8 text-gray-500">
+          You're not following any pages yet
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="grid gap-4">
+      {followingPages.data.pages.map((page) => (
+        <FollowingPageCard key={page._id} page={page} />
+      ))}
+    </div>
+  );
+};
+
+interface FollowingPageCardProps {
+  page: any;
+}
+
+const FollowingPageCard: React.FC<FollowingPageCardProps> = ({ page }) => {
+  const navigate = useNavigate();
+
+  const handlePageClick = () => {
+    navigate(`/company/${page.company_url}`);
+  };
+
+  return (
+    <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={handlePageClick}>
+      <CardContent className="p-6">
+        <div className="flex items-start gap-4">
+          <Avatar className="w-16 h-16">
+            <AvatarImage src={page.logo} />
+            <AvatarFallback className="text-lg">
+              {page.name.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-1">
+              {page.name}
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              {page.tag_line}
+            </p>
+            <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+              <span>{page.industry}</span>
+              <span>•</span>
+              <span>{page.size} employees</span>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>

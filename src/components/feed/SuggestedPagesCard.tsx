@@ -19,7 +19,7 @@ export const SuggestedPagesCard: React.FC = () => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Suggested Pages</CardTitle>
+          <CardTitle className="text-sm font-bold">Suggested Pages</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -43,7 +43,7 @@ export const SuggestedPagesCard: React.FC = () => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Suggested Pages</CardTitle>
+          <CardTitle className="text-sm font-bold">Suggested Pages</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground text-center py-4">
@@ -57,7 +57,7 @@ export const SuggestedPagesCard: React.FC = () => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-lg">Suggested Pages</CardTitle>
+        <CardTitle className="text-sm font-bold">Suggested Pages</CardTitle>
         <Button
           variant="ghost"
           size="sm"
