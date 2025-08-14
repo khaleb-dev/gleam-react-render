@@ -88,11 +88,10 @@ export const Discover: React.FC = () => {
                   {trendingCategories.map((category, index) => (
                     <div
                       key={`${category.category}-${category.tag}-${index}`}
-                      className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors cursor-pointer"
+                      className="flex items-center p-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors cursor-pointer"
                     >
                       <div className="flex items-center space-x-4">
                         <div className="flex items-center space-x-3">
-
                           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-medium text-sm">
                             #{index + 1}
                           </div>
@@ -107,15 +106,13 @@ export const Discover: React.FC = () => {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-3">
-                        <Badge
-                          variant="outline"
-                          className={`${(category.growth_percentage || 0) > 0 ? 'text-green-600 border-green-200 bg-green-50' : 'text-red-600 border-red-200 bg-red-50'
-                            }`}
-                        >
-                          +{category.growth_percentage || 0}%
-                        </Badge>
-                      </div>
+                      <Badge
+                        variant="outline"
+                        className={`ml-auto ${(category.growth_percentage || 0) > 0 ? 'text-green-600 border-green-200 bg-green-50' : 'text-red-600 border-red-200 bg-red-50'
+                          }`}
+                      >
+                        +{category.growth_percentage || 0}%
+                      </Badge>
                     </div>
                   ))}
                 </CardContent>
