@@ -8,6 +8,8 @@ import { TrendingCategories } from "@/components/feed/TrendingCategories"
 import { SuggestedUsers } from "@/components/feed/SuggestedUsers"
 import { MobileSuggestedUsers } from "@/components/feed/MobileSuggestedUsers"
 import { TopWeeklyChallengers } from "@/components/feed/TopWeeklyChallengers"
+import { SuggestedPagesCard } from "@/components/feed/SuggestedPagesCard"
+import { FollowingPagesCard } from "@/components/feed/FollowingPagesCard"
 import { FeedActionButton } from "@/components/feed/FeedActionButton"
 import { useAuth } from "@/hooks/useAuth"
 import { useFeed } from "@/hooks/useFeed"
@@ -391,6 +393,8 @@ const Feed = () => {
             {/* Right Sidebar - Only show on large screens with proper sticky positioning */}
             <div className="hidden lg:block lg:w-80 lg:flex-shrink-0 lg:pt-4">
               <div className="space-y-4">
+                <FollowingPagesCard />
+                <SuggestedPagesCard />
                 <SuggestedUsers />
                 <TopWeeklyChallengers />
 
