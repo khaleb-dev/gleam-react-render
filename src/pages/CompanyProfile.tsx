@@ -20,6 +20,8 @@ import { useUpdateCompanyPage } from '@/hooks/useUpdateCompanyPage';
 import { useSingleFileUpload } from '@/hooks/useSingleFileUpload';
 import { useCompanyPageStats } from '@/hooks/useCompanyPageStats';
 import { useFollowStatus, useFollowCompanyPage, useUnfollowCompanyPage } from '@/hooks/useCompanyPageFollow';
+import { useCompanyPageRoles } from '@/hooks/useCompanyPageRoles';
+import { usePermissions } from '@/hooks/usePermissions';
 
 // Mock posts data for feed
 const mockPosts = [
@@ -128,6 +130,8 @@ const CompanyProfile = () => {
 
   const updateCompanyPage = useUpdateCompanyPage();
   const { uploadFile, isUploading } = useSingleFileUpload();
+  const { data: rolesData } = useCompanyPageRoles();
+  const permissions = usePermissions(companyData);
 
   // Search users using API
   const searchUsersApi = async (query: string) => {
@@ -588,13 +592,13 @@ const CompanyProfile = () => {
       <div className="sticky top-[64px] z-10 bg-white border-b shadow-sm w-full left-0 right-0">
         <div className={`${isMobile ? 'flex overflow-x-auto scrollbar-hide px-2 py-1 gap-2' : 'flex items-center justify-center gap-8 py-2'} max-w-none w-full`}>
           {[
-            { id: 'feed', label: 'Feed' },
-            { id: 'members', label: 'Members' },
-            { id: 'analytics', label: 'Analytics' },
-            { id: 'products', label: 'Products' },
-            { id: 'activities', label: 'Activities' },
-            { id: 'jobs', label: 'Jobs' },
-          ].map((tab) => (
+            { id: 'feed', label: 'Feed', show: true },
+            { id: 'members', label: 'Members', show: permissions.isMember },
+            { id: 'analytics', label: 'Analytics', show: permissions.canViewAnalytics },
+            { id: 'products', label: 'Products', show: permissions.isMember },
+            { id: 'activities', label: 'Activities', show: permissions.isMember },
+            { id: 'jobs', label: 'Jobs', show: permissions.canManageJobs },
+          ].filter(tab => tab.show).map((tab) => (
             <button 
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -833,8 +837,8 @@ const CompanyProfile = () => {
 
             {/* Feed Content */}
             <div className={`${isMobile ? 'w-full' : 'flex-1'} space-y-6`}>
-              {/* Create Post - Only show on desktop */}
-              {!isMobile && (
+              {/* Create Post - Only show on desktop and for users with create permissions */}
+              {!isMobile && permissions.canCreatePosts && (
                 <CreatePostCard
                   user={{
                     ...companyData.admin_id,
@@ -911,15 +915,16 @@ const CompanyProfile = () => {
             <Card className={`max-w-6xl mx-auto ${isMobile ? 'mx-1' : ''}`}>
               <CardContent className="p-8">
                 {activeTab === 'members' && (
-                  <div>
-                    <div className="flex justify-end items-center mb-6">
-                      <Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
-                        <DialogTrigger asChild>
-                          <Button size="sm" className="flex items-center gap-2">
-                            <Plus className="w-4 h-4" />
-                            Add Members
-                          </Button>
-                        </DialogTrigger>
+                <div>
+                    {permissions.canManageMembers && (
+                      <div className="flex justify-end items-center mb-6">
+                        <Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
+                          <DialogTrigger asChild>
+                            <Button size="sm" className="flex items-center gap-2">
+                              <Plus className="w-4 h-4" />
+                              Add Members
+                            </Button>
+                          </DialogTrigger>
                         <DialogContent className={`${isMobile ? 'max-w-[95vw] max-h-[90vh] p-4' : 'sm:max-w-4xl max-h-[80vh]'} overflow-hidden flex flex-col`}>
                           <DialogHeader>
                             <DialogTitle>Add Team Members</DialogTitle>
@@ -1002,9 +1007,9 @@ const CompanyProfile = () => {
                                       </div>
                                       <div className="space-y-2">
                                         <label className="text-xs font-medium">Role:</label>
-                                        <select 
+                                         <select 
                                           className="w-full px-2 py-1 border rounded text-xs"
-                                          defaultValue="member"
+                                          defaultValue={rolesData?.data?.find(r => r.role_name === 'employee')?._id || ''}
                                           onChange={(e) => {
                                             const updatedUsers = selectedUsers.map(u => 
                                               u._id === user._id ? { ...u, selectedRole: e.target.value } : u
@@ -1012,9 +1017,11 @@ const CompanyProfile = () => {
                                             setSelectedUsers(updatedUsers as any);
                                           }}
                                         >
-                                          <option value="member">Member</option>
-                                          <option value="admin">Admin</option>
-                                          <option value="manager">Manager</option>
+                                          {rolesData?.data?.map((role) => (
+                                            <option key={role._id} value={role._id}>
+                                              {role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1).replace('_', ' ')}
+                                            </option>
+                                          ))}
                                         </select>
                                       </div>
                                     </div>
@@ -1029,6 +1036,7 @@ const CompanyProfile = () => {
                         </DialogContent>
                       </Dialog>
                     </div>
+                    )}
                     
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                       {companyData.members.map((member) => (
@@ -1057,41 +1065,54 @@ const CompanyProfile = () => {
 
                  {activeTab === 'analytics' && (
                    <div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                      <Card className="p-6 text-center">
-                        <h3 className="text-3xl font-bold text-primary">{stats?.posts || 0}</h3>
-                        <p className="text-muted-foreground">Total Posts</p>
-                      </Card>
-                      <Card className="p-6 text-center">
-                        <h3 className="text-3xl font-bold text-primary">{stats?.products || 0}</h3>
-                        <p className="text-muted-foreground">Products</p>
-                      </Card>
-                      <Card className="p-6 text-center">
-                        <h3 className="text-3xl font-bold text-primary">{stats?.team_members || 0}</h3>
-                        <p className="text-muted-foreground">Team Members</p>
-                      </Card>
-                      <Card className="p-6 text-center">
-                        <h3 className="text-3xl font-bold text-primary">{stats?.total_score || 0}</h3>
-                        <p className="text-muted-foreground">Total Score</p>
-                      </Card>
-                    </div>
-                    <Card className="p-6">
-                      <h3 className="text-xl font-semibold mb-4">Performance Overview</h3>
-                      <p className="text-muted-foreground">Detailed analytics coming soon...</p>
-                    </Card>
-                  </div>
-                )}
+                     {!permissions.canViewAnalytics ? (
+                       <div className="text-center py-12">
+                         <div className="text-muted-foreground">
+                           <h3 className="text-lg font-medium mb-2">Access Restricted</h3>
+                           <p>You don't have permission to view analytics for this company page.</p>
+                         </div>
+                       </div>
+                      ) : (
+                       <>
+                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                           <Card className="p-6 text-center">
+                             <h3 className="text-3xl font-bold text-primary">{stats?.posts || 0}</h3>
+                             <p className="text-muted-foreground">Total Posts</p>
+                           </Card>
+                           <Card className="p-6 text-center">
+                             <h3 className="text-3xl font-bold text-primary">{stats?.products || 0}</h3>
+                             <p className="text-muted-foreground">Products</p>
+                           </Card>
+                           <Card className="p-6 text-center">
+                             <h3 className="text-3xl font-bold text-primary">{stats?.team_members || 0}</h3>
+                             <p className="text-muted-foreground">Team Members</p>
+                           </Card>
+                           <Card className="p-6 text-center">
+                             <h3 className="text-3xl font-bold text-primary">{stats?.total_score || 0}</h3>
+                             <p className="text-muted-foreground">Total Score</p>
+                           </Card>
+                         </div>
+                         <Card className="p-6">
+                           <h3 className="text-xl font-semibold mb-4">Performance Overview</h3>
+                           <p className="text-muted-foreground">Detailed analytics coming soon...</p>
+                         </Card>
+                       </>
+                      )}
+                   </div>
+                 )}
 
                  {activeTab === 'products' && (
                    <div>
-                     <div className="flex justify-end items-center mb-6">
-                      <Button
-                        onClick={() => navigate(`/new/company/product/setup?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}&companyUrl=${companyData.company_url}`)}
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Product
-                      </Button>
-                    </div>
+                     {permissions.canManagePage && (
+                       <div className="flex justify-end items-center mb-6">
+                        <Button
+                          onClick={() => navigate(`/new/company/product/setup?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}&companyUrl=${companyData.company_url}`)}
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Product
+                        </Button>
+                      </div>
+                     )}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {products.map((product) => (
                         <Card key={product._id} className="p-6 hover:shadow-md transition-shadow">
