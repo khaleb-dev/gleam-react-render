@@ -585,8 +585,8 @@ const CompanyProfile = () => {
       </Card>
 
       {/* Navigation Tabs - Sticky */}
-      <div className="sticky top-0 z-10 bg-white border-b shadow-sm">
-        <div className={`${isMobile ? 'flex overflow-x-auto scrollbar-hide px-2 py-1 gap-2' : 'flex items-center justify-center gap-8 py-2'}`}>
+      <div className="sticky top-[64px] z-10 bg-white border-b shadow-sm w-full left-0 right-0">
+        <div className={`${isMobile ? 'flex overflow-x-auto scrollbar-hide px-2 py-1 gap-2' : 'flex items-center justify-center gap-8 py-2'} max-w-none w-full`}>
           {[
             { id: 'feed', label: 'Feed' },
             { id: 'members', label: 'Members' },
