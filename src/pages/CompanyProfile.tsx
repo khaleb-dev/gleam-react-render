@@ -723,91 +723,17 @@ const CompanyProfile = () => {
               {/* Team Members */}
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">Members</CardTitle>
-                    <Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-md">
-                        <DialogHeader>
-                          <DialogTitle>Invite Members</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div className="relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input
-                              placeholder="Search users..."
-                              value={searchQuery}
-                              onChange={(e) => setSearchQuery(e.target.value)}
-                              className="pl-10"
-                            />
-                          </div>
-
-                          <div className="max-h-60 overflow-y-auto space-y-2">
-                            {isSearching ? (
-                              <div className="flex items-center justify-center py-8">
-                                <div className="text-sm text-muted-foreground">Searching...</div>
-                              </div>
-                            ) : searchUsers.length === 0 && searchQuery ? (
-                              <div className="flex items-center justify-center py-8">
-                                <div className="text-sm text-muted-foreground">No users found</div>
-                              </div>
-                            ) : (
-                              searchUsers.map((user) => {
-                              const isSelected = selectedUsers.some(u => u._id === user._id);
-                              return (
-                                <div
-                                  key={user._id}
-                                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${isSelected ? 'bg-primary/10 border-primary' : 'hover:bg-muted/50'
-                                    }`}
-                                  onClick={() => toggleUserSelection(user)}
-                                >
-                                  <Avatar className="w-10 h-10">
-                                    <AvatarImage src={user.profile_avatar || ''} />
-                                    <AvatarFallback>
-                                      {user.first_name[0]}{user.last_name[0]}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-sm">
-                                      {user.first_name} {user.last_name}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                      {user.email}
-                                    </p>
-                                  </div>
-                                  {isSelected && (
-                                    <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                                      <Plus className="w-3 h-3 text-primary-foreground rotate-45" />
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })
-                            )}
-                          </div>
-
-                          {selectedUsers.length > 0 && (
-                            <div className="flex items-center justify-between pt-4 border-t">
-                              <span className="text-sm text-muted-foreground">
-                                {selectedUsers.length} user(s) selected
-                              </span>
-                              <Button onClick={handleInviteUsers}>
-                                Invite Selected
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
+                   <div className="flex items-center justify-between">
+                     <CardTitle className="text-lg">Members</CardTitle>
+                     <Button
+                       variant="ghost"
+                       size="sm"
+                       className="h-8 w-8 p-0"
+                       onClick={() => setInviteModalOpen(true)}
+                     >
+                       <Plus className="w-4 h-4" />
+                     </Button>
+                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {companyData.members.slice(0, 5).map((member) => (
