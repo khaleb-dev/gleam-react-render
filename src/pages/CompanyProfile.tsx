@@ -917,96 +917,119 @@ const CompanyProfile = () => {
           <div className="w-full px-6 py-8">
             <Card className="max-w-6xl mx-auto">
               <CardContent className="p-8">
-                 {activeTab === 'members' && (
-                   <div>
-                    <div className="flex justify-between items-center mb-6">
-                      <h2 className="text-2xl font-bold">Team Members</h2>
+                {activeTab === 'members' && (
+                  <div>
+                    <div className="flex justify-end items-center mb-6">
                       <Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
                         <DialogTrigger asChild>
-                          <Button className="flex items-center gap-2">
+                          <Button size="sm" className="flex items-center gap-2">
                             <Plus className="w-4 h-4" />
                             Add Members
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+                        <DialogContent className="sm:max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
                           <DialogHeader>
                             <DialogTitle>Add Team Members</DialogTitle>
                           </DialogHeader>
-                          <div className="flex-1 overflow-hidden flex flex-col space-y-4">
-                            <div className="relative">
-                              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                              <Input
-                                placeholder="Search users..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10"
-                              />
-                            </div>
+                          <div className="flex-1 overflow-hidden flex space-x-6">
+                            {/* Left side - User search */}
+                            <div className="flex-1 flex flex-col space-y-4">
+                              <div className="relative">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                <Input
+                                  placeholder="Search users..."
+                                  value={searchQuery}
+                                  onChange={(e) => setSearchQuery(e.target.value)}
+                                  className="pl-10"
+                                />
+                              </div>
 
-                            <div className="flex-1 overflow-y-auto space-y-3">
-                              {isSearching ? (
-                                <div className="flex items-center justify-center py-8">
-                                  <div className="text-sm text-muted-foreground">Searching...</div>
-                                </div>
-                              ) : searchUsers.length === 0 && searchQuery ? (
-                                <div className="flex items-center justify-center py-8">
-                                  <div className="text-sm text-muted-foreground">No users found</div>
-                                </div>
-                              ) : (
-                                searchUsers.map((user) => {
-                                  const isSelected = selectedUsers.some(u => u._id === user._id);
-                                  return (
-                                    <div
-                                      key={user._id}
-                                      className={`flex items-center gap-4 p-4 rounded-lg border cursor-pointer transition-colors ${isSelected ? 'bg-primary/10 border-primary' : 'hover:bg-muted/50'
-                                        }`}
-                                      onClick={() => toggleUserSelection(user)}
-                                    >
-                                      <Avatar className="w-12 h-12">
-                                        <AvatarImage src={user.profile_avatar || ''} />
-                                        <AvatarFallback>
-                                          {user.first_name[0]}{user.last_name[0]}
-                                        </AvatarFallback>
-                                      </Avatar>
-                                      <div className="flex-1 min-w-0">
-                                        <p className="font-medium text-base">
-                                          {user.first_name} {user.last_name}
-                                        </p>
-                                        <p className="text-sm text-muted-foreground">
-                                          @{user.email.split('@')[0]}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">
-                                          {user.email}
-                                        </p>
-                                      </div>
-                                      <div className="flex items-center gap-2">
-                                        {isSelected && (
-                                          <select className="px-3 py-1 border rounded text-sm">
-                                            <option value="member">Member</option>
-                                            <option value="admin">Admin</option>
-                                            <option value="manager">Manager</option>
-                                          </select>
-                                        )}
-                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${isSelected ? 'bg-primary border-primary' : 'border-muted-foreground'}`}>
+                              <div className="flex-1 overflow-y-auto space-y-3">
+                                {isSearching ? (
+                                  <div className="flex items-center justify-center py-8">
+                                    <div className="text-sm text-muted-foreground">Searching...</div>
+                                  </div>
+                                ) : searchUsers.length === 0 && searchQuery ? (
+                                  <div className="flex items-center justify-center py-8">
+                                    <div className="text-sm text-muted-foreground">No users found</div>
+                                  </div>
+                                ) : (
+                                  searchUsers.map((user) => {
+                                    const isSelected = selectedUsers.some(u => u._id === user._id);
+                                    return (
+                                      <div
+                                        key={user._id}
+                                        className={`flex items-center gap-4 p-3 rounded-lg border cursor-pointer transition-colors ${isSelected ? 'bg-primary/10 border-primary' : 'hover:bg-muted/50'
+                                          }`}
+                                        onClick={() => toggleUserSelection(user)}
+                                      >
+                                        <Avatar className="w-10 h-10">
+                                          <AvatarImage src={user.profile_avatar || ''} />
+                                          <AvatarFallback>
+                                            {user.first_name[0]}{user.last_name[0]}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1 min-w-0">
+                                          <p className="font-medium text-sm">
+                                            {user.first_name} {user.last_name}
+                                          </p>
+                                          <p className="text-xs text-muted-foreground">
+                                            @{user.email.split('@')[0]}
+                                          </p>
+                                        </div>
+                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? 'bg-primary border-primary' : 'border-muted-foreground'}`}>
                                           {isSelected && <Plus className="w-3 h-3 text-primary-foreground rotate-45" />}
                                         </div>
                                       </div>
-                                    </div>
-                                  );
-                                })
-                              )}
+                                    );
+                                  })
+                                )}
+                              </div>
                             </div>
 
+                            {/* Right side - Selected users and roles */}
                             {selectedUsers.length > 0 && (
-                              <div className="border-t pt-4">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-sm text-muted-foreground">
-                                    {selectedUsers.length} user(s) selected
-                                  </span>
-                                  <Button onClick={handleInviteUsers} size="lg">
-                                    Add Selected Members
-                                  </Button>
+                              <div className="w-80 border-l pl-6 flex flex-col space-y-4">
+                                <h3 className="font-semibold">Selected Members ({selectedUsers.length})</h3>
+                                <div className="flex-1 overflow-y-auto space-y-3">
+                                  {selectedUsers.map((user) => (
+                                    <div key={user._id} className="p-3 rounded-lg border bg-muted/30 space-y-3">
+                                      <div className="flex items-center gap-3">
+                                        <Avatar className="w-8 h-8">
+                                          <AvatarImage src={user.profile_avatar || ''} />
+                                          <AvatarFallback className="text-xs">
+                                            {user.first_name[0]}{user.last_name[0]}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1 min-w-0">
+                                          <p className="font-medium text-xs">
+                                            {user.first_name} {user.last_name}
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <div className="space-y-2">
+                                        <label className="text-xs font-medium">Role:</label>
+                                        <select 
+                                          className="w-full px-2 py-1 border rounded text-xs"
+                                          defaultValue="member"
+                                          onChange={(e) => {
+                                            const updatedUsers = selectedUsers.map(u => 
+                                              u._id === user._id ? { ...u, selectedRole: e.target.value } : u
+                                            );
+                                            setSelectedUsers(updatedUsers as any);
+                                          }}
+                                        >
+                                          <option value="member">Member</option>
+                                          <option value="admin">Admin</option>
+                                          <option value="manager">Manager</option>
+                                        </select>
+                                      </div>
+                                    </div>
+                                  ))}
                                 </div>
+                                <Button onClick={handleInviteUsers} className="w-full">
+                                  Add Selected Members
+                                </Button>
                               </div>
                             )}
                           </div>
@@ -1014,46 +1037,23 @@ const CompanyProfile = () => {
                       </Dialog>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                       {companyData.members.map((member) => (
-                        <Card key={member._id} className="p-8 hover:shadow-lg transition-all duration-300 cursor-pointer border border-border/50 bg-card"
+                        <Card key={member._id} className="p-4 hover:shadow-md transition-all duration-300 cursor-pointer border border-border/50 bg-card"
                           onClick={() => navigateMemberProfile(member.user_id._id)}
                         >
-                          <div className="flex flex-col items-center text-center space-y-4">
-                            <Avatar className="w-20 h-20 ring-2 ring-border">
+                          <div className="flex flex-col items-center text-center space-y-3">
+                            <Avatar className="w-12 h-12">
                               <AvatarImage src="" />
-                              <AvatarFallback className="text-lg font-semibold bg-muted">
+                              <AvatarFallback className="text-sm font-semibold bg-muted">
                                 {member.user_id.first_name[0]}{member.user_id.last_name[0]}
                               </AvatarFallback>
                             </Avatar>
                             
-                            <div className="space-y-2">
-                              <h3 className="text-xl font-bold text-foreground">
+                            <div className="space-y-1">
+                              <h3 className="text-sm font-medium text-foreground">
                                 {member.user_id.first_name} {member.user_id.last_name}
                               </h3>
-                              <p className="text-muted-foreground">
-                                @{member.user_id.email.split('@')[0]}
-                              </p>
-                              <p className="text-sm text-muted-foreground leading-relaxed px-2">
-                                {member.role_id.role_name.replace(/_/g, ' ')} at {companyData.name}
-                              </p>
-                            </div>
-                            
-                            <div className="flex items-center gap-6 text-sm">
-                              <div className="text-center">
-                                <span className="font-bold text-foreground block">0</span>
-                                <span className="text-muted-foreground">Points</span>
-                              </div>
-                              <div className="text-center">
-                                <span className="font-bold text-foreground block">0</span>
-                                <span className="text-muted-foreground">Tasks</span>
-                              </div>
-                              <div className="text-center">
-                                <span className="font-bold text-foreground block text-xs">
-                                  {new Date(member.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                                </span>
-                                <span className="text-muted-foreground">Joined</span>
-                              </div>
                             </div>
                           </div>
                         </Card>
