@@ -388,7 +388,7 @@ const CompanyProfile = () => {
           </div>
 
           {/* Company Logo - Positioned below the cover area */}
-          <div className="absolute top-[150px] left-8 z-9">
+          <div className={`absolute top-[150px] ${isMobile ? 'left-1/2 transform -translate-x-1/2' : 'left-8'} z-9`}>
             <div className="w-24 h-24 rounded-lg border-4 border-white shadow-lg overflow-hidden bg-card relative group">
               {logoPreview || companyData.logo ? (
                 <img
@@ -418,63 +418,119 @@ const CompanyProfile = () => {
             </div>
           </div>
 
-          {/* Company Info in Header - Moved right */}
-          <CardContent className="pt-10 pb-4 px-8 ml-24">
-            <div className="flex justify-between items-start">
-              <div className='ml-5 mt-[-30px]'>
-                {isEditing ? (
-                  <Input
-                    value={editedData.name}
-                    onChange={(e) => setEditedData({ ...editedData, name: e.target.value })}
-                    className="text-3xl font-bold mb-1 border border-border/50 shadow-none bg-transparent p-2 h-auto rounded-md"
-                  />
-                ) : (
-                  <h1 className="text-3xl font-bold mb-1">{companyData.name}</h1>
-                )}
-                <p className="text-muted-foreground mb-2">@{companyData.company_url}</p>
-                {isEditing ? (
-                  <Input
-                    value={editedData.tag_line}
-                    onChange={(e) => setEditedData({ ...editedData, tag_line: e.target.value })}
-                    className="mb-3 border border-border/50 shadow-none bg-transparent p-2 h-auto rounded-md"
-                  />
-                ) : (
-                  <p className="mb-3">{companyData.tag_line}</p>
-                )}
-
-                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                  <div className="flex items-center gap-1">
-                    <LinkIcon className="w-4 h-4" />
+          {/* Company Info in Header */}
+          <CardContent className={`pt-10 pb-4 px-8 ${isMobile ? 'text-center' : 'ml-24'}`}>
+            <div className={`${isMobile ? 'flex flex-col items-center' : 'flex justify-between items-start'}`}>
+              <div className={`${isMobile ? 'flex flex-col items-center' : 'ml-5 mt-[-30px]'}`}>
+                {/* Mobile: Show only name and handle first, then score/followers */}
+                {isMobile ? (
+                  <>
                     {isEditing ? (
                       <Input
-                        value={editedData.website}
-                        onChange={(e) => setEditedData({ ...editedData, website: e.target.value })}
-                        className="text-primary border border-border/50 shadow-none bg-transparent p-1 h-auto rounded-md"
+                        value={editedData.name}
+                        onChange={(e) => setEditedData({ ...editedData, name: e.target.value })}
+                        className="text-2xl font-bold mb-1 border border-border/50 shadow-none bg-transparent p-2 h-auto rounded-md text-center"
                       />
                     ) : (
-                      <a
-                        href={companyData.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline"
-                      >
-                        {companyData.website}
-                      </a>
+                      <h1 className="text-2xl font-bold mb-1">{companyData.name}</h1>
                     )}
-                  </div>
-                </div>
+                    <p className="text-muted-foreground mb-3">@{companyData.company_url}</p>
+                    
+                    {/* Score and Followers */}
+                    <div className="flex gap-6 text-sm mb-4">
+                      <span><strong>{stats?.total_score || 0}</strong> <span className="text-muted-foreground">Score</span></span>
+                      <span><strong>{companyData.followersCount || 0}</strong> <span className="text-muted-foreground">Followers</span></span>
+                    </div>
 
-                <div className="flex gap-4 text-sm">
-                  <span><strong>{stats?.total_score || 0}</strong> <span className="text-muted-foreground">Score</span></span>
-                  <span><strong>{companyData.followersCount || 0}</strong> <span className="text-muted-foreground">Followers</span></span>
-                </div>
+                    {/* Company description and details */}
+                    {isEditing ? (
+                      <Input
+                        value={editedData.tag_line}
+                        onChange={(e) => setEditedData({ ...editedData, tag_line: e.target.value })}
+                        className="mb-3 border border-border/50 shadow-none bg-transparent p-2 h-auto rounded-md text-center"
+                      />
+                    ) : (
+                      <p className="mb-3 text-center">{companyData.tag_line}</p>
+                    )}
+
+                    <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground mb-3">
+                      <LinkIcon className="w-4 h-4" />
+                      {isEditing ? (
+                        <Input
+                          value={editedData.website}
+                          onChange={(e) => setEditedData({ ...editedData, website: e.target.value })}
+                          className="text-primary border border-border/50 shadow-none bg-transparent p-1 h-auto rounded-md text-center"
+                        />
+                      ) : (
+                        <a
+                          href={companyData.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          {companyData.website}
+                        </a>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Desktop layout */}
+                    {isEditing ? (
+                      <Input
+                        value={editedData.name}
+                        onChange={(e) => setEditedData({ ...editedData, name: e.target.value })}
+                        className="text-3xl font-bold mb-1 border border-border/50 shadow-none bg-transparent p-2 h-auto rounded-md"
+                      />
+                    ) : (
+                      <h1 className="text-3xl font-bold mb-1">{companyData.name}</h1>
+                    )}
+                    <p className="text-muted-foreground mb-2">@{companyData.company_url}</p>
+                    {isEditing ? (
+                      <Input
+                        value={editedData.tag_line}
+                        onChange={(e) => setEditedData({ ...editedData, tag_line: e.target.value })}
+                        className="mb-3 border border-border/50 shadow-none bg-transparent p-2 h-auto rounded-md"
+                      />
+                    ) : (
+                      <p className="mb-3">{companyData.tag_line}</p>
+                    )}
+
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                      <div className="flex items-center gap-1">
+                        <LinkIcon className="w-4 h-4" />
+                        {isEditing ? (
+                          <Input
+                            value={editedData.website}
+                            onChange={(e) => setEditedData({ ...editedData, website: e.target.value })}
+                            className="text-primary border border-border/50 shadow-none bg-transparent p-1 h-auto rounded-md"
+                          />
+                        ) : (
+                          <a
+                            href={companyData.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline"
+                          >
+                            {companyData.website}
+                          </a>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex gap-4 text-sm">
+                      <span><strong>{stats?.total_score || 0}</strong> <span className="text-muted-foreground">Score</span></span>
+                      <span><strong>{companyData.followersCount || 0}</strong> <span className="text-muted-foreground">Followers</span></span>
+                    </div>
+                  </>
+                )}
               </div>
 
-              <div className={`flex gap-2 ${isMobile ? 'flex-col' : ''}`}>
+              <div className={`flex gap-2 ${isMobile ? 'w-full justify-center mt-4' : ''}`}>
                 <Button
                   variant="outline"
                   size={isMobile ? "sm" : "sm"}
-                  className={`rounded-full ${isMobile ? 'px-2 text-xs' : 'px-4'} border-primary text-primary bg-white hover:bg-primary hover:text-white`}
+                  className={`rounded-full ${isMobile ? 'flex-1 px-2 text-xs' : 'px-4'} border-primary text-primary bg-white hover:bg-primary hover:text-white`}
                 >
                   <MessageCircle className={`${isMobile ? 'w-3 h-3 mr-1' : 'w-3 h-3 mr-1'}`} />
                   Message
@@ -483,7 +539,7 @@ const CompanyProfile = () => {
                 {/* Follow/Unfollow Button */}
                 <Button 
                   size={isMobile ? "sm" : "sm"}
-                  className={`rounded-full ${isMobile ? 'px-2 text-xs' : 'px-4'}`}
+                  className={`rounded-full ${isMobile ? 'flex-1 px-2 text-xs' : 'px-4'}`}
                   onClick={handleFollowToggle}
                   disabled={isLoadingFollowStatus || followMutation.isPending || unfollowMutation.isPending}
                 >
