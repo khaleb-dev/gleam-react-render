@@ -21,6 +21,7 @@ import { useSingleFileUpload } from '@/hooks/useSingleFileUpload';
 import { useCompanyPageStats } from '@/hooks/useCompanyPageStats';
 import { useFollowStatus, useFollowCompanyPage, useUnfollowCompanyPage } from '@/hooks/useCompanyPageFollow';
 import { useCompanyPageRoles } from '@/hooks/useCompanyPageRoles';
+import { SuggestedPagesCard } from '@/components/feed/SuggestedPagesCard';
 
 // Mock posts data for feed
 const mockPosts = [
@@ -811,7 +812,10 @@ const CompanyProfile = () => {
                 <CardContent className="space-y-3">
                   {companyData.members.slice(0, 5).map((member) => (
                     <div key={member._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-                      onClick={(e) => navigateMemberProfile(member.user_id._id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveTab("members");
+                      }}
                     >
                       <Avatar className="w-10 h-10">
                         <AvatarImage src="" />
@@ -873,39 +877,42 @@ const CompanyProfile = () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Posts</span>
+                    <span className="text-xs text-muted-foreground">Posts</span>
                     {isLoadingStats ? (
                       <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
                     ) : (
-                      <span className="text-sm font-medium">{stats?.posts || 0}</span>
+                      <span className="text-xs font-medium">{stats?.posts || 0}</span>
                     )}
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Products</span>
+                    <span className="text-xs text-muted-foreground">Products</span>
                     {isLoadingStats ? (
                       <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
                     ) : (
-                      <span className="text-sm font-medium">{stats?.products || 0}</span>
+                      <span className="text-xs font-medium">{stats?.products || 0}</span>
                     )}
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Team Members</span>
+                    <span className="text-xs text-muted-foreground">Team Members</span>
                     {isLoadingStats ? (
                       <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
                     ) : (
-                      <span className="text-sm font-medium">{stats?.team_members || 0}</span>
+                      <span className="text-xs font-medium">{stats?.team_members || 0}</span>
                     )}
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Total Score</span>
+                    <span className="text-xs text-muted-foreground">Total Score</span>
                     {isLoadingStats ? (
                       <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
                     ) : (
-                      <span className="text-sm font-medium">{stats?.total_score || 0}</span>
+                      <span className="text-xs font-medium">{stats?.total_score || 0}</span>
                     )}
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Suggested Pages */}
+              <SuggestedPagesCard />
             </div>}
           </div>
         ) : (
