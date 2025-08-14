@@ -1,6 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Building2, Users, Globe, Calendar, Camera, MapPin, Link as LinkIcon, ExternalLink, Plus, MessageCircle, Settings, Edit, Save, X, Search, UserMinus } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -87,6 +88,7 @@ const ProgressCircle = ({ percentage, size = 60 }: { percentage: number; size?: 
 const CompanyProfile = () => {
   const { identifier } = useParams<{ identifier: string }>();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [postContent, setPostContent] = React.useState('');
   const [isEditing, setIsEditing] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState('feed');
@@ -468,29 +470,29 @@ const CompanyProfile = () => {
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className={`flex gap-2 ${isMobile ? 'flex-col' : ''}`}>
                 <Button
                   variant="outline"
-                  size="sm"
-                  className="rounded-full px-4 border-primary text-primary bg-white hover:bg-primary hover:text-white"
+                  size={isMobile ? "sm" : "sm"}
+                  className={`rounded-full ${isMobile ? 'px-2 text-xs' : 'px-4'} border-primary text-primary bg-white hover:bg-primary hover:text-white`}
                 >
-                  <MessageCircle className="w-3 h-3 mr-1" />
+                  <MessageCircle className={`${isMobile ? 'w-3 h-3 mr-1' : 'w-3 h-3 mr-1'}`} />
                   Message
                 </Button>
                 
                 {/* Follow/Unfollow Button */}
                 <Button 
-                  size="sm"
-                  className="rounded-full px-4"
+                  size={isMobile ? "sm" : "sm"}
+                  className={`rounded-full ${isMobile ? 'px-2 text-xs' : 'px-4'}`}
                   onClick={handleFollowToggle}
                   disabled={isLoadingFollowStatus || followMutation.isPending || unfollowMutation.isPending}
                 >
                   {followMutation.isPending || unfollowMutation.isPending ? (
-                    <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin mr-1" />
+                    <div className={`${isMobile ? 'w-3 h-3 mr-1' : 'w-3 h-3 mr-1'} border-2 border-current border-t-transparent rounded-full animate-spin`} />
                   ) : isFollowing ? (
-                    <UserMinus className="w-3 h-3 mr-1" />
+                    <UserMinus className={`${isMobile ? 'w-3 h-3 mr-1' : 'w-3 h-3 mr-1'}`} />
                   ) : (
-                    <Plus className="w-3 h-3 mr-1" />
+                    <Plus className={`${isMobile ? 'w-3 h-3 mr-1' : 'w-3 h-3 mr-1'}`} />
                   )}
                   {isFollowing ? 'Unfollow' : 'Follow'}
                 </Button>
@@ -528,76 +530,36 @@ const CompanyProfile = () => {
 
       {/* Navigation Tabs */}
       <div className="bg-white border-b shadow-sm">
-        <div className="flex items-center justify-center gap-8 py-2">
-          <button 
-            onClick={() => setActiveTab('feed')}
-            className={`px-6 py-3 text-sm font-medium transition-all ${
-              activeTab === 'feed' 
-                ? 'text-primary border-b-2 border-primary' 
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Feed
-          </button>
-          <button 
-            onClick={() => setActiveTab('members')}
-            className={`px-6 py-3 text-sm font-medium transition-all ${
-              activeTab === 'members' 
-                ? 'text-primary border-b-2 border-primary' 
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Members
-          </button>
-          <button 
-            onClick={() => setActiveTab('analytics')}
-            className={`px-6 py-3 text-sm font-medium transition-all ${
-              activeTab === 'analytics' 
-                ? 'text-primary border-b-2 border-primary' 
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Analytics
-          </button>
-          <button 
-            onClick={() => setActiveTab('products')}
-            className={`px-6 py-3 text-sm font-medium transition-all ${
-              activeTab === 'products' 
-                ? 'text-primary border-b-2 border-primary' 
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Products
-          </button>
-          <button 
-            onClick={() => setActiveTab('activities')}
-            className={`px-6 py-3 text-sm font-medium transition-all ${
-              activeTab === 'activities' 
-                ? 'text-primary border-b-2 border-primary' 
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Activities
-          </button>
-          <button 
-            onClick={() => setActiveTab('jobs')}
-            className={`px-6 py-3 text-sm font-medium transition-all ${
-              activeTab === 'jobs' 
-                ? 'text-primary border-b-2 border-primary' 
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Jobs
-          </button>
+        <div className={`${isMobile ? 'flex overflow-x-auto scrollbar-hide px-4 py-2 gap-4' : 'flex items-center justify-center gap-8 py-2'}`}>
+          {[
+            { id: 'feed', label: 'Feed' },
+            { id: 'members', label: 'Members' },
+            { id: 'analytics', label: 'Analytics' },
+            { id: 'products', label: 'Products' },
+            { id: 'activities', label: 'Activities' },
+            { id: 'jobs', label: 'Jobs' },
+          ].map((tab) => (
+            <button 
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`${isMobile ? 'whitespace-nowrap min-w-fit' : ''} px-6 py-3 text-sm font-medium transition-all ${
+                activeTab === tab.id 
+                  ? 'text-primary border-b-2 border-primary' 
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Main Content */}
       <div className="mx-auto">
         {activeTab === 'feed' ? (
-          <div className="flex gap-6 mt-6">
-            {/* Left Sidebar */}
-            <div className="w-[25%] space-y-6">
+          <div className={`${isMobile ? 'px-4 mt-4' : 'flex gap-6 mt-6'}`}>
+            {/* Left Sidebar - Only show on desktop */}
+            {!isMobile && <div className="w-[25%] space-y-6">
               {/* About Section */}
               <Card>
                 <CardContent className="space-y-4 pt-6">
@@ -811,47 +773,22 @@ const CompanyProfile = () => {
                   ))}
                 </CardContent>
               </Card>
-            </div>
+            </div>}
 
-            {/* Middle Feed */}
-            <div className="flex-1 space-y-6">
-              {/* Create Post - Using CreatePostCard Component */}
-              <CreatePostCard
-                user={{
-                  ...companyData.admin_id,
-                  profile_avatar: companyData.logo,
-                  user_id: companyData.admin_id._id,
-                  role: 'admin'
-                } as any}
-                onPostCreate={handlePostSubmit}
-              />
-
-              {/* Company About Description */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl">About {companyData.name}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {companyData.tag_line}
-                    </p>
-                    {isEditing ? (
-                      <Textarea
-                        value={editedData.about}
-                        onChange={(e) => setEditedData({ ...editedData, about: e.target.value })}
-                        className="text-sm border border-border/50 bg-transparent p-3 rounded-md resize-none"
-                        rows={4}
-                        placeholder="Describe your company..."
-                      />
-                    ) : (
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {companyData.about || 'No description available.'}
-                      </p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+            {/* Feed Content */}
+            <div className={`${isMobile ? 'w-full' : 'flex-1'} space-y-6`}>
+              {/* Create Post - Only show on desktop */}
+              {!isMobile && (
+                <CreatePostCard
+                  user={{
+                    ...companyData.admin_id,
+                    profile_avatar: companyData.logo,
+                    user_id: companyData.admin_id._id,
+                    role: 'admin'
+                  } as any}
+                  onPostCreate={handlePostSubmit}
+                />
+              )}
 
               {/* Posts Feed */}
               <div className="space-y-0">
@@ -869,8 +806,8 @@ const CompanyProfile = () => {
               </div>
             </div>
 
-            {/* Right Sidebar */}
-            <div className="w-[25%] space-y-6">
+            {/* Right Sidebar - Only show on desktop */}
+            {!isMobile && <div className="w-[25%] space-y-6">
               {/* Company Stats */}
               <Card>
                 <CardHeader>
@@ -911,7 +848,7 @@ const CompanyProfile = () => {
                   </div>
                 </CardContent>
               </Card>
-            </div>
+            </div>}
           </div>
         ) : (
           <div className="w-full px-6 py-8">
