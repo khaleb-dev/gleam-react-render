@@ -584,9 +584,9 @@ const CompanyProfile = () => {
         </div>
       </Card>
 
-      {/* Navigation Tabs */}
-      <div className="bg-white border-b shadow-sm">
-        <div className={`${isMobile ? 'flex overflow-x-auto scrollbar-hide px-4 py-2 gap-4' : 'flex items-center justify-center gap-8 py-2'}`}>
+      {/* Navigation Tabs - Sticky */}
+      <div className="sticky top-0 z-10 bg-white border-b shadow-sm">
+        <div className={`${isMobile ? 'flex overflow-x-auto scrollbar-hide px-2 py-1 gap-2' : 'flex items-center justify-center gap-8 py-2'}`}>
           {[
             { id: 'feed', label: 'Feed' },
             { id: 'members', label: 'Members' },
@@ -598,7 +598,7 @@ const CompanyProfile = () => {
             <button 
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`${isMobile ? 'whitespace-nowrap min-w-fit' : ''} px-6 py-3 text-sm font-medium transition-all ${
+              className={`${isMobile ? 'whitespace-nowrap min-w-fit px-3 py-2' : 'px-6 py-3'} text-sm font-medium transition-all ${
                 activeTab === tab.id 
                   ? 'text-primary border-b-2 border-primary' 
                   : 'text-muted-foreground hover:text-foreground'
@@ -613,11 +613,11 @@ const CompanyProfile = () => {
       {/* Main Content */}
       <div className="mx-auto">
         {activeTab === 'feed' ? (
-          <div className={`${isMobile ? 'px-4 mt-4' : 'flex gap-6 mt-6'}`}>
+          <div className={`${isMobile ? 'px-1 mt-4' : 'flex gap-6 mt-6'}`}>
             {/* Left Sidebar - Only show on desktop */}
             {!isMobile && <div className="w-[25%] space-y-6">
               {/* About Section */}
-              <Card>
+              <Card className={isMobile ? 'mx-1' : ''}>
                 <CardContent className="space-y-4 pt-6">
                   <div className="space-y-2 pt-2">
                     <div className="flex items-center gap-2">
@@ -907,8 +907,8 @@ const CompanyProfile = () => {
             </div>}
           </div>
         ) : (
-          <div className="w-full px-6 py-8">
-            <Card className="max-w-6xl mx-auto">
+          <div className={`w-full ${isMobile ? 'px-1 py-4' : 'px-6 py-8'}`}>
+            <Card className={`max-w-6xl mx-auto ${isMobile ? 'mx-1' : ''}`}>
               <CardContent className="p-8">
                 {activeTab === 'members' && (
                   <div>
