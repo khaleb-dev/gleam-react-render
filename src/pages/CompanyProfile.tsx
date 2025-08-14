@@ -425,14 +425,14 @@ const CompanyProfile = () => {
                 {/* Mobile: Show only name and handle first, then score/followers */}
                 {isMobile ? (
                   <>
-                    {isEditing ? (
+                     {isEditing ? (
                       <Input
                         value={editedData.name}
                         onChange={(e) => setEditedData({ ...editedData, name: e.target.value })}
-                        className="text-2xl font-bold mb-1 border border-border/50 shadow-none bg-transparent p-2 h-auto rounded-md text-center"
+                        className="text-2xl font-bold mb-1 border border-border/50 shadow-none bg-transparent p-2 h-auto rounded-md text-center mt-4"
                       />
                     ) : (
-                      <h1 className="text-2xl font-bold mb-1">{companyData.name}</h1>
+                      <h1 className="text-2xl font-bold mb-1 mt-4">{companyData.name}</h1>
                     )}
                     <p className="text-muted-foreground mb-3">@{companyData.company_url}</p>
                     
@@ -920,13 +920,13 @@ const CompanyProfile = () => {
                             Add Members
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+                        <DialogContent className={`${isMobile ? 'max-w-[95vw] max-h-[90vh] p-4' : 'sm:max-w-4xl max-h-[80vh]'} overflow-hidden flex flex-col`}>
                           <DialogHeader>
                             <DialogTitle>Add Team Members</DialogTitle>
                           </DialogHeader>
-                          <div className="flex-1 overflow-hidden flex space-x-6">
+                          <div className={`flex-1 overflow-hidden ${isMobile ? 'flex flex-col space-y-4' : 'flex space-x-6'}`}>
                             {/* Left side - User search */}
-                            <div className="flex-1 flex flex-col space-y-4">
+                            <div className={`${isMobile ? 'w-full' : 'flex-1'} flex flex-col space-y-4`}>
                               <div className="relative">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                 <Input
@@ -982,7 +982,7 @@ const CompanyProfile = () => {
 
                             {/* Right side - Selected users and roles */}
                             {selectedUsers.length > 0 && (
-                              <div className="w-80 border-l pl-6 flex flex-col space-y-4">
+                              <div className={`${isMobile ? 'w-full border-t pt-4 mt-4' : 'w-80 border-l pl-6'} flex flex-col space-y-4`}>
                                 <h3 className="font-semibold">Selected Members ({selectedUsers.length})</h3>
                                 <div className="flex-1 overflow-y-auto space-y-3">
                                   {selectedUsers.map((user) => (
