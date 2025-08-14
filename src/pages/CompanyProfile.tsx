@@ -596,323 +596,322 @@ const CompanyProfile = () => {
       <div className="mx-auto">
         {activeTab === 'feed' ? (
           <div className="flex gap-6 mt-6">
-
-          {/* Left Sidebar */}
-          <div className="w-[25%] space-y-6">
-            {/* About Section */}
-            <Card>
-              <CardContent className="space-y-4 pt-6">
-
-                <div className="space-y-2 pt-2">
-                  <div className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-muted-foreground" />
-                    {isEditing ? (
-                      <Input
-                        value={editedData.industry}
-                        onChange={(e) => setEditedData({ ...editedData, industry: e.target.value })}
-                        placeholder="Industry type"
-                        className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
-                      />
-                    ) : (
-                      <span className="text-sm">{companyData.industry}</span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-muted-foreground" />
-                    {isEditing ? (
-                      <Input
-                        value={editedData.size}
-                        onChange={(e) => setEditedData({ ...editedData, size: e.target.value })}
-                        placeholder="Company size"
-                        className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
-                      />
-                    ) : (
-                      <span className="text-sm">{companyData.size} employees</span>
-                    )}
-                  </div>
-                  {isEditing && (
+            {/* Left Sidebar */}
+            <div className="w-[25%] space-y-6">
+              {/* About Section */}
+              <Card>
+                <CardContent className="space-y-4 pt-6">
+                  <div className="space-y-2 pt-2">
                     <div className="flex items-center gap-2">
                       <Building2 className="w-4 h-4 text-muted-foreground" />
-                      <Input
-                        value={editedData.industry_type}
-                        onChange={(e) => setEditedData({ ...editedData, industry_type: e.target.value })}
-                        placeholder="Industry type (e.g., private company)"
-                        className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
-                      />
+                      {isEditing ? (
+                        <Input
+                          value={editedData.industry}
+                          onChange={(e) => setEditedData({ ...editedData, industry: e.target.value })}
+                          placeholder="Industry type"
+                          className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
+                        />
+                      ) : (
+                        <span className="text-sm">{companyData.industry}</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-muted-foreground" />
+                      {isEditing ? (
+                        <Input
+                          value={editedData.size}
+                          onChange={(e) => setEditedData({ ...editedData, size: e.target.value })}
+                          placeholder="Company size"
+                          className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
+                        />
+                      ) : (
+                        <span className="text-sm">{companyData.size} employees</span>
+                      )}
+                    </div>
+                    {isEditing && (
+                      <div className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-muted-foreground" />
+                        <Input
+                          value={editedData.industry_type}
+                          onChange={(e) => setEditedData({ ...editedData, industry_type: e.target.value })}
+                          placeholder="Industry type (e.g., private company)"
+                          className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Products Section - Redesigned */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">Products</CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate(`/new/company/product/setup?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}&companyUrl=${companyData.company_url}`)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {isLoadingProducts ? (
+                    <div className="space-y-3">
+                      {[1, 2, 3].map((i) => (
+                        <Skeleton key={i} className="h-16 w-full" />
+                      ))}
+                    </div>
+                  ) : products.length > 0 ? (
+                    products.map((product) => (
+                      <div key={product._id} className="group">
+                        <div className="flex items-start gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                          <div className="relative flex-shrink-0">
+                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted">
+                              <img
+                                src={product.logo}
+                                alt={product.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-card ${product.is_live ? 'bg-green-500' : 'bg-orange-500'}`}></div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <h4 className="font-semibold text-sm truncate">{product.name}</h4>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground">{product.percentage}%</span>
+                                <ProgressCircle percentage={product.percentage} size={32} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-sm text-muted-foreground">No products found</p>
                     </div>
                   )}
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            {/* Products Section - Redesigned */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">Products</CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate(`/new/company/product/setup?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}&companyUrl=${companyData.company_url}`)}
-                    className="h-8 w-8 p-0"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {isLoadingProducts ? (
-                  <div className="space-y-3">
-                    {[1, 2, 3].map((i) => (
-                      <Skeleton key={i} className="h-16 w-full" />
-                    ))}
-                  </div>
-                ) : products.length > 0 ? (
-                  products.map((product) => (
-                    <div key={product._id} className="group">
-                      <div className="flex items-start gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                        <div className="relative flex-shrink-0">
-                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted">
-                            <img
-                              src={product.logo}
-                              alt={product.name}
-                              className="w-full h-full object-cover"
+              {/* Team Members */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">Members</CardTitle>
+                    <Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Invite Members</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Input
+                              placeholder="Search users..."
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              className="pl-10"
                             />
                           </div>
-                          <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-card ${product.is_live ? 'bg-green-500' : 'bg-orange-500'}`}></div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-semibold text-sm truncate">{product.name}</h4>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-muted-foreground">{product.percentage}%</span>
-                              <ProgressCircle percentage={product.percentage} size={32} />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-4">
-                    <p className="text-sm text-muted-foreground">No products found</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
 
-            {/* Team Members */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">Members</CardTitle>
-                  <Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-md">
-                      <DialogHeader>
-                        <DialogTitle>Invite Members</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                          <Input
-                            placeholder="Search users..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-10"
-                          />
-                        </div>
-
-                        <div className="max-h-60 overflow-y-auto space-y-2">
-                          {isSearching ? (
-                            <div className="flex items-center justify-center py-8">
-                              <div className="text-sm text-muted-foreground">Searching...</div>
-                            </div>
-                          ) : searchUsers.length === 0 && searchQuery ? (
-                            <div className="flex items-center justify-center py-8">
-                              <div className="text-sm text-muted-foreground">No users found</div>
-                            </div>
-                          ) : (
-                            searchUsers.map((user) => {
-                            const isSelected = selectedUsers.some(u => u._id === user._id);
-                            return (
-                              <div
-                                key={user._id}
-                                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${isSelected ? 'bg-primary/10 border-primary' : 'hover:bg-muted/50'
-                                  }`}
-                                onClick={() => toggleUserSelection(user)}
-                              >
-                                <Avatar className="w-10 h-10">
-                                  <AvatarImage src={user.profile_avatar || ''} />
-                                  <AvatarFallback>
-                                    {user.first_name[0]}{user.last_name[0]}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-medium text-sm">
-                                    {user.first_name} {user.last_name}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {user.email}
-                                  </p>
-                                </div>
-                                {isSelected && (
-                                  <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                                    <Plus className="w-3 h-3 text-primary-foreground rotate-45" />
-                                  </div>
-                                )}
+                          <div className="max-h-60 overflow-y-auto space-y-2">
+                            {isSearching ? (
+                              <div className="flex items-center justify-center py-8">
+                                <div className="text-sm text-muted-foreground">Searching...</div>
                               </div>
-                            );
-                          })
+                            ) : searchUsers.length === 0 && searchQuery ? (
+                              <div className="flex items-center justify-center py-8">
+                                <div className="text-sm text-muted-foreground">No users found</div>
+                              </div>
+                            ) : (
+                              searchUsers.map((user) => {
+                              const isSelected = selectedUsers.some(u => u._id === user._id);
+                              return (
+                                <div
+                                  key={user._id}
+                                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${isSelected ? 'bg-primary/10 border-primary' : 'hover:bg-muted/50'
+                                    }`}
+                                  onClick={() => toggleUserSelection(user)}
+                                >
+                                  <Avatar className="w-10 h-10">
+                                    <AvatarImage src={user.profile_avatar || ''} />
+                                    <AvatarFallback>
+                                      {user.first_name[0]}{user.last_name[0]}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-sm">
+                                      {user.first_name} {user.last_name}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {user.email}
+                                    </p>
+                                  </div>
+                                  {isSelected && (
+                                    <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                                      <Plus className="w-3 h-3 text-primary-foreground rotate-45" />
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })
+                            )}
+                          </div>
+
+                          {selectedUsers.length > 0 && (
+                            <div className="flex items-center justify-between pt-4 border-t">
+                              <span className="text-sm text-muted-foreground">
+                                {selectedUsers.length} user(s) selected
+                              </span>
+                              <Button onClick={handleInviteUsers}>
+                                Invite Selected
+                              </Button>
+                            </div>
                           )}
                         </div>
-
-                        {selectedUsers.length > 0 && (
-                          <div className="flex items-center justify-between pt-4 border-t">
-                            <span className="text-sm text-muted-foreground">
-                              {selectedUsers.length} user(s) selected
-                            </span>
-                            <Button onClick={handleInviteUsers}>
-                              Invite Selected
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {companyData.members.slice(0, 5).map((member) => (
-                  <div key={member._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-                    onClick={(e) => navigateMemberProfile(member.user_id._id)}
-                  >
-                    <Avatar className="w-10 h-10">
-                      <AvatarImage src="" />
-                      <AvatarFallback>
-                        {member.user_id.first_name[0]}{member.user_id.last_name[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm">
-                        {member.user_id.first_name} {member.user_id.last_name}
-                      </p>
-                      <p className="text-xs text-muted-foreground capitalize">
-                        {member.role_id.role_name.replace(/_/g, ' ')}
-                      </p>
-                    </div>
+                      </DialogContent>
+                    </Dialog>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Middle Feed */}
-          <div className="flex-1 space-y-6">
-            {/* Create Post - Using CreatePostCard Component */}
-            <CreatePostCard
-              user={{
-                ...companyData.admin_id,
-                profile_avatar: companyData.logo,
-                user_id: companyData.admin_id._id,
-                role: 'admin'
-              } as any}
-              onPostCreate={handlePostSubmit}
-            />
-
-            {/* Company About Description */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl">About {companyData.name}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {companyData.tag_line}
-                  </p>
-                  {isEditing ? (
-                    <Textarea
-                      value={editedData.about}
-                      onChange={(e) => setEditedData({ ...editedData, about: e.target.value })}
-                      className="text-sm border border-border/50 bg-transparent p-3 rounded-md resize-none"
-                      rows={4}
-                      placeholder="Describe your company..."
-                    />
-                  ) : (
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {companyData.about || 'No description available.'}
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Posts Feed */}
-            <div className="space-y-0">
-              {mockPosts.map((post) => (
-                <FeedCard
-                  key={post._id}
-                  post={post}
-                  onLike={() => { }}
-                  onUnlike={() => { }}
-                  onComment={() => { }}
-                  onDeleteComment={() => { }}
-                  onDeletePost={() => { }}
-                />
-              ))}
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {companyData.members.slice(0, 5).map((member) => (
+                    <div key={member._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                      onClick={(e) => navigateMemberProfile(member.user_id._id)}
+                    >
+                      <Avatar className="w-10 h-10">
+                        <AvatarImage src="" />
+                        <AvatarFallback>
+                          {member.user_id.first_name[0]}{member.user_id.last_name[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm">
+                          {member.user_id.first_name} {member.user_id.last_name}
+                        </p>
+                        <p className="text-xs text-muted-foreground capitalize">
+                          {member.role_id.role_name.replace(/_/g, ' ')}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
             </div>
-          </div>
 
-          {/* Right Sidebar */}
-          <div className="w-[25%] space-y-6">
-            {/* Company Stats */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Company Stats</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Posts</span>
-                  {isLoadingStats ? (
-                    <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
-                  ) : (
-                    <span className="text-sm font-medium">{stats?.posts || 0}</span>
-                  )}
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Products</span>
-                  {isLoadingStats ? (
-                    <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
-                  ) : (
-                    <span className="text-sm font-medium">{stats?.products || 0}</span>
-                  )}
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Team Members</span>
-                  {isLoadingStats ? (
-                    <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
-                  ) : (
-                    <span className="text-sm font-medium">{stats?.team_members || 0}</span>
-                  )}
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Total Score</span>
-                  {isLoadingStats ? (
-                    <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
-                  ) : (
-                    <span className="text-sm font-medium">{stats?.total_score || 0}</span>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            {/* Middle Feed */}
+            <div className="flex-1 space-y-6">
+              {/* Create Post - Using CreatePostCard Component */}
+              <CreatePostCard
+                user={{
+                  ...companyData.admin_id,
+                  profile_avatar: companyData.logo,
+                  user_id: companyData.admin_id._id,
+                  role: 'admin'
+                } as any}
+                onPostCreate={handlePostSubmit}
+              />
+
+              {/* Company About Description */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-xl">About {companyData.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {companyData.tag_line}
+                    </p>
+                    {isEditing ? (
+                      <Textarea
+                        value={editedData.about}
+                        onChange={(e) => setEditedData({ ...editedData, about: e.target.value })}
+                        className="text-sm border border-border/50 bg-transparent p-3 rounded-md resize-none"
+                        rows={4}
+                        placeholder="Describe your company..."
+                      />
+                    ) : (
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {companyData.about || 'No description available.'}
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Posts Feed */}
+              <div className="space-y-0">
+                {mockPosts.map((post) => (
+                  <FeedCard
+                    key={post._id}
+                    post={post}
+                    onLike={() => { }}
+                    onUnlike={() => { }}
+                    onComment={() => { }}
+                    onDeleteComment={() => { }}
+                    onDeletePost={() => { }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Right Sidebar */}
+            <div className="w-[25%] space-y-6">
+              {/* Company Stats */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Company Stats</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Posts</span>
+                    {isLoadingStats ? (
+                      <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
+                    ) : (
+                      <span className="text-sm font-medium">{stats?.posts || 0}</span>
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Products</span>
+                    {isLoadingStats ? (
+                      <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
+                    ) : (
+                      <span className="text-sm font-medium">{stats?.products || 0}</span>
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Team Members</span>
+                    {isLoadingStats ? (
+                      <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
+                    ) : (
+                      <span className="text-sm font-medium">{stats?.team_members || 0}</span>
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Total Score</span>
+                    {isLoadingStats ? (
+                      <div className="h-4 w-8 bg-muted rounded animate-pulse"></div>
+                    ) : (
+                      <span className="text-sm font-medium">{stats?.total_score || 0}</span>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         ) : (
           <div className="w-full px-6 py-8">
