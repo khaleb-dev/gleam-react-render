@@ -49,6 +49,7 @@ import { API_BASE_URL } from "@/config/env"
 import { useSingleFileUpload } from "@/hooks/useSingleFileUpload"
 import { useNotifications } from "@/hooks/useNotifications"
 import { UserFeedSection } from "@/components/profile/UserFeedSection"
+import { UserPagesSection } from "@/components/profile/UserPagesSection"
 import { useProfileStats } from "@/hooks/useProfileStats"
 import { useProfileView } from "@/hooks/useProfileView"
 import { useLinkup } from "@/hooks/useLinkup"
@@ -714,6 +715,8 @@ const Profile = () => {
                 </CardContent>
               </Card>
             )}
+
+            <UserPagesSection isOwnProfile={isOwnProfile} />
           </div>
 
           <div className="lg:col-span-6 space-y-4 sm:space-y-6">
