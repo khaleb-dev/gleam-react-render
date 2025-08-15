@@ -751,8 +751,11 @@ const Profile = () => {
 
 
             <UserFeedSection
-              userId={user?.user_id || user?._id || ""}
-              userName={`${user?.first_name || ""} ${user?.last_name || ""}`}
+              userId={displayUser?.user_id}
+              first_name={`${user?.first_name} `}
+              last_name={`${user?.last_name}`}
+              profileAvatar={displayUser.profile_avatar ||
+                `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(displayUser.first_name || "User")}`}
             />
 
             <Card className="shadow-sm border-0">

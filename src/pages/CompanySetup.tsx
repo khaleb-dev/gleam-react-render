@@ -56,11 +56,21 @@ const CompanySetup = () => {
     }
   }
 
+  const getWordCount = (text: string) => {
+    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     if (!formData.name || !formData.beembyteUrl || !formData.industry || !formData.industryType || !formData.organizationSize || !formData.agreedToTerms) {
       toast.error('Please fill in all required fields')
+      return
+    }
+
+    const taglineWordCount = getWordCount(formData.tagline);
+    if (taglineWordCount > 50) {
+      toast.error('Tagline must not exceed 50 words')
       return
     }
 
@@ -256,7 +266,7 @@ const CompanySetup = () => {
                     rows={3}
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Use your tagline to briefly describe what your organization does. This can be changed later. {formData.tagline.length}/120
+                    Use your tagline to briefly describe what your organization does. This can be changed later. {getWordCount(formData.tagline)}/50 words
                   </p>
                 </div>
 

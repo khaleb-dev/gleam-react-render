@@ -9,10 +9,13 @@ import { RichTextDisplay } from '@/components/ui/RichTextDisplay';
 
 interface UserFeedSectionProps {
   userId: string;
-  userName: string;
+  first_name: string;
+  last_name: string
+  profileAvatar: string
 }
 
-export const UserFeedSection: React.FC<UserFeedSectionProps> = ({ userId, userName }) => {
+export const UserFeedSection: React.FC<UserFeedSectionProps> = ({ userId, first_name, last_name, profileAvatar }) => {
+
   const { data, isLoading, error } = useUserFeed(userId, 3);
   const navigate = useNavigate();
 
@@ -79,7 +82,7 @@ export const UserFeedSection: React.FC<UserFeedSectionProps> = ({ userId, userNa
       <CardHeader className="pb-3">
         <CardTitle className="text-lg font-semibold text-card-foreground flex items-center gap-2">
           <MessageSquare className="h-5 w-5" />
-          Recent Posts by {userName}
+          Recent Posts by {first_name} {last_name}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -94,15 +97,15 @@ export const UserFeedSection: React.FC<UserFeedSectionProps> = ({ userId, userNa
                 <div className="flex items-center gap-3">
                   <Avatar className="h-8 w-8">
                     <AvatarImage
-                      src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(userName)}`}
-                      alt={userName}
+                      src={profileAvatar}
+                      alt={first_name}
                     />
                     <AvatarFallback className="text-xs">
-                      {userName.substring(0, 2).toUpperCase()}
+                      {first_name.substring(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium text-sm text-card-foreground">{userName}</p>
+                    <p className="font-medium text-sm text-card-foreground">{first_name} {last_name}</p>
                     <p className="text-xs text-muted-foreground flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       {getTimeAgo(post.created_at)}

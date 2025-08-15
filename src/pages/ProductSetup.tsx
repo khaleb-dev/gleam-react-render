@@ -18,6 +18,7 @@ const ProductSetup = () => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    website: '',
     percentage: 0,
     isLive: false,
     logo: '',
@@ -87,6 +88,7 @@ const ProductSetup = () => {
       page_id: formData.pageId,
       name: formData.name,
       description: formData.description,
+      website: formData.website,
       percentage: formData.percentage,
       is_live: formData.isLive,
       logo: formData.logo
@@ -189,6 +191,24 @@ const ProductSetup = () => {
                     rows={4}
                     required
                   />
+                </div>
+
+                {/* Website URL */}
+                <div>
+                  <Label htmlFor="website" className="text-sm font-medium text-card-foreground">
+                    Website URL
+                  </Label>
+                  <Input
+                    id="website"
+                    type="url"
+                    placeholder="https://example.com"
+                    value={formData.website}
+                    onChange={(e) => handleInputChange('website', e.target.value)}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Optional: Link to your product's website
+                  </p>
                 </div>
 
                 {/* Percentage */}

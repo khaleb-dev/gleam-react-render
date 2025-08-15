@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '@/config/env'
 import { useQuery } from '@tanstack/react-query'
 
 interface ChallengeUser {
@@ -42,7 +43,7 @@ export const useChallengeStats = (hashtag: string = 'beembyte_challenge', page: 
         limit: limit.toString(),
       })
 
-      const response = await fetch(`http://localhost:7000/api/v1/feed/challenge-statistics?${params.toString()}`, {
+      const response = await fetch(`${API_BASE_URL}/feed/challenge-statistics?${params.toString()}`, {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',

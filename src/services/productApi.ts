@@ -5,6 +5,7 @@ export interface CreateProductRequest {
   page_id: string;
   name: string;
   description: string;
+  website?: string;
   percentage: number;
   is_live: boolean;
   logo: string;
@@ -16,6 +17,7 @@ export interface CreateProductResponse {
     page_id: string;
     name: string;
     description: string;
+    website?: string;
     percentage: number;
     is_live: boolean;
     logo: string;
@@ -32,6 +34,7 @@ export interface Product {
   page_id: string;
   name: string;
   description: string;
+  website?: string;
   percentage: number;
   is_live: boolean;
   logo?: string;

@@ -25,31 +25,6 @@ import { SuggestedPagesCard } from '@/components/feed/SuggestedPagesCard';
 
 // Mock posts data for feed
 const mockPosts = [
-  {
-    _id: "post1",
-    user_id: "company_user_1",
-    title: "New Product Launch",
-    description: "We're excited to announce our latest product update! 🚀 Our team has been working hard to bring you new features.",
-    images: ["https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&h=300&fit=crop"],
-    videos: [],
-    category: "announcement",
-    tags: ["product", "launch", "update"],
-    total_score: 245,
-    comments_count: 12,
-    is_active: true,
-    created_at: "2025-08-12T10:30:00.000Z",
-    updated_at: "2025-08-12T10:30:00.000Z",
-    __v: 0,
-    user: {
-      profile_avatar: null,
-      first_name: "Myaza",
-      last_name: "",
-      email: "admin@techcompany.com",
-      is_vetted: true,
-    },
-    has_scored: false,
-    people_score_count: 42
-  }
 ];
 
 const ProgressCircle = ({ percentage, size = 60 }: { percentage: number; size?: number }) => {
@@ -428,7 +403,7 @@ const CompanyProfile = () => {
                 {/* Mobile: Show only name and handle first, then score/followers */}
                 {isMobile ? (
                   <>
-                     {isEditing ? (
+                    {isEditing ? (
                       <Input
                         value={editedData.name}
                         onChange={(e) => setEditedData({ ...editedData, name: e.target.value })}
@@ -438,7 +413,7 @@ const CompanyProfile = () => {
                       <h1 className="text-2xl font-bold mb-1 mt-4">{companyData.name}</h1>
                     )}
                     <p className="text-muted-foreground mb-3">@{companyData.company_url}</p>
-                    
+
                     {/* Score and Followers */}
                     <div className="flex gap-6 text-sm mb-4">
                       <span><strong>{stats?.total_score || 0}</strong> <span className="text-muted-foreground">Score</span></span>
@@ -538,9 +513,9 @@ const CompanyProfile = () => {
                   <MessageCircle className={`${isMobile ? 'w-3 h-3 mr-1' : 'w-3 h-3 mr-1'}`} />
                   Message
                 </Button>
-                
+
                 {/* Follow/Unfollow Button */}
-                <Button 
+                <Button
                   size={isMobile ? "sm" : "sm"}
                   className={`rounded-full ${isMobile ? 'flex-1 px-2 text-xs' : 'px-4'}`}
                   onClick={handleFollowToggle}
@@ -588,7 +563,7 @@ const CompanyProfile = () => {
       </Card>
 
       {/* Navigation Tabs - Sticky */}
-      <div className="sticky top-[64px] z-10 bg-white border-b shadow-sm w-full left-0 right-0">
+      <div className="sticky top-[64px] z-10 bg-background border-b shadow-sm w-full left-0 right-0">
         <div className={`${isMobile ? 'flex overflow-x-auto scrollbar-hide px-2 py-1 gap-2' : 'flex items-center justify-center gap-8 py-2'} max-w-none w-full`}>
           {[
             { id: 'feed', label: 'Feed' },
@@ -598,14 +573,13 @@ const CompanyProfile = () => {
             { id: 'activities', label: 'Activities' },
             { id: 'jobs', label: 'Jobs' },
           ].map((tab) => (
-            <button 
+            <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`${isMobile ? 'whitespace-nowrap min-w-fit px-3 py-2' : 'px-6 py-3'} text-sm font-medium transition-all ${
-                activeTab === tab.id 
-                  ? 'text-primary border-b-2 border-primary' 
+              className={`${isMobile ? 'whitespace-nowrap min-w-fit px-3 py-2' : 'px-6 py-3'} text-sm font-medium transition-all ${activeTab === tab.id
+                  ? 'text-primary border-b-2 border-primary'
                   : 'text-muted-foreground hover:text-foreground'
-              }`}
+                }`}
             >
               {tab.label}
             </button>
@@ -619,50 +593,68 @@ const CompanyProfile = () => {
           <div className={`${isMobile ? 'px-1 mt-4' : 'flex gap-6 mt-6'}`}>
             {/* Left Sidebar - Only show on desktop */}
             {!isMobile && <div className="w-[25%] space-y-6">
-              {/* About Section */}
-              <Card className={isMobile ? 'mx-1' : ''}>
-                <CardContent className="space-y-4 pt-6">
-                  <div className="space-y-2 pt-2">
-                    <div className="flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-muted-foreground" />
+               {/* About Section */}
+                <Card className={isMobile ? 'mx-1' : ''}>
+                  <CardContent className="space-y-4 pt-6">
+                    {/* About Description - Now first */}
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-medium">About</h4>
                       {isEditing ? (
-                        <Input
-                          value={editedData.industry}
-                          onChange={(e) => setEditedData({ ...editedData, industry: e.target.value })}
-                          placeholder="Industry type"
-                          className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
+                        <Textarea
+                          value={editedData.about}
+                          onChange={(e) => setEditedData({ ...editedData, about: e.target.value })}
+                          placeholder="Tell us about your company..."
+                          className="text-sm min-h-[80px] resize-none"
                         />
                       ) : (
-                        <span className="text-sm">{companyData.industry}</span>
+                        <p className="text-sm text-muted-foreground">
+                          {companyData.about || "No description available"}
+                        </p>
                       )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-muted-foreground" />
-                      {isEditing ? (
-                        <Input
-                          value={editedData.size}
-                          onChange={(e) => setEditedData({ ...editedData, size: e.target.value })}
-                          placeholder="Company size"
-                          className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
-                        />
-                      ) : (
-                        <span className="text-sm">{companyData.size} employees</span>
-                      )}
-                    </div>
-                    {isEditing && (
+
+                    {/* Company Details - Now after About */}
+                    <div className="pt-4 border-t border-border/30 space-y-2">
                       <div className="flex items-center gap-2">
                         <Building2 className="w-4 h-4 text-muted-foreground" />
-                        <Input
-                          value={editedData.industry_type}
-                          onChange={(e) => setEditedData({ ...editedData, industry_type: e.target.value })}
-                          placeholder="Industry type (e.g., private company)"
-                          className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
-                        />
+                        {isEditing ? (
+                          <Input
+                            value={editedData.industry}
+                            onChange={(e) => setEditedData({ ...editedData, industry: e.target.value })}
+                            placeholder="Industry type"
+                            className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
+                          />
+                        ) : (
+                          <span className="text-sm">{companyData.industry}</span>
+                        )}
                       </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4 text-muted-foreground" />
+                        {isEditing ? (
+                          <Input
+                            value={editedData.size}
+                            onChange={(e) => setEditedData({ ...editedData, size: e.target.value })}
+                            placeholder="Company size"
+                            className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
+                          />
+                        ) : (
+                          <span className="text-sm">{companyData.size} employees</span>
+                        )}
+                      </div>
+                      {isEditing && (
+                        <div className="flex items-center gap-2">
+                          <Building2 className="w-4 h-4 text-muted-foreground" />
+                          <Input
+                            value={editedData.industry_type}
+                            onChange={(e) => setEditedData({ ...editedData, industry_type: e.target.value })}
+                            placeholder="Industry type (e.g., private company)"
+                            className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
 
               {/* Products Section - Redesigned */}
               <Card>
@@ -723,17 +715,9 @@ const CompanyProfile = () => {
               {/* Team Members */}
               <Card>
                 <CardHeader>
-                   <div className="flex items-center justify-between">
-                     <CardTitle className="text-lg">Members</CardTitle>
-                     <Button
-                       variant="ghost"
-                       size="sm"
-                       className="h-8 w-8 p-0"
-                       onClick={() => setInviteModalOpen(true)}
-                     >
-                       <Plus className="w-4 h-4" />
-                     </Button>
-                   </div>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">Members</CardTitle>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {companyData.members.slice(0, 5).map((member) => (
@@ -935,31 +919,31 @@ const CompanyProfile = () => {
                                           </p>
                                         </div>
                                       </div>
-                                        <div className="space-y-2">
-                                          <label className="text-xs font-medium">Role:</label>
-                                          <select 
-                                            className="w-full px-2 py-1 border rounded text-xs"
-                                            defaultValue={rolesData?.data.find(r => r.role_name === 'employee')?._id || rolesData?.data[0]?._id || ''}
-                                            onChange={(e) => {
-                                              const updatedUsers = selectedUsers.map(u => 
-                                                u._id === user._id ? { ...u, selectedRole: e.target.value } : u
-                                              );
-                                              setSelectedUsers(updatedUsers as any);
-                                            }}
-                                          >
-                                            {rolesData?.data?.map((role) => (
-                                              <option key={role._id} value={role._id}>
-                                                {role.role_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                                              </option>
-                                            )) || (
+                                      <div className="space-y-2">
+                                        <label className="text-xs font-medium">Role:</label>
+                                        <select
+                                          className="w-full px-2 py-1 border rounded text-xs"
+                                          defaultValue={rolesData?.data.find(r => r.role_name === 'employee')?._id || rolesData?.data[0]?._id || ''}
+                                          onChange={(e) => {
+                                            const updatedUsers = selectedUsers.map(u =>
+                                              u._id === user._id ? { ...u, selectedRole: e.target.value } : u
+                                            );
+                                            setSelectedUsers(updatedUsers as any);
+                                          }}
+                                        >
+                                          {rolesData?.data?.map((role) => (
+                                            <option key={role._id} value={role._id}>
+                                              {role.role_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                            </option>
+                                          )) || (
                                               <>
                                                 <option value="employee">Employee</option>
                                                 <option value="admin">Admin</option>
                                                 <option value="moderator">Moderator</option>
                                               </>
                                             )}
-                                          </select>
-                                        </div>
+                                        </select>
+                                      </div>
                                     </div>
                                   ))}
                                 </div>
@@ -972,7 +956,7 @@ const CompanyProfile = () => {
                         </DialogContent>
                       </Dialog>
                     </div>
-                    
+
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                       {companyData.members.map((member) => (
                         <Card key={member._id} className="p-4 hover:shadow-md transition-all duration-300 cursor-pointer border border-border/50 bg-card"
@@ -985,7 +969,7 @@ const CompanyProfile = () => {
                                 {member.user_id.first_name[0]}{member.user_id.last_name[0]}
                               </AvatarFallback>
                             </Avatar>
-                            
+
                             <div className="space-y-1">
                               <h3 className="text-sm font-medium text-foreground">
                                 {member.user_id.first_name} {member.user_id.last_name}
@@ -998,8 +982,8 @@ const CompanyProfile = () => {
                   </div>
                 )}
 
-                 {activeTab === 'analytics' && (
-                   <div>
+                {activeTab === 'analytics' && (
+                  <div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                       <Card className="p-6 text-center">
                         <h3 className="text-3xl font-bold text-primary">{stats?.posts || 0}</h3>
@@ -1025,9 +1009,9 @@ const CompanyProfile = () => {
                   </div>
                 )}
 
-                 {activeTab === 'products' && (
-                   <div>
-                     <div className="flex justify-end items-center mb-6">
+                {activeTab === 'products' && (
+                  <div>
+                    <div className="flex justify-end items-center mb-6">
                       <Button
                         onClick={() => navigate(`/new/company/product/setup?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}&companyUrl=${companyData.company_url}`)}
                       >
@@ -1063,16 +1047,16 @@ const CompanyProfile = () => {
                   </div>
                 )}
 
-                 {activeTab === 'activities' && (
-                   <div>
+                {activeTab === 'activities' && (
+                  <div>
                     <Card className="p-6">
                       <p className="text-muted-foreground">Recent activities will be displayed here...</p>
                     </Card>
                   </div>
                 )}
 
-                 {activeTab === 'jobs' && (
-                   <div>
+                {activeTab === 'jobs' && (
+                  <div>
                     <Card className="p-6">
                       <p className="text-muted-foreground">Job listings will be displayed here...</p>
                     </Card>
