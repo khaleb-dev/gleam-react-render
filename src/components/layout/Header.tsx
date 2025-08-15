@@ -156,7 +156,7 @@ export const Header = () => {
 
           {/* User Menu - Desktop */}
           {!userLoading && user ? (
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors p-0">

@@ -206,7 +206,12 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
                         <p
                           className={`${isMobile ? "text-xs" : "text-xs"} text-muted-foreground line-clamp-2 leading-relaxed`}
                         >
-                          {notification.reference_id.post_id.description}
+                          {isMobile 
+                            ? notification.reference_id.post_id.description.length > 50
+                              ? notification.reference_id.post_id.description.substring(0, 50) + "..."
+                              : notification.reference_id.post_id.description
+                            : notification.reference_id.post_id.description
+                          }
                         </p>
                       )}
                     </div>
@@ -218,7 +223,12 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
               {notification.type === "comment" && notification.reference_id?.content && (
                 <div className="bg-muted/50 p-3 mb-3 rounded-lg border border-border">
                   <p className={`${isMobile ? "text-xs" : "text-xs"} text-foreground italic line-clamp-2`}>
-                    "{notification.reference_id.content}"
+                    "{isMobile 
+                      ? notification.reference_id.content.length > 40
+                        ? notification.reference_id.content.substring(0, 40) + "..."
+                        : notification.reference_id.content
+                      : notification.reference_id.content
+                    }"
                   </p>
                 </div>
               )}
