@@ -26,6 +26,7 @@ import { MembersCard } from '@/components/company/MembersCard';
 import { PendingMembersList } from '@/components/company/PendingMembersList';
 import { usePageMembers } from '@/hooks/usePageMembers';
 import { usePagePermissions } from '@/hooks/usePagePermissions';
+import { API_BASE_URL } from '@/config/env';
 
 // Mock posts data for feed
 const mockPosts = [
@@ -232,13 +233,40 @@ const permissions = usePagePermissions(companyData?._id || '');
   };
 
   const handleInviteUsers = async () => {
+    if (!companyData?._id || selectedUsers.length === 0) return;
+    
     try {
-      // Here you would make an API call to invite users
+      // Get the default role (first available role) for invites
+      const defaultRole = rolesData?.data?.[0];
+      if (!defaultRole) {
+        toast.error('No roles available for invitation');
+        return;
+      }
+
+      // Send invites for all selected users
+      const invitePromises = selectedUsers.map(user => 
+        fetch(`${API_BASE_URL}/page/invite`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_id: user._id,
+            role_id: defaultRole._id,
+            page_id: companyData._id
+          })
+        }).then(res => res.json())
+      );
+
+      await Promise.all(invitePromises);
+      
       toast.success(`Invited ${selectedUsers.length} user(s) successfully!`);
       setInviteModalOpen(false);
       setSelectedUsers([]);
       setSearchQuery('');
     } catch (error) {
+      console.error('Failed to invite users:', error);
       toast.error('Failed to invite users');
     }
   };
