@@ -41,7 +41,9 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
   const [isHovered, setIsHovered] = useState(false)
   
   // For page invite notifications, get the page_id from reference_id
-  const pageId = notification.type === 'page_invite' ? notification.reference_id : undefined
+  const pageId = notification.type === 'page_invite' && notification.reference_id 
+    ? (notification.reference_id.page_id || notification.reference_id._id || notification.reference_id)
+    : undefined
   const { hasPendingInvite, acceptInvite, rejectInvite, isLoading } = usePageInvite(pageId)
 
   const handleClick = () => {
