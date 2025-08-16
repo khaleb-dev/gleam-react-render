@@ -2,10 +2,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
-import { Bell, CheckCircle, Calendar, MessageSquare, Users, Star, FileText, AlertTriangle, Briefcase } from 'lucide-react';
+import { Bell, CheckCircle, Calendar, MessageSquare, Users, Star, FileText, AlertTriangle, Briefcase, Check, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import { ApiNotification } from '@/services/notificationApi';
+import { usePageInvite } from '@/hooks/usePageInvite';
 
 const stripHtmlTags = (html: string) => {
   if (!html) return "";
@@ -34,15 +36,43 @@ interface NotificationItemProps {
 export const NotificationItem = ({ notification, onRead }: NotificationItemProps) => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
+  
+  // Get page ID from reference_id for page invites
+  const pageId = notification.type === 'page_invite' && notification.reference_id?.page_id 
+    ? notification.reference_id.page_id 
+    : undefined;
+    
+  const { hasPendingInvite, acceptInvite, rejectInvite, isLoading } = usePageInvite(pageId);
 
   const handleClick = () => {
     if (!notification.is_read) {
       onRead(notification._id);
     }
 
+    // Don't navigate if it's a page invite with pending status
+    if (notification.type === 'page_invite' && hasPendingInvite) {
+      return;
+    }
+
     // Navigate based on notification link
     if (notification.link) {
       navigate(notification.link);
+    }
+  };
+
+  const handleAcceptInvite = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const success = await acceptInvite();
+    if (success && !notification.is_read) {
+      onRead(notification._id);
+    }
+  };
+
+  const handleRejectInvite = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const success = await rejectInvite();
+    if (success && !notification.is_read) {
+      onRead(notification._id);
     }
   };
 
@@ -60,6 +90,8 @@ export const NotificationItem = ({ notification, onRead }: NotificationItemProps
         return <MessageSquare className="h-5 w-5 text-blue-500" />;
       case 'alert':
         return <AlertTriangle className="h-5 w-5 text-red-500" />;
+      case 'page_invite':
+        return <Users className="h-5 w-5 text-indigo-500" />;
       case 'system':
         return <Bell className="h-5 w-5 text-gray-500" />;
       default:
@@ -165,6 +197,31 @@ export const NotificationItem = ({ notification, onRead }: NotificationItemProps
                   <span className="h-2 w-2 rounded-full bg-blue-500"></span>
                 )}
               </div>
+
+              {/* Page Invite Actions */}
+              {notification.type === 'page_invite' && hasPendingInvite && (
+                <div className="flex gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
+                  <Button 
+                    size="sm" 
+                    onClick={handleAcceptInvite}
+                    disabled={isLoading}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <Check className="h-3 w-3 mr-1" />
+                    Accept
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={handleRejectInvite}
+                    disabled={isLoading}
+                    className="border-red-200 text-red-600 hover:bg-red-50"
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    Reject
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Notification type icon */}
@@ -175,6 +232,7 @@ export const NotificationItem = ({ notification, onRead }: NotificationItemProps
                 notification.type === 'comment' && "bg-blue-100",
                 notification.type === 'linkups' && "bg-purple-100",
                 notification.type === 'task' && "bg-green-100",
+                notification.type === 'page_invite' && "bg-indigo-100",
                 notification.type === 'system' && "bg-gray-100",
                 notification.type === 'alert' && "bg-red-100"
               )}>
