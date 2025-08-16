@@ -271,13 +271,39 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
                 </div>
               )}
 
+              {/* Page invite content preview */}
+              {notification.type === "page_invite" && notification.reference_id && (
+                <div className="bg-muted/50 p-3 mb-3 hover:bg-muted/70 transition-colors rounded-lg border border-border">
+                  <div className="flex items-start gap-3">
+                    <div className={`${isMobile ? "w-14 h-14" : "w-16 h-16"} bg-muted rounded-lg flex-shrink-0 overflow-hidden`}>
+                      <img
+                        src={notification.reference_id.logo || "/placeholder.svg"}
+                        alt={`${notification.reference_id.name} logo`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-foreground mb-1`}>
+                        {notification.reference_id.name}
+                      </p>
+                      <p className={`${isMobile ? "text-xs" : "text-xs"} text-muted-foreground mb-1`}>
+                        {notification.reference_id.tag_line}
+                      </p>
+                      <p className={`${isMobile ? "text-xs" : "text-xs"} text-muted-foreground`}>
+                        {notification.reference_id.industry} • {notification.reference_id.size} employees
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Page invite action buttons */}
               {notification.type === "page_invite" && hasPendingInvite && (
                 <div className="flex items-center gap-2 mt-4">
                   <Button
                     size="sm"
                     variant="outline"
-                    className="h-9 px-6 text-sm font-medium bg-white border-primary text-primary hover:bg-primary/5 rounded-full"
+                    className="h-9 px-6 text-sm font-medium bg-white border-primary text-primary hover:bg-primary/5 rounded-md"
                     onClick={async (e) => {
                       e.stopPropagation()
                       await acceptInvite()
@@ -289,7 +315,7 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
                   <Button
                     size="sm"
                     variant="outline"
-                    className="h-9 px-6 text-sm font-medium border-red-200 text-red-600 hover:bg-red-50 bg-transparent rounded-full"
+                    className="h-9 px-6 text-sm font-medium border-red-200 text-red-600 hover:bg-red-50 bg-transparent rounded-md"
                     onClick={async (e) => {
                       e.stopPropagation()
                       await rejectInvite()
