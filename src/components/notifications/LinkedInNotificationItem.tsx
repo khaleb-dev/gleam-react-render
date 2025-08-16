@@ -276,15 +276,14 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
                 <div className="flex items-center gap-2 mt-4">
                   <Button
                     size="sm"
-                    variant="default"
-                    className="h-9 px-6 text-sm font-medium bg-green-600 hover:bg-green-700 text-white rounded-full"
+                    variant="outline"
+                    className="h-9 px-6 text-sm font-medium bg-white border-primary text-primary hover:bg-primary/5 rounded-full"
                     onClick={async (e) => {
                       e.stopPropagation()
                       await acceptInvite()
                     }}
                     disabled={isLoading}
                   >
-                    <Check className="h-4 w-4 mr-2" />
                     Accept
                   </Button>
                   <Button
@@ -297,7 +296,6 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
                     }}
                     disabled={isLoading}
                   >
-                    <X className="h-4 w-4 mr-2" />
                     Reject
                   </Button>
                 </div>
