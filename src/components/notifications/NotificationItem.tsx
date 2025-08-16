@@ -38,8 +38,8 @@ export const NotificationItem = ({ notification, onRead }: NotificationItemProps
   const [isHovered, setIsHovered] = useState(false);
   
   // Get page ID from reference_id for page invites
-  const pageId = notification.type === 'page_invite' && notification.reference_id?.page_id 
-    ? notification.reference_id.page_id 
+  const pageId = notification.type === 'page_invite' && notification.reference_id 
+    ? (notification.reference_id.page_id || notification.reference_id._id)
     : undefined;
     
   const { hasPendingInvite, acceptInvite, rejectInvite, isLoading } = usePageInvite(pageId);

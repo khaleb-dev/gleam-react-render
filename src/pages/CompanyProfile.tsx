@@ -244,8 +244,8 @@ const permissions = usePagePermissions(companyData?._id || '');
       }
 
       // Send invites for all selected users
-      const invitePromises = selectedUsers.map(user => 
-        fetch(`${API_BASE_URL}/page/invite`, {
+      const invitePromises = selectedUsers.map(async user => {
+        const response = await fetch(`${API_BASE_URL}/page/invite`, {
           method: 'POST',
           credentials: 'include',
           headers: {
@@ -256,8 +256,16 @@ const permissions = usePagePermissions(companyData?._id || '');
             role_id: defaultRole._id,
             page_id: companyData._id
           })
-        }).then(res => res.json())
-      );
+        });
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+          throw new Error(result.message || 'Failed to send invite');
+        }
+        
+        return result;
+      });
 
       await Promise.all(invitePromises);
       
