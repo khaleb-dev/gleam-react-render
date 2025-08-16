@@ -7,6 +7,14 @@ import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ApiNotification } from '@/services/notificationApi';
 
+const stripHtmlTags = (html: string) => {
+  if (!html) return "";
+  // Create a temporary element to strip HTML tags and decode entities
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return (div.textContent || div.innerText || "").trim();
+};
+
 export interface Notification {
   id: string;
   type: 'task-accepted' | 'task-completed' | 'message' | 'deadline';
@@ -67,10 +75,11 @@ export const NotificationItem = ({ notification, onRead }: NotificationItemProps
     }
   };
 
+
   return (
     <div
       className={cn(
-        "p-4 border-b border-gray-100 transition-all cursor-pointer hover:bg-gray-50",
+        "p-3 sm:p-4 border-b border-gray-100 transition-all cursor-pointer hover:bg-gray-50",
         !notification.is_read && "bg-blue-50/30"
       )}
       onClick={handleClick}
@@ -102,27 +111,27 @@ export const NotificationItem = ({ notification, onRead }: NotificationItemProps
         {/* Content */}
         <div className="flex-1 min-w-0 overflow-hidden">
           <div className="flex items-start justify-between">
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 pr-2 max-w-full">
               <h4 className={cn(
-                "text-sm leading-tight mb-1 break-words",
+                "text-sm leading-tight mb-1 break-words hyphens-auto truncate",
                 !notification.is_read ? "font-semibold text-gray-900" : "font-medium text-gray-700"
               )}>
-                {notification.title}
+                {stripHtmlTags(notification.title)}
               </h4>
-              <p className="text-sm text-gray-600 leading-relaxed mb-2 break-words overflow-hidden">
-                {notification.message}
+              <p className="text-sm text-gray-600 leading-relaxed mb-2 break-words hyphens-auto overflow-hidden line-clamp-3">
+                {stripHtmlTags(notification.message)}
               </p>
 
               {/* Reference content preview */}
               {notification.reference_id?.post_id && (
                 <div className="bg-gray-50 rounded-lg p-3 mt-2 border-l-4 border-blue-500">
                   <p className="text-xs text-gray-500 mb-1">Post</p>
-                  <p className="text-sm font-medium text-gray-700 line-clamp-2 break-words">
-                    {notification.reference_id.post_id.title}
+                  <p className="text-sm font-medium text-gray-700 line-clamp-2 break-words hyphens-auto">
+                    {stripHtmlTags(notification.reference_id.post_id.title)}
                   </p>
                   {notification.reference_id.post_id.description && (
-                    <p className="text-xs text-gray-600 mt-1 line-clamp-1 break-words">
-                      {notification.reference_id.post_id.description}
+                    <p className="text-xs text-gray-600 mt-1 line-clamp-1 break-words hyphens-auto">
+                      {stripHtmlTags(notification.reference_id.post_id.description)}
                     </p>
                   )}
                 </div>
@@ -142,8 +151,8 @@ export const NotificationItem = ({ notification, onRead }: NotificationItemProps
               {notification.type === 'comment' && notification.reference_id?.content && (
                 <div className="bg-gray-50 rounded-lg p-3 mt-2 border-l-4 border-green-500">
                   <p className="text-xs text-gray-500 mb-1">Comment</p>
-                  <p className="text-sm text-gray-700 italic break-words">
-                    "{notification.reference_id.content}"
+                  <p className="text-sm text-gray-700 italic break-words hyphens-auto">
+                    "{stripHtmlTags(notification.reference_id.content)}"
                   </p>
                 </div>
               )}

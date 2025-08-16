@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useLinkup } from '@/hooks/useLinkup';
 import { LinkupFollowersModal } from '@/components/profile/LinkupFollowersModal';
@@ -9,9 +10,14 @@ interface LinkupCountProps {
 }
 
 export const LinkupCount: React.FC<LinkupCountProps> = ({ userId, className = '', showBothCounts = false }) => {
-  const { counts } = useLinkup(userId);
+  const { counts, isLoading } = useLinkup(userId);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalInitialTab, setModalInitialTab] = useState<'linkups' | 'followers'>('linkups');
+
+  // Don't render anything while loading to prevent layout shifts
+  if (isLoading) {
+    return <div className={`text-xs text-gray-500 ${className}`}>Loading...</div>;
+  }
 
   if (showBothCounts) {
     return (

@@ -24,7 +24,8 @@ export interface ApiNotification {
     | "linkups"
     | "score"
     | "comment"
-    | "mention";
+    | "mention"
+    | "page_invite";
   path?: string;
   title: string;
   message: string;
@@ -116,6 +117,111 @@ export const markAsRead = async (
     return result;
   } catch (error) {
     console.error("Mark as read error:", error);
+    throw error;
+  }
+};
+
+export const acceptPageInvite = async (
+  pageId: string
+): Promise<{ message: string; data: any; success: boolean }> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/page/invite/accept`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ page_id: pageId }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Accept page invite error:", error);
+    throw error;
+  }
+};
+
+export const rejectPageInvite = async (
+  pageId: string
+): Promise<{ message: string; data: any; success: boolean }> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/page/invite/reject`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ page_id: pageId }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Reject page invite error:", error);
+    throw error;
+  }
+};
+
+export const sendPageInvite = async (
+  userId: string,
+  roleId: string,
+  pageId: string
+): Promise<{ message: string; data: any; success: boolean }> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/page/invite`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ 
+        user_id: userId, 
+        role_id: roleId, 
+        page_id: pageId 
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Send page invite error:", error);
+    throw error;
+  }
+};
+
+export const checkInviteStatus = async (
+  pageId: string
+): Promise<{ message: string; data: { hasPending: boolean }; success: boolean }> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/page/${pageId}/pending-status`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Check invite status error:", error);
     throw error;
   }
 };

@@ -141,3 +141,11 @@ export const formatTimeAgo = (timeAgo: string | undefined | null): string => {
 
   return timeAgo;
 };
+
+export const stripHtmlTags = (html: string) => {
+  if (!html) return "";
+  // Create a temporary element to strip HTML tags and decode entities
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return (div.textContent || div.innerText || "").trim();
+};

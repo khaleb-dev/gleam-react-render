@@ -36,6 +36,8 @@ export const NotificationsList = ({ notifications, onMarkAllAsRead, onReadNotifi
         return notifications.filter((n) => n.type === "mention")
       case "reactions":
         return notifications.filter((n) => n.type === "score")
+      case "invites":
+        return notifications.filter((n) => n.type === "page_invite")
       default:
         return notifications
     }
@@ -164,6 +166,20 @@ export const NotificationsList = ({ notifications, onMarkAllAsRead, onReadNotifi
                     className="ml-2 text-xs px-2 py-0.5 h-5 bg-muted text-muted-foreground font-normal"
                   >
                     {getTabCount("tasks")}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger
+                value="invites"
+                className={`text-sm py-4 px-2 lg:px-4 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none border-b-2 border-transparent hover:text-foreground font-medium transition-colors whitespace-nowrap ${isMobile ? "text-xs px-1.5" : ""}`}
+              >
+                Invites
+                {getTabCount("invites") > 0 && !isMobile && (
+                  <Badge
+                    variant="secondary"
+                    className="ml-2 text-xs px-2 py-0.5 h-5 bg-muted text-muted-foreground font-normal"
+                  >
+                    {getTabCount("invites")}
                   </Badge>
                 )}
               </TabsTrigger>

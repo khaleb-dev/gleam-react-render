@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useRef, useEffect } from "react"
@@ -20,6 +21,24 @@ import { userApiService } from "@/services/userApi"
 // Helper function to notify all tabs of auth state change
 const notifyAuthChange = () => {
   localStorage.setItem('auth-change', Date.now().toString());
+};
+
+// Global verification caching/deduplication across hook instances
+let lastVerifyAt = 0;
+let lastVerifyResult: any = null;
+let verifyInFlightPromise: Promise<any> | null = null;
+const VERIFY_TTL = 60_000; // 60 seconds
+
+const isNetworkError = (error: unknown) => {
+  if (typeof window !== 'undefined' && !navigator.onLine) return true;
+  if (error instanceof Error) {
+    return (
+      error.message.includes('NetworkError') ||
+      error.message.includes('Failed to fetch') ||
+      error.message.includes('Network request failed')
+    );
+  }
+  return false;
 };
 
 export const useAuth = () => {
@@ -320,53 +339,79 @@ export const useAuth = () => {
       return { success: false };
     }
 
-    // Cancel previous verification if still running
+    // Use cached result when fresh
+    const now = Date.now();
+    if (lastVerifyResult && now - lastVerifyAt < VERIFY_TTL) {
+      return lastVerifyResult;
+    }
+
+    // Deduplicate concurrent/rapid calls
+    if (verifyInFlightPromise) {
+      return verifyInFlightPromise;
+    }
+
+    // Cancel previous verification if still running (kept for compatibility)
     if (verifyTokenAbortController.current) {
       verifyTokenAbortController.current.abort();
     }
-
     verifyTokenAbortController.current = new AbortController();
 
-    try {
-      const response = await authApi.verifyAuthToken()
-      
-      // Check if request was aborted
-      if (verifyTokenAbortController.current?.signal.aborted) {
-        return { success: false };
-      }
-
-      if (!response.success) {
-        console.log("🔐 Token verification failed, clearing local state");
-        // Clear local state when token is invalid
-        setUser(null);
-        // Don't navigate here - let useAuthGuard handle it
-      } else {
-        // Token is valid, set user from response
-        if (response.data) {
-          setUser(response.data);
+    verifyInFlightPromise = (async () => {
+      try {
+        const response = await authApi.verifyAuthToken()
+        
+        // If the local abort controller was aborted, treat as no-op
+        if (verifyTokenAbortController.current?.signal.aborted) {
+          return { success: false };
         }
-      }
-      return response;
-    } catch (error) {
-      // Check if error is due to abort
-      if (error.name === 'AbortError') {
+
+        if (!response.success) {
+          console.log("🔐 Token verification failed, clearing local state (invalid token)");
+          // Only clear local state when the backend explicitly says it's invalid
+          setUser(null);
+        } else {
+          // Token is valid, set user from response
+          if (response.data) {
+            setUser(response.data);
+          }
+        }
+        return response;
+      } catch (error) {
+        // Distinguish network/offline from other errors
+        if ((error as any)?.name === 'AbortError') {
+          return { success: false };
+        }
+
+        if (isNetworkError(error)) {
+          console.log("🔐 Network issue during token verification, preserving session");
+          // Do NOT clear user here; signal offline so guards can handle UX
+          return { success: false, offline: true };
+        }
+
+        console.error("🔐 Auth token verification error:", error);
+        // Non-network errors: clear potentially invalid token
+        if (!isLoggingOutRef.current) {
+          setUser(null);
+        }
         return { success: false };
+      } finally {
+        verifyTokenAbortController.current = null;
       }
-      
-      console.error("🔐 Auth token verification error:", error)
-      // Clear potentially invalid token on error
-      if (!isLoggingOutRef.current) {
-        setUser(null);
-        // Don't navigate here - let useAuthGuard handle it
-      }
-      return { success: false };
+    })();
+
+    try {
+      const result = await verifyInFlightPromise;
+      lastVerifyResult = result;
+      lastVerifyAt = Date.now();
+      return result;
     } finally {
-      verifyTokenAbortController.current = null;
+      verifyInFlightPromise = null;
     }
   }
 
   const loggedInUser = async () => {
     try {
+      // Leverage caching inside userApiService (prevents burst calls)
       const user = await userApiService.getUserProfile()
       return user.data;
     } catch (error) {
@@ -388,3 +433,4 @@ export const useAuth = () => {
     loggedInUser
   }
 }
+

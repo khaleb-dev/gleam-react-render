@@ -22,6 +22,10 @@ import { useCompanyPageStats } from '@/hooks/useCompanyPageStats';
 import { useFollowStatus, useFollowCompanyPage, useUnfollowCompanyPage } from '@/hooks/useCompanyPageFollow';
 import { useCompanyPageRoles } from '@/hooks/useCompanyPageRoles';
 import { SuggestedPagesCard } from '@/components/feed/SuggestedPagesCard';
+import { MembersCard } from '@/components/company/MembersCard';
+import { PendingMembersList } from '@/components/company/PendingMembersList';
+import { usePageMembers } from '@/hooks/usePageMembers';
+import { usePagePermissions } from '@/hooks/usePagePermissions';
 
 // Mock posts data for feed
 const mockPosts = [
@@ -95,9 +99,10 @@ const CompanyProfile = () => {
   const products = productsData?.data?.products || [];
 
   const { data: companyStats, isLoading: isLoadingStats } = useCompanyPageStats(companyData?._id || '');
-  const stats = companyStats?.data;
+const stats = companyStats?.data;
+const permissions = usePagePermissions(companyData?._id || '');
 
-  // Follow functionality hooks
+// Follow functionality hooks
   const { data: followStatusData, isLoading: isLoadingFollowStatus } = useFollowStatus(companyData?._id || '');
   const isFollowing = followStatusData?.data?.isFollowing || false;
   const followMutation = useFollowCompanyPage();
@@ -339,6 +344,90 @@ const CompanyProfile = () => {
     }
   };
 
+  // Members Tab Component
+  const MembersTabContentLocal = ({ 
+    companyId, 
+    setInviteModalOpen 
+  }: {
+    companyId: string;
+    setInviteModalOpen: (open: boolean) => void;
+  }) => {
+    const { data: membersData, isLoading } = usePageMembers(companyId);
+
+    if (isLoading) {
+      return (
+        <div className="space-y-6">
+          {/* Pending Members Loading */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Pending Invites</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 mb-6">
+              {[1, 2].map((i) => (
+                <div key={i} className="p-3 border rounded-lg animate-pulse">
+                  <div className="flex flex-col items-center space-y-2">
+                    <div className="h-12 w-12 bg-gray-200 rounded-full"></div>
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Team Members Loading */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Team Members</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="p-3 border rounded-lg animate-pulse">
+                  <div className="flex flex-col items-center space-y-2">
+                    <div className="h-12 w-12 bg-gray-200 rounded-full"></div>
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const members = membersData?.data?.members?.filter(member => member.status === 'approved') || [];
+
+    return (
+      <div className="space-y-6">
+        {/* Pending Invites */}
+        <PendingMembersList pageId={companyId} showTitle={true} />
+        
+        {/* Team Members */}
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Team Members</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+            {members.map((member) => (
+              <MembersCard key={member._id} member={member} />
+            ))}
+            {members.length === 0 && (
+              <div className="col-span-full">
+                <Card className="p-8 text-center">
+                  <div className="space-y-3">
+                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
+                      <Users className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-lg font-medium">No members found</h3>
+                    <p className="text-muted-foreground text-sm">
+                      {permissions.canAddMembers 
+                        ? "Add team members to get started!" 
+                        : "No team members are currently listed."
+                      }
+                    </p>
+                  </div>
+                </Card>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen">
       {/* Header Banner */}
@@ -426,6 +515,7 @@ const CompanyProfile = () => {
                         value={editedData.tag_line}
                         onChange={(e) => setEditedData({ ...editedData, tag_line: e.target.value })}
                         className="mb-3 border border-border/50 shadow-none bg-transparent p-2 h-auto rounded-md text-center"
+                        maxLength={50}
                       />
                     ) : (
                       <p className="mb-3 text-center">{companyData.tag_line}</p>
@@ -469,6 +559,7 @@ const CompanyProfile = () => {
                         value={editedData.tag_line}
                         onChange={(e) => setEditedData({ ...editedData, tag_line: e.target.value })}
                         className="mb-3 border border-border/50 shadow-none bg-transparent p-2 h-auto rounded-md"
+                        maxLength={50}
                       />
                     ) : (
                       <p className="mb-3">{companyData.tag_line}</p>
@@ -505,14 +596,16 @@ const CompanyProfile = () => {
               </div>
 
               <div className={`flex gap-2 ${isMobile ? 'w-full justify-center mt-4' : ''}`}>
-                <Button
-                  variant="outline"
-                  size={isMobile ? "sm" : "sm"}
-                  className={`rounded-full ${isMobile ? 'flex-1 px-2 text-xs' : 'px-4'} border-primary text-primary bg-white hover:bg-primary hover:text-white`}
-                >
-                  <MessageCircle className={`${isMobile ? 'w-3 h-3 mr-1' : 'w-3 h-3 mr-1'}`} />
-                  Message
-                </Button>
+{permissions.canSeeChannelButton && (
+  <Button
+    variant="outline"
+    size={isMobile ? "sm" : "sm"}
+    className={`rounded-full ${isMobile ? 'flex-1 px-2 text-xs' : 'px-4'} border-primary text-primary bg-white hover:bg-primary hover:text-white`}
+  >
+    <MessageCircle className={`${isMobile ? 'w-3 h-3 mr-1' : 'w-3 h-3 mr-1'}`} />
+    Channel
+  </Button>
+)}
 
                 {/* Follow/Unfollow Button */}
                 <Button
@@ -531,22 +624,24 @@ const CompanyProfile = () => {
                   {isFollowing ? 'Unfollow' : 'Follow'}
                 </Button>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={isEditing ? handleSaveChanges : handleEditToggle}
-                  className="rounded-full"
-                  disabled={isUploading || updateCompanyPage.isPending}
-                >
-                  {isUploading || updateCompanyPage.isPending ? (
-                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  ) : isEditing ? (
-                    <Save className="w-4 h-4" />
-                  ) : (
-                    <Settings className="w-4 h-4" />
-                  )}
-                </Button>
-                {isEditing && (
+                {permissions.canManagePage && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={isEditing ? handleSaveChanges : handleEditToggle}
+                    className="rounded-full"
+                    disabled={isUploading || updateCompanyPage.isPending}
+                  >
+                    {isUploading || updateCompanyPage.isPending ? (
+                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    ) : isEditing ? (
+                      <Save className="w-4 h-4" />
+                    ) : (
+                      <Settings className="w-4 h-4" />
+                    )}
+                  </Button>
+                )}
+                {isEditing && permissions.canManagePage && (
                   <Button
                     variant="ghost"
                     size="sm"
@@ -565,25 +660,25 @@ const CompanyProfile = () => {
       {/* Navigation Tabs - Sticky */}
       <div className="sticky top-[64px] z-10 bg-background border-b shadow-sm w-full left-0 right-0">
         <div className={`${isMobile ? 'flex overflow-x-auto scrollbar-hide px-2 py-1 gap-2' : 'flex items-center justify-center gap-8 py-2'} max-w-none w-full`}>
-          {[
-            { id: 'feed', label: 'Feed' },
-            { id: 'members', label: 'Members' },
-            { id: 'analytics', label: 'Analytics' },
-            { id: 'products', label: 'Products' },
-            { id: 'activities', label: 'Activities' },
-            { id: 'jobs', label: 'Jobs' },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`${isMobile ? 'whitespace-nowrap min-w-fit px-3 py-2' : 'px-6 py-3'} text-sm font-medium transition-all ${activeTab === tab.id
-                  ? 'text-primary border-b-2 border-primary'
-                  : 'text-muted-foreground hover:text-foreground'
-                }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+{[
+  { id: 'feed', label: 'Feed' },
+  { id: 'members', label: 'Members' },
+  ...(permissions.canViewAnalytics ? [{ id: 'analytics', label: 'Analytics' }] : []),
+  { id: 'products', label: 'Products' },
+  ...(permissions.canViewActivities ? [{ id: 'activities', label: 'Activities' }] : []),
+  { id: 'jobs', label: 'Jobs' },
+].map((tab) => (
+  <button
+    key={tab.id}
+    onClick={() => setActiveTab(tab.id)}
+    className={`${isMobile ? 'whitespace-nowrap min-w-fit px-3 py-2' : 'px-6 py-3'} text-sm font-medium transition-all ${activeTab === tab.id
+      ? 'text-primary border-b-2 border-primary'
+      : 'text-muted-foreground hover:text-foreground'
+      }`}
+  >
+    {tab.label}
+  </button>
+))}
         </div>
       </div>
 
@@ -593,84 +688,86 @@ const CompanyProfile = () => {
           <div className={`${isMobile ? 'px-1 mt-4' : 'flex gap-6 mt-6'}`}>
             {/* Left Sidebar - Only show on desktop */}
             {!isMobile && <div className="w-[25%] space-y-6">
-               {/* About Section */}
-                <Card className={isMobile ? 'mx-1' : ''}>
-                  <CardContent className="space-y-4 pt-6">
-                    {/* About Description - Now first */}
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium">About</h4>
+              {/* About Section */}
+              <Card className={isMobile ? 'mx-1' : ''}>
+                <CardContent className="space-y-4 pt-6">
+                  {/* About Description - Now first */}
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium">About</h4>
+                    {isEditing ? (
+                      <Textarea
+                        value={editedData.about}
+                        onChange={(e) => setEditedData({ ...editedData, about: e.target.value })}
+                        placeholder="Tell us about your company..."
+                        className="text-sm min-h-[80px] resize-none"
+                      />
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        {companyData.about || "No description available"}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Company Details - Now after About */}
+                  <div className="pt-4 border-t border-border/30 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Building2 className="w-4 h-4 text-muted-foreground" />
                       {isEditing ? (
-                        <Textarea
-                          value={editedData.about}
-                          onChange={(e) => setEditedData({ ...editedData, about: e.target.value })}
-                          placeholder="Tell us about your company..."
-                          className="text-sm min-h-[80px] resize-none"
+                        <Input
+                          value={editedData.industry}
+                          onChange={(e) => setEditedData({ ...editedData, industry: e.target.value })}
+                          placeholder="Industry type"
+                          className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
                         />
                       ) : (
-                        <p className="text-sm text-muted-foreground">
-                          {companyData.about || "No description available"}
-                        </p>
+                        <span className="text-sm">{companyData.industry}</span>
                       )}
                     </div>
-
-                    {/* Company Details - Now after About */}
-                    <div className="pt-4 border-t border-border/30 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-muted-foreground" />
+                      {isEditing ? (
+                        <Input
+                          value={editedData.size}
+                          onChange={(e) => setEditedData({ ...editedData, size: e.target.value })}
+                          placeholder="Company size"
+                          className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
+                        />
+                      ) : (
+                        <span className="text-sm">{companyData.size} employees</span>
+                      )}
+                    </div>
+                    {isEditing && (
                       <div className="flex items-center gap-2">
                         <Building2 className="w-4 h-4 text-muted-foreground" />
-                        {isEditing ? (
-                          <Input
-                            value={editedData.industry}
-                            onChange={(e) => setEditedData({ ...editedData, industry: e.target.value })}
-                            placeholder="Industry type"
-                            className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
-                          />
-                        ) : (
-                          <span className="text-sm">{companyData.industry}</span>
-                        )}
+                        <Input
+                          value={editedData.industry_type}
+                          onChange={(e) => setEditedData({ ...editedData, industry_type: e.target.value })}
+                          placeholder="Industry type (e.g., private company)"
+                          className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
+                        />
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-muted-foreground" />
-                        {isEditing ? (
-                          <Input
-                            value={editedData.size}
-                            onChange={(e) => setEditedData({ ...editedData, size: e.target.value })}
-                            placeholder="Company size"
-                            className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
-                          />
-                        ) : (
-                          <span className="text-sm">{companyData.size} employees</span>
-                        )}
-                      </div>
-                      {isEditing && (
-                        <div className="flex items-center gap-2">
-                          <Building2 className="w-4 h-4 text-muted-foreground" />
-                          <Input
-                            value={editedData.industry_type}
-                            onChange={(e) => setEditedData({ ...editedData, industry_type: e.target.value })}
-                            placeholder="Industry type (e.g., private company)"
-                            className="text-sm border border-border/50 bg-transparent p-1 h-auto rounded-md"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Products Section - Redesigned */}
               <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">Products</CardTitle>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => navigate(`/new/company/product/setup?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}&companyUrl=${companyData.company_url}`)}
-                      className="h-8 w-8 p-0"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardHeader>
+<CardHeader>
+  <div className="flex items-center justify-between">
+    <CardTitle className="text-lg">Products</CardTitle>
+    {permissions.canCreateProduct && (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate(`/new/company/product/setup?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}&companyUrl=${companyData.company_url}`)}
+        className="h-8 w-8 p-0"
+      >
+        <Plus className="w-4 h-4" />
+      </Button>
+    )}
+  </div>
+</CardHeader>
                 <CardContent className="space-y-3">
                   {isLoadingProducts ? (
                     <div className="space-y-3">
@@ -706,7 +803,7 @@ const CompanyProfile = () => {
                     ))
                   ) : (
                     <div className="text-center py-4">
-                      <p className="text-sm text-muted-foreground">No products found</p>
+                      <p className="text-sm text-muted-foreground">No products available or created yet</p>
                     </div>
                   )}
                 </CardContent>
@@ -737,9 +834,11 @@ const CompanyProfile = () => {
                         <p className="font-medium text-sm">
                           {member.user_id.first_name} {member.user_id.last_name}
                         </p>
-                        <p className="text-xs text-muted-foreground capitalize">
-                          {member.role_id.role_name.replace(/_/g, ' ')}
-                        </p>
+{permissions.canSeeUserRoles && (
+  <p className="text-xs text-muted-foreground capitalize">
+    {member.role_id.role_name.replace(/_/g, ' ')}
+  </p>
+)}
                       </div>
                     </div>
                   ))}
@@ -750,31 +849,48 @@ const CompanyProfile = () => {
             {/* Feed Content */}
             <div className={`${isMobile ? 'w-full' : 'flex-1'} space-y-6`}>
               {/* Create Post - Only show on desktop */}
-              {!isMobile && (
-                <CreatePostCard
-                  user={{
-                    ...companyData.admin_id,
-                    profile_avatar: companyData.logo,
-                    user_id: companyData.admin_id._id,
-                    role: 'admin'
-                  } as any}
-                  onPostCreate={handlePostSubmit}
-                />
-              )}
+{!isMobile && permissions.canCreatePosts && (
+  <CreatePostCard
+    user={{
+      ...companyData.admin_id,
+      profile_avatar: companyData.logo,
+      user_id: companyData.admin_id._id,
+      role: 'admin'
+    } as any}
+    onPostCreate={handlePostSubmit}
+  />
+)}
 
               {/* Posts Feed */}
               <div className="space-y-0">
-                {mockPosts.map((post) => (
-                  <FeedCard
-                    key={post._id}
-                    post={post}
-                    onLike={() => { }}
-                    onUnlike={() => { }}
-                    onComment={() => { }}
-                    onDeleteComment={() => { }}
-                    onDeletePost={() => { }}
-                  />
-                ))}
+                {mockPosts.length > 0 ? (
+                  mockPosts.map((post) => (
+                    <FeedCard
+                      key={post._id}
+                      post={post}
+                      onLike={() => { }}
+                      onUnlike={() => { }}
+                      onComment={() => { }}
+                      onDeleteComment={() => { }}
+                      onDeletePost={() => { }}
+                    />
+                  ))
+                ) : (
+                  <Card className="p-8 text-center">
+                    <div className="space-y-3">
+                      <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
+                        <MessageCircle className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                      <h3 className="text-lg font-medium">No posts yet</h3>
+                      <p className="text-muted-foreground text-sm">
+                        {permissions.canCreatePosts 
+                          ? "Be the first to share something with your team!" 
+                          : "No posts have been shared yet."
+                        }
+                      </p>
+                    </div>
+                  </Card>
+                )}
               </div>
             </div>
 
@@ -831,15 +947,18 @@ const CompanyProfile = () => {
               <CardContent className="p-8">
                 {activeTab === 'members' && (
                   <div>
-                    <div className="flex justify-end items-center mb-6">
-                      <Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
-                        <DialogTrigger asChild>
-                          <Button size="sm" className="flex items-center gap-2">
-                            <Plus className="w-4 h-4" />
-                            Add Members
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className={`${isMobile ? 'max-w-[95vw] max-h-[90vh] p-4' : 'sm:max-w-4xl max-h-[80vh]'} overflow-hidden flex flex-col`}>
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-2xl font-bold">Team Members</h2>
+<Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
+  {permissions.canAddMembers && (
+    <DialogTrigger asChild>
+      <Button size="sm" className="flex items-center gap-2">
+        <Plus className="w-4 h-4" />
+        Add Members
+      </Button>
+    </DialogTrigger>
+  )}
+  <DialogContent className={`${isMobile ? 'max-w-[95vw] max-h-[90vh] p-4' : 'sm:max-w-4xl max-h-[80vh]'} overflow-hidden flex flex-col`}>
                           <DialogHeader>
                             <DialogTitle>Add Team Members</DialogTitle>
                           </DialogHeader>
@@ -957,32 +1076,12 @@ const CompanyProfile = () => {
                       </Dialog>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                      {companyData.members.map((member) => (
-                        <Card key={member._id} className="p-4 hover:shadow-md transition-all duration-300 cursor-pointer border border-border/50 bg-card"
-                          onClick={() => navigateMemberProfile(member.user_id._id)}
-                        >
-                          <div className="flex flex-col items-center text-center space-y-3">
-                            <Avatar className="w-12 h-12">
-                              <AvatarImage src="" />
-                              <AvatarFallback className="text-sm font-semibold bg-muted">
-                                {member.user_id.first_name[0]}{member.user_id.last_name[0]}
-                              </AvatarFallback>
-                            </Avatar>
-
-                            <div className="space-y-1">
-                              <h3 className="text-sm font-medium text-foreground">
-                                {member.user_id.first_name} {member.user_id.last_name}
-                              </h3>
-                            </div>
-                          </div>
-                        </Card>
-                      ))}
-                    </div>
+                    {/* Display members using direct hook call */}
+                    <MembersTabContentLocal companyId={companyData._id} setInviteModalOpen={setInviteModalOpen} />
                   </div>
                 )}
 
-                {activeTab === 'analytics' && (
+                {activeTab === 'analytics' && permissions.canViewAnalytics && (
                   <div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                       <Card className="p-6 text-center">
@@ -1002,63 +1101,106 @@ const CompanyProfile = () => {
                         <p className="text-muted-foreground">Total Score</p>
                       </Card>
                     </div>
-                    <Card className="p-6">
-                      <h3 className="text-xl font-semibold mb-4">Performance Overview</h3>
-                      <p className="text-muted-foreground">Detailed analytics coming soon...</p>
-                    </Card>
+                    {(stats?.posts || 0) + (stats?.products || 0) + (stats?.team_members || 0) > 0 ? (
+                      <Card className="p-6">
+                        <h3 className="text-xl font-semibold mb-4">Performance Overview</h3>
+                        <p className="text-muted-foreground">Detailed analytics coming soon...</p>
+                      </Card>
+                    ) : (
+                      <Card className="p-8 text-center">
+                        <div className="space-y-3">
+                          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
+                            <Calendar className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                          <h3 className="text-lg font-medium">No analytics available</h3>
+                          <p className="text-muted-foreground text-sm">Analytics data will appear here as your company grows and engages.</p>
+                        </div>
+                      </Card>
+                    )}
                   </div>
                 )}
 
                 {activeTab === 'products' && (
                   <div>
                     <div className="flex justify-end items-center mb-6">
-                      <Button
-                        onClick={() => navigate(`/new/company/product/setup?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}&companyUrl=${companyData.company_url}`)}
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Product
-                      </Button>
+{permissions.canCreateProduct && (
+  <Button
+    onClick={() => navigate(`/new/company/product/setup?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}&companyUrl=${companyData.company_url}`)}
+  >
+    <Plus className="w-4 h-4 mr-2" />
+    Add Product
+  </Button>
+)}
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {products.map((product) => (
-                        <Card key={product._id} className="p-6 hover:shadow-md transition-shadow">
-                          <div className="flex items-start gap-4">
-                            <div className="relative">
-                              <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted">
-                                <img
-                                  src={product.logo}
-                                  alt={product.name}
-                                  className="w-full h-full object-cover"
-                                />
+                    {products.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {products.map((product) => (
+                          <Card key={product._id} className="p-6 hover:shadow-md transition-shadow">
+                            <div className="flex items-start gap-4">
+                              <div className="relative">
+                                <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted">
+                                  <img
+                                    src={product.logo}
+                                    alt={product.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                                <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-card ${product.is_live ? 'bg-green-500' : 'bg-orange-500'}`}></div>
                               </div>
-                              <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-card ${product.is_live ? 'bg-green-500' : 'bg-orange-500'}`}></div>
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">{product.percentage}% Complete</span>
-                                <ProgressCircle percentage={product.percentage} size={40} />
+                              <div className="flex-1">
+                                <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm text-muted-foreground">{product.percentage}% Complete</span>
+                                  <ProgressCircle percentage={product.percentage} size={40} />
+                                </div>
                               </div>
                             </div>
+                          </Card>
+                        ))}
+                      </div>
+                    ) : (
+                      <Card className="p-8 text-center">
+                        <div className="space-y-3">
+                          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
+                            <Building2 className="h-8 w-8 text-muted-foreground" />
                           </div>
-                        </Card>
-                      ))}
-                    </div>
+                          <h3 className="text-lg font-medium">No products available or created yet</h3>
+                          <p className="text-muted-foreground text-sm">
+                            {permissions.canCreateProduct 
+                              ? "Create your first product to get started!" 
+                              : "No products have been created for this company."
+                            }
+                          </p>
+                        </div>
+                      </Card>
+                    )}
                   </div>
                 )}
 
-                {activeTab === 'activities' && (
+                {activeTab === 'activities' && permissions.canViewActivities && (
                   <div>
-                    <Card className="p-6">
-                      <p className="text-muted-foreground">Recent activities will be displayed here...</p>
+                    <Card className="p-8 text-center">
+                      <div className="space-y-3">
+                        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
+                          <Calendar className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                        <h3 className="text-lg font-medium">No activities available</h3>
+                        <p className="text-muted-foreground text-sm">Recent company activities will be displayed here when available.</p>
+                      </div>
                     </Card>
                   </div>
                 )}
 
                 {activeTab === 'jobs' && (
                   <div>
-                    <Card className="p-6">
-                      <p className="text-muted-foreground">Job listings will be displayed here...</p>
+                    <Card className="p-8 text-center">
+                      <div className="space-y-3">
+                        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
+                          <Building2 className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                        <h3 className="text-lg font-medium">No jobs available</h3>
+                        <p className="text-muted-foreground text-sm">Job listings will be displayed here when available.</p>
+                      </div>
                     </Card>
                   </div>
                 )}

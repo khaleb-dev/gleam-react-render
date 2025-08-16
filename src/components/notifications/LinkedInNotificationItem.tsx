@@ -12,12 +12,23 @@ import {
   ChevronRight,
   MessageCircle,
   MoreHorizontal,
+  UserPlus,
+  Check,
+  X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import type { ApiNotification } from "@/services/notificationApi"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { stripHtmlTags } from "@/utils/formatUtils"
+import { usePageInvite } from "@/hooks/usePageInvite"
+
+const truncateText = (text, limit = 40) => {
+  if (!text) return "";
+  const clean = stripHtmlTags(text);
+  return clean.length > limit ? clean.slice(0, limit) + "..." : clean;
+};
 
 interface LinkedInNotificationItemProps {
   notification: ApiNotification
@@ -28,6 +39,10 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
   const navigate = useNavigate()
   const isMobile = useIsMobile()
   const [isHovered, setIsHovered] = useState(false)
+  
+  // For page invite notifications, get the page_id from reference_id
+  const pageId = notification.type === 'page_invite' ? notification.reference_id : undefined
+  const { hasPendingInvite, acceptInvite, rejectInvite, isLoading } = usePageInvite(pageId)
 
   const handleClick = () => {
     if (!notification.is_read) {
@@ -55,6 +70,8 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
         return <AlertTriangle className="h-4 w-4 text-red-500" />
       case "system":
         return <Bell className="h-4 w-4 text-gray-500" />
+      case "page_invite":
+        return <UserPlus className="h-4 w-4 text-green-600" />
       default:
         return <Bell className="h-4 w-4 text-blue-600" />
     }
@@ -89,6 +106,8 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
         return "linked up with you"
       case "task":
         return "accepted your task"
+      case "page_invite":
+        return "invited you to join a page"
       default:
         return notification.message
     }
@@ -200,18 +219,13 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
                       <p
                         className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-foreground line-clamp-2 mb-1`}
                       >
-                        {notification.reference_id.post_id.title}
+                        {truncateText(notification.reference_id.post_id.title)}
                       </p>
-                      {notification.reference_id.post_id.description && (
+                      {truncateText(notification.reference_id.post_id.description) && (
                         <p
                           className={`${isMobile ? "text-xs" : "text-xs"} text-muted-foreground line-clamp-2 leading-relaxed`}
                         >
-                          {isMobile 
-                            ? notification.reference_id.post_id.description.length > 50
-                              ? notification.reference_id.post_id.description.substring(0, 50) + "..."
-                              : notification.reference_id.post_id.description
-                            : notification.reference_id.post_id.description
-                          }
+                          {truncateText(notification.reference_id.post_id.description)}
                         </p>
                       )}
                     </div>
@@ -223,12 +237,7 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
               {notification.type === "comment" && notification.reference_id?.content && (
                 <div className="bg-muted/50 p-3 mb-3 rounded-lg border border-border">
                   <p className={`${isMobile ? "text-xs" : "text-xs"} text-foreground italic line-clamp-2`}>
-                    "{isMobile 
-                      ? notification.reference_id.content.length > 40
-                        ? notification.reference_id.content.substring(0, 40) + "..."
-                        : notification.reference_id.content
-                      : notification.reference_id.content
-                    }"
+                    "{truncateText(notification.reference_id.content)}"
                   </p>
                 </div>
               )}
@@ -256,6 +265,38 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
                     }}
                   >
                     View profile
+                  </Button>
+                </div>
+              )}
+
+              {/* Page invite action buttons */}
+              {notification.type === "page_invite" && hasPendingInvite && (
+                <div className="flex items-center gap-2 mt-4">
+                  <Button
+                    size="sm"
+                    variant="default"
+                    className="h-9 px-6 text-sm font-medium bg-green-600 hover:bg-green-700 text-white rounded-full"
+                    onClick={async (e) => {
+                      e.stopPropagation()
+                      await acceptInvite()
+                    }}
+                    disabled={isLoading}
+                  >
+                    <Check className="h-4 w-4 mr-2" />
+                    Accept
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-9 px-6 text-sm font-medium border-red-200 text-red-600 hover:bg-red-50 bg-transparent rounded-full"
+                    onClick={async (e) => {
+                      e.stopPropagation()
+                      await rejectInvite()
+                    }}
+                    disabled={isLoading}
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Reject
                   </Button>
                 </div>
               )}

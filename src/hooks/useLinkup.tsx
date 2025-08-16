@@ -1,4 +1,6 @@
+
 import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './useAuth';
 import { API_BASE_URL } from '@/config/env';
 
@@ -13,85 +15,95 @@ interface LinkupCount {
   linkedMeCount: number;
 }
 
+interface LinkupData {
+  status: LinkupStatus;
+  counts: LinkupCount;
+}
+
+const fetchLinkupData = async (userId: string): Promise<LinkupData> => {
+  const [linkupResponse, mutualResponse, countsResponse] = await Promise.all([
+    fetch(`${API_BASE_URL}/users/check-linkup/${userId}`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' }
+    }),
+    fetch(`${API_BASE_URL}/users/ismutual-linkup/${userId}`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' }
+    }),
+    fetch(`${API_BASE_URL}/users/linkup/count/${userId}`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' }
+    })
+  ]);
+
+  const [linkupData, mutualData, countsData] = await Promise.all([
+    linkupResponse.json(),
+    mutualResponse.json(),
+    countsResponse.json()
+  ]);
+
+  return {
+    status: {
+      isLinkedUp: linkupData.success ? linkupData.data.isLinkUp : false,
+      isMutual: mutualData.success ? mutualData.data.isMutualLink : false,
+      isLoading: false
+    },
+    counts: countsData.success ? countsData.data : { linkedUpCount: 0, linkedMeCount: 0 }
+  };
+};
+
 export const useLinkup = (userId: string) => {
-  const [status, setStatus] = useState<LinkupStatus>({ isLinkedUp: false, isMutual: false, isLoading: true });
-  const [counts, setCounts] = useState<LinkupCount>({ linkedUpCount: 0, linkedMeCount: 0 });
   const { loggedInUser } = useAuth();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (userId) {
-      checkLinkupStatus();
-      getLinkupCounts();
-    }
-  }, [userId]);
+  // Use React Query to fetch and cache linkup data
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['linkup', userId],
+    queryFn: () => fetchLinkupData(userId),
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
 
-  const checkLinkupStatus = async () => {
-    try {
-      setStatus(prev => ({ ...prev, isLoading: true }));
-
-      const [linkupResponse, mutualResponse] = await Promise.all([
-        fetch(`${API_BASE_URL}/users/check-linkup/${userId}`, {
-          method: 'GET',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' }
-        }),
-        fetch(`${API_BASE_URL}/users/ismutual-linkup/${userId}`, {
-          method: 'GET',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' }
-        })
-      ]);
-
-      const linkupData = await linkupResponse.json();
-      const mutualData = await mutualResponse.json();
-
-      if (linkupData.success && mutualData.success) {
-        setStatus({
-          isLinkedUp: linkupData.data.isLinkUp,
-          isMutual: mutualData.data.isMutualLink,
-          isLoading: false
-        });
-      }
-    } catch (error) {
-      console.error('Error checking linkup status:', error);
-      setStatus(prev => ({ ...prev, isLoading: false }));
-    }
-  };
-
-  const getLinkupCounts = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/linkup/count/${userId}`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      const data = await response.json();
-      console.log('Linkup counts API response for userId:', userId, data);
-      if (data.success) {
-        setCounts(data.data);
-        console.log('Setting counts:', data.data);
-      }
-    } catch (error) {
-      console.error('Error fetching linkup counts:', error);
-    }
-  };
-
-  const linkup = async () => {
-    try {
+  const linkupMutation = useMutation({
+    mutationFn: async () => {
       const response = await fetch(`${API_BASE_URL}/users/linkup/${userId}`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' }
       });
+      return response.json();
+    },
+    onSuccess: () => {
+      // Invalidate and refetch linkup data
+      queryClient.invalidateQueries({ queryKey: ['linkup', userId] });
+    },
+  });
 
-      const data = await response.json();
-      if (data.success) {
-        await checkLinkupStatus();
-        await getLinkupCounts();
-        return true;
-      }
-      return false;
+  const unlinkupMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/users/unlinkup/${userId}`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      // Invalidate and refetch linkup data
+      queryClient.invalidateQueries({ queryKey: ['linkup', userId] });
+    },
+  });
+
+  const linkup = async () => {
+    try {
+      const result = await linkupMutation.mutateAsync();
+      return result.success;
     } catch (error) {
       console.error('Error linking up:', error);
       return false;
@@ -100,31 +112,27 @@ export const useLinkup = (userId: string) => {
 
   const unlinkup = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/unlinkup/${userId}`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        await checkLinkupStatus();
-        await getLinkupCounts();
-        return true;
-      }
-      return false;
+      const result = await unlinkupMutation.mutateAsync();
+      return result.success;
     } catch (error) {
       console.error('Error unlinking:', error);
       return false;
     }
   };
 
+  const refreshStatus = () => {
+    queryClient.invalidateQueries({ queryKey: ['linkup', userId] });
+  };
+
+  const refreshCounts = refreshStatus; // Same as refreshStatus now
+
   return {
-    status,
-    counts,
+    status: data?.status || { isLinkedUp: false, isMutual: false, isLoading: isLoading },
+    counts: data?.counts || { linkedUpCount: 0, linkedMeCount: 0 },
     linkup,
     unlinkup,
-    refreshStatus: checkLinkupStatus,
-    refreshCounts: getLinkupCounts
+    refreshStatus,
+    refreshCounts,
+    isLoading: isLoading || linkupMutation.isPending || unlinkupMutation.isPending,
   };
 };

@@ -1,4 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_BASE_URL } from "@/config/env";
 
 // Store viewed profiles in memory to avoid duplicate calls
@@ -29,9 +30,11 @@ export const useProfileView = () => {
       // Mark as viewed to prevent duplicate calls
       viewedProfiles.add(userId);
     },
-    onSuccess: () => {
-      // Invalidate profile stats to refresh the view count
-      queryClient.invalidateQueries({ queryKey: ["profileStats"] });
+    onSuccess: (_, userId) => {
+      // Only invalidate profile stats for the specific user after a delay
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["profileStats", userId] });
+      }, 1000);
     },
   });
 

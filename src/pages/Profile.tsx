@@ -495,7 +495,6 @@ const Profile = () => {
                         ? `${displayUser.responder_id.city}, ${displayUser.responder_id.state}, ${displayUser.responder_id.country}`
                         : "Location not set"}
                     </div>
-                    <button className="text-primary hover:underline font-medium">Contact info</button>
                   </div>
 
                   <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm mb-4">

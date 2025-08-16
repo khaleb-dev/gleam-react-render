@@ -79,22 +79,57 @@ export interface SearchUsersResponse {
   data: SearchUser[];
 }
 
-class UserApiService {
-  async getUserProfile(): Promise<UserProfileResponse> {
-    const response = await fetch(`${API_BASE_URL}/users/user-profile`, {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+// Simple in-memory cache & in-flight deduplication for user profile
+let profileCache: { data: UserProfileResponse; timestamp: number } | null = null;
+let profileInFlight: Promise<UserProfileResponse> | null = null;
+// Tune TTL as needed; this prevents burst calls while keeping data reasonably fresh
+const PROFILE_TTL = 60_000; // 60 seconds
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+class UserApiService {
+  async getUserProfile(forceRefresh = false): Promise<UserProfileResponse> {
+    const now = Date.now();
+
+    // Serve from cache when valid and not forced
+    if (!forceRefresh && profileCache && now - profileCache.timestamp < PROFILE_TTL) {
+      return profileCache.data;
     }
 
-    const result = await response.json();
-    return result;
+    // Deduplicate concurrent requests
+    if (profileInFlight) {
+      return profileInFlight;
+    }
+
+    profileInFlight = (async () => {
+      const response = await fetch(`${API_BASE_URL}/users/user-profile`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = (await response.json()) as UserProfileResponse;
+
+      // Update cache on success
+      profileCache = {
+        data: result,
+        timestamp: Date.now(),
+      };
+
+      return result;
+    })();
+
+    try {
+      const data = await profileInFlight;
+      return data;
+    } finally {
+      // Always clear the in-flight promise when done
+      profileInFlight = null;
+    }
   }
 
   async changePassword(data: ChangePasswordRequest): Promise<ChangePasswordResponse> {

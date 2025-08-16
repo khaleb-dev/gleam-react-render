@@ -204,7 +204,7 @@ export const useFeed = () => {
   }
 
   // Get people who scored a post
-  const getPeopleScored = (postId: string) => {
+  const getPeopleScored = (postId: string, options?: { enabled?: boolean }) => {
     return useQuery({
       queryKey: ['people-scored', postId],
       queryFn: async () => {
@@ -218,6 +218,11 @@ export const useFeed = () => {
         const result: PeopleScoreResponse = await response.json()
         return result.data
       },
+      enabled: options?.enabled !== false && !!postId,
+      staleTime: 5 * 60 * 1000, // 5 minutes - data stays fresh
+      gcTime: 10 * 60 * 1000, // 10 minutes - cache cleanup
+      refetchOnWindowFocus: false, // Prevent refetch on window focus
+      refetchOnMount: false, // Only fetch if data is stale
     })
   }
 

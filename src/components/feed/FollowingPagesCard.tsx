@@ -82,10 +82,10 @@ export const FollowingPagesCard: React.FC = () => {
         </Button>
       </CardHeader>
       <CardContent className="space-y-3">
-        {followingPages.data.pages.slice(0, 4).map((page) => (
+        {followingPages.data.pages.slice(0, 4).filter(page => page && page._id).map((page) => (
           <FollowingPageItem key={page._id} page={page} />
         ))}
-        {followingPages.data.pages.length > 4 && (
+        {followingPages.data.pages.filter(page => page && page._id).length > 4 && (
           <Button
             variant="outline"
             size="sm"

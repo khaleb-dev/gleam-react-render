@@ -56,8 +56,8 @@ const CompanySetup = () => {
     }
   }
 
-  const getWordCount = (text: string) => {
-    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  const getCharCount = (text: string) => {
+    return text.length;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,9 +68,9 @@ const CompanySetup = () => {
       return
     }
 
-    const taglineWordCount = getWordCount(formData.tagline);
-    if (taglineWordCount > 50) {
-      toast.error('Tagline must not exceed 50 words')
+    const taglineCharCount = getCharCount(formData.tagline);
+    if (taglineCharCount > 50) {
+      toast.error('Tagline must not exceed 50 characters')
       return
     }
 
@@ -264,9 +264,10 @@ const CompanySetup = () => {
                     onChange={(e) => handleInputChange('tagline', e.target.value)}
                     className="mt-1"
                     rows={3}
+                    maxLength={50}
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Use your tagline to briefly describe what your organization does. This can be changed later. {getWordCount(formData.tagline)}/50 words
+                    Use your tagline to briefly describe what your organization does. This can be changed later. {getCharCount(formData.tagline)}/50 characters
                   </p>
                 </div>
 

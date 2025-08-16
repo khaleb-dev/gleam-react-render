@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { API_BASE_URL } from "@/config/env";
 
@@ -31,5 +32,9 @@ export const useProfileStats = (userId?: string, enabled: boolean = true) => {
       return response.json();
     },
     enabled: enabled && !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 };
