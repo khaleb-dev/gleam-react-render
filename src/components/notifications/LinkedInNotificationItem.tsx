@@ -175,31 +175,39 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
             <div className="flex-1 pr-2">
               {/* Main message */}
               <div className="mb-2">
-                <span
-                  className={cn(
-                    "text-xs leading-relaxed",
-                    !notification.is_read ? "font-medium text-foreground" : "text-muted-foreground",
-                  )}
-                >
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      if (notification.sender_id) {
-                        navigate(`/profile/${notification.sender_id.user_id || notification.sender_id._id}`)
-                      }
-                    }}
-                    className="font-semibold text-foreground hover:text-blue-600 hover:underline"
+                <div className="flex items-start justify-between">
+                  <span
+                    className={cn(
+                      "text-xs leading-relaxed flex-1 pr-2",
+                      !notification.is_read ? "font-medium text-foreground" : "text-muted-foreground",
+                    )}
                   >
-                    {senderName}
-                  </button>
-                  {notification.sender_id && notification.type === "linkups" && (
-                    <>
-                      {" "}
-                      and <span className="font-medium text-foreground">1 other</span>
-                    </>
-                  )}
-                  <span className="text-foreground"> {getActionText()}</span>
-                </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        if (notification.sender_id) {
+                          navigate(`/profile/${notification.sender_id.user_id || notification.sender_id._id}`)
+                        }
+                      }}
+                      className="font-semibold text-foreground hover:text-blue-600 hover:underline"
+                    >
+                      {senderName}
+                    </button>
+                    {notification.sender_id && notification.type === "linkups" && (
+                      <>
+                        {" "}
+                        and <span className="font-medium text-foreground">1 other</span>
+                      </>
+                    )}
+                    <span className="text-foreground"> {getActionText()}</span>
+                  </span>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className="text-xs text-muted-foreground font-medium">
+                      {getTimeAgo(notification.created_at)}
+                    </span>
+                    {!notification.is_read && <div className="h-2 w-2 rounded-full bg-blue-600"></div>}
+                  </div>
+                </div>
               </div>
 
               {/* Reference content preview - Larger size */}
@@ -351,15 +359,6 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
                 </div>
               )}
 
-              {/* Bottom row */}
-              <div className="flex items-center justify-between mt-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground font-medium">
-                    {getTimeAgo(notification.created_at)}
-                  </span>
-                  {!notification.is_read && <div className="h-2 w-2 rounded-full bg-blue-600"></div>}
-                </div>
-              </div>
             </div>
 
             {/* More options and arrow indicator */}
