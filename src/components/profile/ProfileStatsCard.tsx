@@ -60,8 +60,9 @@ export const ProfileStatsCard = ({ user }: ProfileStatsCardProps) => {
             className="w-full h-full object-cover"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src = `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(lastName || firstName)}&backgroundColor=2563eb,7c3aed,dc2626,ea580c,16a34a`;
-              console.log('Using default cover image');
+              if (target.src !== `https://api.dicebear.com/7.x/shapes/svg?seed=default&backgroundColor=2563eb`) {
+                target.src = `https://api.dicebear.com/7.x/shapes/svg?seed=default&backgroundColor=2563eb`;
+              }
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
@@ -77,8 +78,9 @@ export const ProfileStatsCard = ({ user }: ProfileStatsCardProps) => {
                 className="object-cover w-full h-full"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(firstName)}`;
-                  console.log('Using default profile image');
+                  if (target.src !== `https://api.dicebear.com/7.x/bottts/svg?seed=default`) {
+                    target.src = `https://api.dicebear.com/7.x/bottts/svg?seed=default`;
+                  }
                 }}
               />
               <AvatarFallback className="bg-primary text-white text-sm">

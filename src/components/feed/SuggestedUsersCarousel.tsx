@@ -101,7 +101,7 @@ export const SuggestedUsersCarousel: React.FC = () => {
                         ? user.responder_id.job_title
                         : 'Community Member'}
                     </p>
-                    <div>
+                    <div className="flex justify-center">
                       <LinkupButton userId={user.user_id} className="text-xs w-full" />
                     </div>
                   </div>
