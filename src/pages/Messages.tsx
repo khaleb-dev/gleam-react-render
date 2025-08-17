@@ -202,8 +202,10 @@ export default function Messages() {
       // Mark messages as read between current user and selected participant
       const recipientId = conversation.participant._id;
       const senderId = user?._id;
+      // Determine chat type based on conversation data
+      const chatType = conversation.chat_type_ref === 'Page' ? 'page_channel' : 'private';
       if (senderId) {
-        await messageApi.markAsRead(senderId, recipientId, conversation.chat_type);
+        await messageApi.markAsRead(senderId, recipientId, chatType);
       }
       // Update local state
       setConversations(prev =>
