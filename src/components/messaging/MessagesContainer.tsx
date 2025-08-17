@@ -191,7 +191,8 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
         content: tempMessage,
         image_urls: imageUrls.length > 0 ? imageUrls : undefined,
         video_urls: videoUrls.length > 0 ? videoUrls : undefined,
-        reply_to: replyTo
+        reply_to: replyTo,
+        chat_type: selectedUser.isPage ? 'page_channel' : 'private'
       });
 
       if (response.success && response.data) {
@@ -343,7 +344,8 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
         content: failedMessage.content,
         image_urls: failedMessage.image_urls,
         video_urls: failedMessage.video_urls,
-        reply_to: typeof failedMessage.reply_to === 'string' ? failedMessage.reply_to : failedMessage.reply_to?._id
+        reply_to: typeof failedMessage.reply_to === 'string' ? failedMessage.reply_to : failedMessage.reply_to?._id,
+        chat_type: selectedUser.isPage ? 'page_channel' : 'private'
       });
 
       if (response.success && response.data) {

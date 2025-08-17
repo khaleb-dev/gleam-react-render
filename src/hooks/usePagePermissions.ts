@@ -96,10 +96,10 @@ export const usePagePermissions = (pageId: string): PagePermissions => {
       canManageJobs: isSuperAdmin || (isAdminLevel && userPermissions.includes('manage_jobs')),
       canAssignRoles: isSuperAdmin || (isAdminLevel && userPermissions.includes('assign_roles')),
       canFeatureEmployee: isSuperAdmin || (isAdminLevel && userPermissions.includes('feature_employee')),
-      canViewAnalytics: isSuperAdmin || isAdmin || isModerator, // All admin levels can view analytics
-      canViewActivities: isSuperAdmin || isAdmin || isModerator, // All admin levels can view activities
-      canCreateProduct: isAdminLevel, // Only admin, super_admin, moderator can create products
-      canAddMembers: isAdminLevel, // Only admin, super_admin, moderator can add members
+      canViewAnalytics: isSuperAdmin || isAdmin, // Only super_admin and admin can view analytics
+      canViewActivities: isSuperAdmin || isAdmin, // Only super_admin and admin can view activities
+      canCreateProduct: isSuperAdmin || isAdmin, // Only super_admin and admin can create products
+      canAddMembers: isSuperAdmin || isAdmin, // Only super_admin and admin can add members
       canSeeUserRoles: isAdminLevel, // Only admin level can see user roles
       isMember,
       isAdmin,

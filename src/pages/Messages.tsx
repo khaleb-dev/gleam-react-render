@@ -61,11 +61,34 @@ export default function Messages() {
     loadConversations();
   }, [fetchConversations]);
 
+  // Helper function to check if participant is a user
+  const isUserParticipant = (participant: any): participant is { _id: string; first_name: string; last_name: string; email?: string; profile_avatar?: string } => {
+    return participant && typeof participant.first_name === 'string';
+  };
+
+  // Helper function to get display name
+  const getDisplayName = (participant: any) => {
+    if (!participant) return 'Unknown';
+    if (isUserParticipant(participant)) {
+      return `${participant.first_name || ''} ${participant.last_name || ''}`.trim();
+    }
+    return participant.name || 'Unknown';
+  };
+
+  // Helper function to get avatar
+  const getAvatar = (participant: any) => {
+    if (!participant) return undefined;
+    if (isUserParticipant(participant)) {
+      return participant.profile_avatar;
+    }
+    return participant.logo;
+  };
+
   // Function to update conversation with new message
   const updateConversationWithNewMessage = useCallback((recipientId: string, newMessage: string) => {
     setConversations(prevConversations => {
       const updatedConversations = prevConversations.map(conv => {
-        if (conv.recipient._id === recipientId) {
+        if (conv.participant?._id === recipientId) {
           return {
             ...conv,
             lastMessage: newMessage,
@@ -93,7 +116,7 @@ export default function Messages() {
     if (!userId) return;
 
     const existingConversation = conversations.find(
-      (conv) => conv.recipient._id === userId
+      (conv) => conv.participant?._id === userId
     );
 
     if (existingConversation) {
@@ -131,20 +154,41 @@ export default function Messages() {
   }, [paramUserId, searchParams.toString(), conversations]);
 
   // Filter conversations based on search term
-  const filteredConversations = conversations.filter(conversation =>
-    conversation.recipient.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    conversation.recipient.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    conversation.lastMessage.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredConversations = conversations.filter(conversation => {
+    if (!conversation.participant) return false;
+    const displayName = getDisplayName(conversation.participant).toLowerCase();
+    return displayName.includes(searchTerm.toLowerCase()) ||
+      conversation.lastMessage?.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   const handleUserSelect = async (conversation: InboxUser) => {
-    const userToSelect = {
-      user_id: conversation.recipient._id,
-      first_name: conversation.recipient.first_name,
-      last_name: conversation.recipient.last_name,
-      profile_avatar: conversation.recipient.profile_avatar,
-      isOnline: false
-    };
+    if (!conversation.participant) return;
+    
+    let userToSelect: any;
+    
+    if (isUserParticipant(conversation.participant)) {
+      // Handle user conversation
+      userToSelect = {
+        user_id: conversation.participant._id,
+        first_name: conversation.participant.first_name,
+        last_name: conversation.participant.last_name,
+        profile_avatar: conversation.participant.profile_avatar,
+        isOnline: false
+      };
+    } else {
+      // Handle page conversation - cast to MessagePage type
+      const pageParticipant = conversation.participant as { _id: string; name: string; logo?: string };
+      userToSelect = {
+        user_id: pageParticipant._id,
+        first_name: pageParticipant.name,
+        last_name: '',
+        profile_avatar: pageParticipant.logo,
+        isOnline: false,
+        isPage: true,
+        chat_type: conversation.chat_type,
+        chat_type_ref: conversation.chat_type_ref
+      };
+    }
 
     setSelectedUser(userToSelect);
 
@@ -156,12 +200,12 @@ export default function Messages() {
     // Mark messages as read
     try {
       // Get the latest message ID from the conversation to mark as read
-      const recipientid = conversation.recipient._id; // Assuming _id is the message ID
+      const recipientid = conversation.participant._id;
       await messageApi.markAsRead(recipientid);
       // Update local state
       setConversations(prev =>
         prev.map(conv =>
-          conv.recipient._id === conversation.recipient._id
+          conv.participant?._id === conversation.participant?._id
             ? { ...conv, unreadCount: 0 }
             : conv
         )
@@ -257,49 +301,64 @@ export default function Messages() {
               </div>
             ) : (
               <div className="space-y-1 p-2">
-                {filteredConversations.map((conversation) => (
-                  <div
-                    key={conversation.recipient._id}
-                    onClick={() => handleUserSelect(conversation)}
-                    className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-muted ${selectedUser?.user_id === conversation.recipient._id ? 'bg-muted' : ''
-                      }`}
-                  >
-                    <div className="relative">
-                      <Avatar className={`h-12 w-12 ${conversation.unreadCount > 0 ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}>
-                        <AvatarImage
-                          src={conversation.recipient.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(conversation.recipient.first_name)}`}
-                          className="object-cover"
-                        />
-                        <AvatarFallback className="bg-muted text-muted-foreground">
-                          {conversation.recipient.first_name[0]}{conversation.recipient.last_name[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                      {conversation.unreadCount > 0 && (
-                        <div className="absolute -top-1 -right-1 h-5 w-5 bg-destructive rounded-full flex items-center justify-center">
-                          <span className="text-xs text-destructive-foreground font-medium">
-                            {conversation.unreadCount > 9 ? '9+' : conversation.unreadCount}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-medium text-foreground truncate">
-                          {conversation.recipient.first_name} {conversation.recipient.last_name}
-                        </h3>
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs text-muted-foreground">
-                            {formatTime(conversation.lastMessageTime)}
-                          </span>
-                        </div>
+                {filteredConversations.map((conversation) => {
+                  if (!conversation.participant) return null;
+                  
+                  const displayName = getDisplayName(conversation.participant);
+                  const avatar = getAvatar(conversation.participant);
+                  const isUser = isUserParticipant(conversation.participant);
+                  
+                  return (
+                    <div
+                      key={conversation.participant._id}
+                      onClick={() => handleUserSelect(conversation)}
+                      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-muted ${selectedUser?.user_id === conversation.participant._id ? 'bg-muted' : ''
+                        }`}
+                    >
+                      <div className="relative">
+                        <Avatar className={`h-12 w-12 ${conversation.unreadCount > 0 ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}>
+                          <AvatarImage
+                            src={avatar || (isUser ? `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(displayName)}` : undefined)}
+                            className="object-cover"
+                          />
+                          <AvatarFallback className="bg-muted text-muted-foreground">
+                            {displayName.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                          </AvatarFallback>
+                        </Avatar>
+                        {conversation.unreadCount > 0 && (
+                          <div className="absolute -top-1 -right-1 h-5 w-5 bg-destructive rounded-full flex items-center justify-center">
+                            <span className="text-xs text-destructive-foreground font-medium">
+                              {conversation.unreadCount > 9 ? '9+' : conversation.unreadCount}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                      <p className="text-sm text-muted-foreground truncate">
-                        {conversation.lastMessage}
-                      </p>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-medium text-foreground truncate">
+                              {displayName}
+                            </h3>
+                            {conversation.chat_type_ref === 'Page' && (
+                              <span className="px-2 py-1 text-xs bg-primary/10 text-primary rounded-full">
+                                Channel
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-muted-foreground">
+                              {formatTime(conversation.lastMessageTime)}
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-sm text-muted-foreground truncate">
+                          {conversation.lastMessage}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -385,17 +444,17 @@ export default function Messages() {
 
       {/* Minimized Chats - Only show on desktop */}
       {!isMobile && Array.from(minimizedChats).map((chatId) => {
-        const chatUser = conversations.find(c => c.recipient._id === chatId)?.recipient;
-        if (!chatUser) return null;
+        const chatConversation = conversations.find(c => c.participant?._id === chatId);
+        if (!chatConversation?.participant || !isUserParticipant(chatConversation.participant)) return null;
 
         return (
           <MessagePopup
             key={chatId}
             user={{
-              user_id: chatUser._id,
-              first_name: chatUser.first_name,
-              last_name: chatUser.last_name,
-              profile_avatar: chatUser.profile_avatar,
+              user_id: chatConversation.participant._id,
+              first_name: chatConversation.participant.first_name,
+              last_name: chatConversation.participant.last_name,
+              profile_avatar: chatConversation.participant.profile_avatar,
               isOnline: false
             }}
             onClose={() => setMinimizedChats(prev => {

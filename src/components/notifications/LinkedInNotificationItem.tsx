@@ -101,7 +101,10 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
   const getActionText = () => {
     switch (notification.type) {
       case "score":
-        return `rated your post ${notification.reference_id?.score || ""} stars`
+        // Extract score from message if available
+        const scoreMatch = notification.message.match(/(\d+)\s*stars?/i)
+        const score = scoreMatch ? scoreMatch[1] : ""
+        return `rated your post${score ? ` ${score} stars` : ""}`
       case "comment":
         return "commented on your post"
       case "linkups":
@@ -111,7 +114,7 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
       case "page_invite":
         return "invited you to join a page"
       default:
-        return notification.message
+        return stripHtmlTags(notification.message)
     }
   }
 
@@ -210,7 +213,48 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
                 </div>
               </div>
 
-              {/* Reference content preview - Larger size */}
+              {/* Feed post content preview for score and comment notifications */}
+              {(notification.type === "score" || notification.type === "comment") && notification.reference_id && notification.reference_id.title && (
+                <div className="bg-muted/50 p-3 mb-3 hover:bg-muted/70 transition-colors rounded-lg border border-border">
+                  <div className="flex items-start gap-3">
+                    {notification.reference_id.images?.length > 0 && (
+                      <div
+                        className={`${isMobile ? "w-14 h-14" : "w-16 h-16"} bg-muted rounded flex-shrink-0 overflow-hidden`}
+                      >
+                        <img
+                          src={notification.reference_id.images[0] || "/placeholder.svg"}
+                          alt="Post preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-foreground line-clamp-2 mb-1`}
+                      >
+                        {truncateText(notification.reference_id.title, 60)}
+                      </p>
+                      {notification.reference_id.description && (
+                        <p
+                          className={`${isMobile ? "text-xs" : "text-xs"} text-muted-foreground line-clamp-2 leading-relaxed`}
+                        >
+                          {truncateText(notification.reference_id.description, 80)}
+                        </p>
+                      )}
+                      {notification.reference_id.total_score && (
+                        <div className="flex items-center gap-1 mt-2">
+                          <Star className="h-3 w-3 text-yellow-500 fill-current" />
+                          <span className="text-xs text-muted-foreground">
+                            {notification.reference_id.total_score} points
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Legacy reference content preview */}
               {notification.reference_id?.post_id && (
                 <div className="bg-muted/50 p-3 mb-3 hover:bg-muted/70 transition-colors rounded-lg border border-border">
                   <div className="flex items-start gap-3">
@@ -253,11 +297,14 @@ export const LinkedInNotificationItem = ({ notification, onRead }: LinkedInNotif
               )}
 
               {/* Score display */}
-              {notification.type === "score" && notification.reference_id?.score && (
+              {notification.type === "score" && (
                 <div className="flex items-center gap-1 mb-3">
-                  <Star className={"h-4 w-4 text-red-500 fill-current"} />
+                  <Star className="h-4 w-4 text-red-500 fill-current" />
                   <span className="text-sm text-muted-foreground ml-1 font-medium">
-                    {notification.reference_id.score}/10
+                    {(() => {
+                      const scoreMatch = notification.message.match(/(\d+)\s*stars?/i)
+                      return scoreMatch ? `${scoreMatch[1]}/10` : "Rated"
+                    })()}
                   </span>
                 </div>
               )}

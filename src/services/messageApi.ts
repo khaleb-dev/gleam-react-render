@@ -3,21 +3,29 @@ import { API_BASE_URL } from "../config/env";
 
 export interface MessageUser {
   _id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
   phone_number?: string;
-  status: string;
-  is_verified: boolean;
+  status?: string;
+  is_verified?: boolean;
   profile_avatar?: string;
+}
+
+export interface MessagePage {
+  _id: string;
+  name: string;
+  logo?: string;
 }
 
 export interface InboxUser {
   _id: string;
+  chat_type?: 'private' | 'group' | 'page_channel';
+  chat_type_ref?: 'user' | 'conversation' | 'Page' | null;
   lastMessage: string;
   lastMessageTime: string;
   unreadCount: number;
-  recipient: MessageUser;
+  participant: MessageUser | MessagePage;
 }
 
 export interface MessageData {
@@ -49,6 +57,7 @@ export interface SendMessageRequest {
   video_urls?: string[];
   file_urls?: string[];
   reply_to?: string;
+  chat_type?: 'private' | 'group' | 'page_channel';
 }
 
 export interface UpdateMessageRequest {
