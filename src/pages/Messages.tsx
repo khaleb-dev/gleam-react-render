@@ -199,9 +199,12 @@ export default function Messages() {
 
     // Mark messages as read
     try {
-      // Get the latest message ID from the conversation to mark as read
-      const recipientid = conversation.participant._id;
-      await messageApi.markAsRead(recipientid);
+      // Mark messages as read between current user and selected participant
+      const recipientId = conversation.participant._id;
+      const senderId = user?._id;
+      if (senderId) {
+        await messageApi.markAsRead(senderId, recipientId, conversation.chat_type);
+      }
       // Update local state
       setConversations(prev =>
         prev.map(conv =>

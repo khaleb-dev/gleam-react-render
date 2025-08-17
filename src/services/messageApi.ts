@@ -197,10 +197,16 @@ class MessageApiService {
   }
 
   // Mark messages as read
-  async markAsRead(messageId: string): Promise<ApiResponse<null>> {
+  async markAsRead(senderId: string, recipientId: string, chatType?: string): Promise<ApiResponse<null>> {
     try {
+      const queryParams = new URLSearchParams({
+        sender_id: senderId,
+        recipient_id: recipientId,
+        ...(chatType && { chat_type: chatType })
+      });
+
       const response = await fetch(
-        `${API_BASE_URL}/message/read/${messageId}`,
+        `${API_BASE_URL}/message/read/message?${queryParams}`,
         {
           method: "POST",
           credentials: "include",
