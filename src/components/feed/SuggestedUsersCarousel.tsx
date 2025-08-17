@@ -101,19 +101,9 @@ export const SuggestedUsersCarousel: React.FC = () => {
                         ? user.responder_id.job_title
                         : 'Community Member'}
                     </p>
-                    {user.responder_id?.rank_status && (
-                      <span
-                        className="text-xs px-1.5 py-0.5 rounded-full mb-2 inline-block"
-                        style={{
-                          backgroundColor: user.responder_id.rank_status.rank_color + '20',
-                          color: user.responder_id.rank_status.rank_color
-                        }}
-                      >
-                        {user.responder_id.rank_status.rank_name}
-                      </span>
-                    )}
-
-                    <LinkupButton userId={user.user_id} className="text-xs w-full" />
+                    <div>
+                      <LinkupButton userId={user.user_id} className="text-xs w-full" />
+                    </div>
                   </div>
                 </div>
               </CarouselItem>
