@@ -86,7 +86,7 @@ export const LinkupButton: React.FC<LinkupButtonProps> = ({ userId, className = 
     <button
       onClick={handleClick}
       disabled={status.isLoading || isLoading}
-      className={`flex items-center gap-1 ${textColor} hover:underline transition-colors ${className}`}
+      className={`flex items-center justify-center gap-1 ${textColor} hover:underline transition-colors ${className}`}
     >
       {icon}
       <span className="text-xs font-medium">{text}</span>
