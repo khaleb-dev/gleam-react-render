@@ -596,13 +596,14 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
               )}
 
               <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                <div className={`flex flex-col items-end space-y-1 ${isOwn ? 'mr-3' : 'ml-11'}`}>
+                <div className={`flex items-center gap-1 ${isOwn ? 'mr-3' : 'ml-11'}`}>
                   <p className="text-xs text-muted-foreground">
                     {formatTime(message.timestamp)}
                   </p>
                   <MessageStatus 
                     message={message} 
-                    isOwn={isOwn} 
+                    isOwn={isOwn}
+                    currentUserId={user?._id}
                     onRetry={() => handleRetryMessage(message)}
                   />
                 </div>

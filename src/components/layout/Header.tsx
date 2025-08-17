@@ -1,6 +1,6 @@
 "use client"
 
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LogOut, Bell, MessageCircle, UserIcon, Home, LayoutDashboard, ClipboardList, Hash } from "lucide-react"
@@ -20,13 +20,27 @@ import { useNotifications } from "@/hooks/useNotifications"
 import { useMessageUnread } from "@/hooks/useMessageUnread"
 import { SearchBar } from "./SearchBar"
 import type { User as UserType } from "@/types"
+import { useQueryClient } from "@tanstack/react-query"
 
 export const Header = () => {
   const navigate = useNavigate()
+  const location = useLocation()
+  const queryClient = useQueryClient()
   const { isLoading: userLoading, loggedInUser, logout } = useAuth()
   const [user, setUser] = useState<UserType>(null)
   const { unreadCount } = useNotifications()
   const { unreadCount: messageUnreadCount } = useMessageUnread()
+
+  const handleFeedNavigation = () => {
+    if (location.pathname === '/feed') {
+      // If already on feed page, refresh the feed and scroll to top
+      queryClient.invalidateQueries({ queryKey: ['feed'] })
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      // Navigate to feed page
+      navigate('/feed')
+    }
+  }
 
   useEffect(() => {
     let isMounted = true
@@ -62,10 +76,10 @@ export const Header = () => {
   const dicebearUrl = user?.profile_avatar ? user?.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user?.first_name)}`
 
   const menuItems = [
-    { label: "Explore", path: "/feed", icon: Home },
-    { label: "Discover", path: "/discover", icon: Hash },
-    { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-    { label: "Task History", path: "/task-history", icon: ClipboardList },
+    { label: "Explore", path: "/feed", icon: Home, onClick: handleFeedNavigation },
+    { label: "Discover", path: "/discover", icon: Hash, onClick: () => navigate("/discover") },
+    { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard, onClick: () => navigate("/dashboard") },
+    { label: "Task History", path: "/task-history", icon: ClipboardList, onClick: () => navigate("/task-history") },
   ]
 
   return (
@@ -97,7 +111,7 @@ export const Header = () => {
             return (
               <button
                 key={item.path}
-                onClick={() => navigate(item.path)}
+                onClick={item.onClick}
                 className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
                 title={item.label}
               >
@@ -255,16 +269,16 @@ export const Header = () => {
                     </div>
                   )}
 
-                  <nav className="flex flex-col space-y-4">
-                    {menuItems.map((item) => (
-                      <button
-                        key={item.path}
-                        className="text-gray-600 hover:text-primary text-left py-2 text-sm"
-                        onClick={() => navigate(item.path)}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
+                    <nav className="flex flex-col space-y-4">
+                     {menuItems.map((item) => (
+                       <button
+                         key={item.path}
+                         className="text-gray-600 hover:text-primary text-left py-2 text-sm"
+                         onClick={item.onClick}
+                       >
+                         {item.label}
+                       </button>
+                     ))}
 
                     {!userLoading && user && (
                       <>

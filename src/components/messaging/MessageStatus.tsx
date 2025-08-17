@@ -6,10 +6,11 @@ import { MessageData } from '@/services/messageApi';
 interface MessageStatusProps {
   message: MessageData;
   isOwn: boolean;
+  currentUserId?: string;
   onRetry?: () => void;
 }
 
-export const MessageStatus: React.FC<MessageStatusProps> = ({ message, isOwn, onRetry }) => {
+export const MessageStatus: React.FC<MessageStatusProps> = ({ message, isOwn, currentUserId, onRetry }) => {
   // Only show status for own messages
   if (!isOwn) return null;
 
@@ -43,8 +44,10 @@ export const MessageStatus: React.FC<MessageStatusProps> = ({ message, isOwn, on
           </div>
         );
       default:
-        // Fallback to existing isRead logic
-        if (message.isRead) {
+        // Check read_by array to see if any recipient has read the message
+        const hasBeenRead = message.read_by && message.read_by.length > 0;
+        
+        if (hasBeenRead) {
           return <CheckCheck className={`${iconClass} text-primary`} />;
         } else if (message.isDelivered) {
           return <CheckCheck className={`${iconClass} text-muted-foreground`} />;

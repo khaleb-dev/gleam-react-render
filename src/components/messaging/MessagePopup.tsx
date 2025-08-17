@@ -544,13 +544,14 @@ export const MessagePopup: React.FC<MessagePopupProps> = ({
               )}
 
               <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                <div className={`flex flex-col items-end space-y-1 ${isOwn ? 'mr-2' : 'ml-8'}`}>
+                <div className={`flex items-center gap-1 ${isOwn ? 'mr-2' : 'ml-8'}`}>
                   <p className="text-xs text-muted-foreground">
                     {formatTime(message.timestamp)}
                   </p>
                   <MessageStatus 
                     message={message} 
-                    isOwn={isOwn} 
+                    isOwn={isOwn}
+                    currentUserId={user?.user_id}
                     onRetry={() => handleRetryMessage(message)}
                   />
                 </div>

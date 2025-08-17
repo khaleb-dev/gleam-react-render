@@ -9,6 +9,8 @@ import { SuggestedUsers } from "@/components/feed/SuggestedUsers"
 import { MobileSuggestedUsers } from "@/components/feed/MobileSuggestedUsers"
 import { TopWeeklyChallengers } from "@/components/feed/TopWeeklyChallengers"
 import { SuggestedPagesCard } from "@/components/feed/SuggestedPagesCard"
+import { SuggestedUsersCarousel } from "@/components/feed/SuggestedUsersCarousel"
+import { SuggestedPagesCarousel } from "@/components/feed/SuggestedPagesCarousel"
 import { FollowingPagesCard } from "@/components/feed/FollowingPagesCard"
 import { FeedActionButton } from "@/components/feed/FeedActionButton"
 import { useAuth } from "@/hooks/useAuth"
@@ -296,6 +298,7 @@ const Feed = () => {
                 <MobileSuggestedUsers />
               </div>
 
+
               {/* Filter Tabs */}
               <div className="w-full px-0 sm:px-4 lg:px-0 mb-3">
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -327,9 +330,34 @@ const Feed = () => {
                         </p>
                       </div>
                     ) : (
-                      sortedPosts.map((post: FeedPost) => (
+                      sortedPosts.map((post: FeedPost, index: number) => (
+                        <React.Fragment key={post._id}>
+                          <FeedCard
+                            post={post}
+                            onLike={() => handleLike(post._id)}
+                            onUnlike={() => handleUnlike(post._id)}
+                            onComment={(content) => handleComment(post._id, content)}
+                            onDeleteComment={handleDeleteComment}
+                            onDeletePost={handleDeletePost}
+                            initialLiked={post.has_scored}
+                          />
+                          {/* Show suggested users after 4th post */}
+                          {index === 3 && <SuggestedUsersCarousel />}
+                          {/* Show suggested pages after 8th post */}
+                          {index === 7 && <SuggestedPagesCarousel />}
+                          {/* Show suggested users again after 15th post */}
+                          {index === 14 && <SuggestedUsersCarousel />}
+                          {/* Show suggested pages again after 22nd post */}
+                          {index === 21 && <SuggestedPagesCarousel />}
+                        </React.Fragment>
+                      ))
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="design" className="mt-3 space-y-0">
+                    {sortedPosts.map((post: FeedPost, index: number) => (
+                      <React.Fragment key={post._id}>
                         <FeedCard
-                          key={post._id}
                           post={post}
                           onLike={() => handleLike(post._id)}
                           onUnlike={() => handleUnlike(post._id)}
@@ -338,52 +366,63 @@ const Feed = () => {
                           onDeletePost={handleDeletePost}
                           initialLiked={post.has_scored}
                         />
-                      ))
-                    )}
-                  </TabsContent>
-
-                  <TabsContent value="design" className="mt-3 space-y-0">
-                    {sortedPosts.map((post: FeedPost) => (
-                      <FeedCard
-                        key={post._id}
-                        post={post}
-                        onLike={() => handleLike(post._id)}
-                        onUnlike={() => handleUnlike(post._id)}
-                        onComment={(content) => handleComment(post._id, content)}
-                        onDeleteComment={handleDeleteComment}
-                        onDeletePost={handleDeletePost}
-                        initialLiked={post.has_scored}
-                      />
+                        {/* Show suggested users after 4th post */}
+                        {index === 3 && <SuggestedUsersCarousel />}
+                        {/* Show suggested pages after 8th post */}
+                        {index === 7 && <SuggestedPagesCarousel />}
+                        {/* Show suggested users again after 15th post */}
+                        {index === 14 && <SuggestedUsersCarousel />}
+                        {/* Show suggested pages again after 22nd post */}
+                        {index === 21 && <SuggestedPagesCarousel />}
+                      </React.Fragment>
                     ))}
                   </TabsContent>
 
                   <TabsContent value="development" className="mt-3 space-y-0">
-                    {sortedPosts.map((post: FeedPost) => (
-                      <FeedCard
-                        key={post._id}
-                        post={post}
-                        onLike={() => handleLike(post._id)}
-                        onUnlike={() => handleUnlike(post._id)}
-                        onComment={(content) => handleComment(post._id, content)}
-                        onDeleteComment={handleDeleteComment}
-                        onDeletePost={handleDeletePost}
-                        initialLiked={post.has_scored}
-                      />
+                    {sortedPosts.map((post: FeedPost, index: number) => (
+                      <React.Fragment key={post._id}>
+                        <FeedCard
+                          post={post}
+                          onLike={() => handleLike(post._id)}
+                          onUnlike={() => handleUnlike(post._id)}
+                          onComment={(content) => handleComment(post._id, content)}
+                          onDeleteComment={handleDeleteComment}
+                          onDeletePost={handleDeletePost}
+                          initialLiked={post.has_scored}
+                        />
+                        {/* Show suggested users after 4th post */}
+                        {index === 3 && <SuggestedUsersCarousel />}
+                        {/* Show suggested pages after 8th post */}
+                        {index === 7 && <SuggestedPagesCarousel />}
+                        {/* Show suggested users again after 15th post */}
+                        {index === 14 && <SuggestedUsersCarousel />}
+                        {/* Show suggested pages again after 22nd post */}
+                        {index === 21 && <SuggestedPagesCarousel />}
+                      </React.Fragment>
                     ))}
                   </TabsContent>
 
                   <TabsContent value="trending" className="mt-3 space-y-0">
-                    {sortedPosts.map((post: FeedPost) => (
-                      <FeedCard
-                        key={post._id}
-                        post={post}
-                        onLike={() => handleLike(post._id)}
-                        onUnlike={() => handleUnlike(post._id)}
-                        onComment={(content) => handleComment(post._id, content)}
-                        onDeleteComment={handleDeleteComment}
-                        onDeletePost={handleDeletePost}
-                        initialLiked={post.has_scored}
-                      />
+                    {sortedPosts.map((post: FeedPost, index: number) => (
+                      <React.Fragment key={post._id}>
+                        <FeedCard
+                          post={post}
+                          onLike={() => handleLike(post._id)}
+                          onUnlike={() => handleUnlike(post._id)}
+                          onComment={(content) => handleComment(post._id, content)}
+                          onDeleteComment={handleDeleteComment}
+                          onDeletePost={handleDeletePost}
+                          initialLiked={post.has_scored}
+                        />
+                        {/* Show suggested users after 4th post */}
+                        {index === 3 && <SuggestedUsersCarousel />}
+                        {/* Show suggested pages after 8th post */}
+                        {index === 7 && <SuggestedPagesCarousel />}
+                        {/* Show suggested users again after 15th post */}
+                        {index === 14 && <SuggestedUsersCarousel />}
+                        {/* Show suggested pages again after 22nd post */}
+                        {index === 21 && <SuggestedPagesCarousel />}
+                      </React.Fragment>
                     ))}
                   </TabsContent>
                 </Tabs>

@@ -100,10 +100,10 @@ const CompanyProfile = () => {
   const products = productsData?.data?.products || [];
 
   const { data: companyStats, isLoading: isLoadingStats } = useCompanyPageStats(companyData?._id || '');
-const stats = companyStats?.data;
-const permissions = usePagePermissions(companyData?._id || '');
+  const stats = companyStats?.data;
+  const permissions = usePagePermissions(companyData?._id || '');
 
-// Follow functionality hooks
+  // Follow functionality hooks
   const { data: followStatusData, isLoading: isLoadingFollowStatus } = useFollowStatus(companyData?._id || '');
   const isFollowing = followStatusData?.data?.isFollowing || false;
   const followMutation = useFollowCompanyPage();
@@ -234,7 +234,7 @@ const permissions = usePagePermissions(companyData?._id || '');
 
   const handleInviteUsers = async () => {
     if (!companyData?._id || selectedUsers.length === 0) return;
-    
+
     try {
       // Get the default role (first available role) for invites
       const defaultRole = rolesData?.data?.[0];
@@ -257,18 +257,18 @@ const permissions = usePagePermissions(companyData?._id || '');
             page_id: companyData._id
           })
         });
-        
+
         const result = await response.json();
-        
+
         if (!result.success) {
           throw new Error(result.message || 'Failed to send invite');
         }
-        
+
         return result;
       });
 
       await Promise.all(invitePromises);
-      
+
       toast.success(`Invited ${selectedUsers.length} user(s) successfully!`);
       setInviteModalOpen(false);
       setSelectedUsers([]);
@@ -381,9 +381,9 @@ const permissions = usePagePermissions(companyData?._id || '');
   };
 
   // Members Tab Component
-  const MembersTabContentLocal = ({ 
-    companyId, 
-    setInviteModalOpen 
+  const MembersTabContentLocal = ({
+    companyId,
+    setInviteModalOpen
   }: {
     companyId: string;
     setInviteModalOpen: (open: boolean) => void;
@@ -407,7 +407,7 @@ const permissions = usePagePermissions(companyData?._id || '');
               ))}
             </div>
           </div>
-          
+
           {/* Team Members Loading */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Team Members</h3>
@@ -432,7 +432,7 @@ const permissions = usePagePermissions(companyData?._id || '');
       <div className="space-y-6">
         {/* Pending Invites */}
         <PendingMembersList pageId={companyId} showTitle={true} />
-        
+
         {/* Team Members */}
         <div>
           <h3 className="text-lg font-semibold mb-4">Team Members</h3>
@@ -449,8 +449,8 @@ const permissions = usePagePermissions(companyData?._id || '');
                     </div>
                     <h3 className="text-lg font-medium">No members found</h3>
                     <p className="text-muted-foreground text-sm">
-                      {permissions.canAddMembers 
-                        ? "Add team members to get started!" 
+                      {permissions.canAddMembers
+                        ? "Add team members to get started!"
                         : "No team members are currently listed."
                       }
                     </p>
@@ -632,16 +632,26 @@ const permissions = usePagePermissions(companyData?._id || '');
               </div>
 
               <div className={`flex gap-2 ${isMobile ? 'w-full justify-center mt-4' : ''}`}>
-{permissions.canSeeChannelButton && (
-  <Button
-    variant="outline"
-    size={isMobile ? "sm" : "sm"}
-    className={`rounded-full ${isMobile ? 'flex-1 px-2 text-xs' : 'px-4'} border-primary text-primary bg-white hover:bg-primary hover:text-white`}
-  >
-    <MessageCircle className={`${isMobile ? 'w-3 h-3 mr-1' : 'w-3 h-3 mr-1'}`} />
-    Channel
-  </Button>
-)}
+                {permissions.canSeeChannelButton && (
+                  <Button
+                    variant="outline"
+                    size={isMobile ? "sm" : "sm"}
+                    className={`rounded-full ${isMobile ? 'flex-1 px-2 text-xs' : 'px-4'} border-primary text-primary bg-white hover:bg-primary hover:text-white`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+
+                      const searchParams = new URLSearchParams({
+                        name: companyData.name,
+                        ...(companyData.logo && { logo: companyData.logo })
+                      });
+                      navigate(`/messages/${companyData._id}?${searchParams.toString()}`);
+                    }}
+                  >
+                    <MessageCircle className={`${isMobile ? 'w-3 h-3 mr-1' : 'w-3 h-3 mr-1'}`} />
+                    Channel
+                  </Button>
+                )}
 
                 {/* Follow/Unfollow Button */}
                 <Button
@@ -696,25 +706,25 @@ const permissions = usePagePermissions(companyData?._id || '');
       {/* Navigation Tabs - Sticky */}
       <div className="sticky top-[64px] z-10 bg-background border-b shadow-sm w-full left-0 right-0">
         <div className={`${isMobile ? 'flex overflow-x-auto scrollbar-hide px-2 py-1 gap-2' : 'flex items-center justify-center gap-8 py-2'} max-w-none w-full`}>
-{[
-  { id: 'feed', label: 'Feed' },
-  { id: 'members', label: 'Members' },
-  ...(permissions.canViewAnalytics ? [{ id: 'analytics', label: 'Analytics' }] : []),
-  { id: 'products', label: 'Products' },
-  ...(permissions.canViewActivities ? [{ id: 'activities', label: 'Activities' }] : []),
-  { id: 'jobs', label: 'Jobs' },
-].map((tab) => (
-  <button
-    key={tab.id}
-    onClick={() => setActiveTab(tab.id)}
-    className={`${isMobile ? 'whitespace-nowrap min-w-fit px-3 py-2' : 'px-6 py-3'} text-sm font-medium transition-all ${activeTab === tab.id
-      ? 'text-primary border-b-2 border-primary'
-      : 'text-muted-foreground hover:text-foreground'
-      }`}
-  >
-    {tab.label}
-  </button>
-))}
+          {[
+            { id: 'feed', label: 'Feed' },
+            { id: 'members', label: 'Members' },
+            ...(permissions.canViewAnalytics ? [{ id: 'analytics', label: 'Analytics' }] : []),
+            { id: 'products', label: 'Products' },
+            ...(permissions.canViewActivities ? [{ id: 'activities', label: 'Activities' }] : []),
+            { id: 'jobs', label: 'Jobs' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`${isMobile ? 'whitespace-nowrap min-w-fit px-3 py-2' : 'px-6 py-3'} text-sm font-medium transition-all ${activeTab === tab.id
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-muted-foreground hover:text-foreground'
+                }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -789,21 +799,21 @@ const permissions = usePagePermissions(companyData?._id || '');
 
               {/* Products Section - Redesigned */}
               <Card>
-<CardHeader>
-  <div className="flex items-center justify-between">
-    <CardTitle className="text-lg">Products</CardTitle>
-    {permissions.canCreateProduct && (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => navigate(`/new/company/product/setup?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}&companyUrl=${companyData.company_url}`)}
-        className="h-8 w-8 p-0"
-      >
-        <Plus className="w-4 h-4" />
-      </Button>
-    )}
-  </div>
-</CardHeader>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">Products</CardTitle>
+                    {permissions.canCreateProduct && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigate(`/new/company/product/setup?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}&companyUrl=${companyData.company_url}`)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                </CardHeader>
                 <CardContent className="space-y-3">
                   {isLoadingProducts ? (
                     <div className="space-y-3">
@@ -870,11 +880,11 @@ const permissions = usePagePermissions(companyData?._id || '');
                         <p className="font-medium text-sm">
                           {member.user_id.first_name} {member.user_id.last_name}
                         </p>
-{permissions.canSeeUserRoles && (
-  <p className="text-xs text-muted-foreground capitalize">
-    {member.role_id.role_name.replace(/_/g, ' ')}
-  </p>
-)}
+                        {permissions.canSeeUserRoles && (
+                          <p className="text-xs text-muted-foreground capitalize">
+                            {member.role_id.role_name.replace(/_/g, ' ')}
+                          </p>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -885,17 +895,17 @@ const permissions = usePagePermissions(companyData?._id || '');
             {/* Feed Content */}
             <div className={`${isMobile ? 'w-full' : 'flex-1'} space-y-6`}>
               {/* Create Post - Only show on desktop */}
-{!isMobile && permissions.canCreatePosts && (
-  <CreatePostCard
-    user={{
-      ...companyData.admin_id,
-      profile_avatar: companyData.logo,
-      user_id: companyData.admin_id._id,
-      role: 'admin'
-    } as any}
-    onPostCreate={handlePostSubmit}
-  />
-)}
+              {!isMobile && permissions.canCreatePosts && (
+                <CreatePostCard
+                  user={{
+                    ...companyData.admin_id,
+                    profile_avatar: companyData.logo,
+                    user_id: companyData.admin_id._id,
+                    role: 'admin'
+                  } as any}
+                  onPostCreate={handlePostSubmit}
+                />
+              )}
 
               {/* Posts Feed */}
               <div className="space-y-0">
@@ -919,8 +929,8 @@ const permissions = usePagePermissions(companyData?._id || '');
                       </div>
                       <h3 className="text-lg font-medium">No posts yet</h3>
                       <p className="text-muted-foreground text-sm">
-                        {permissions.canCreatePosts 
-                          ? "Be the first to share something with your team!" 
+                        {permissions.canCreatePosts
+                          ? "Be the first to share something with your team!"
                           : "No posts have been shared yet."
                         }
                       </p>
@@ -985,16 +995,16 @@ const permissions = usePagePermissions(companyData?._id || '');
                   <div>
                     <div className="flex justify-between items-center mb-6">
                       <h2 className="text-2xl font-bold">Team Members</h2>
-<Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
-  {permissions.canAddMembers && (
-    <DialogTrigger asChild>
-      <Button size="sm" className="flex items-center gap-2">
-        <Plus className="w-4 h-4" />
-        Add Members
-      </Button>
-    </DialogTrigger>
-  )}
-  <DialogContent className={`${isMobile ? 'max-w-[95vw] max-h-[90vh] p-4' : 'sm:max-w-4xl max-h-[80vh]'} overflow-hidden flex flex-col`}>
+                      <Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
+                        {permissions.canAddMembers && (
+                          <DialogTrigger asChild>
+                            <Button size="sm" className="flex items-center gap-2">
+                              <Plus className="w-4 h-4" />
+                              Add Members
+                            </Button>
+                          </DialogTrigger>
+                        )}
+                        <DialogContent className={`${isMobile ? 'max-w-[95vw] max-h-[90vh] p-4' : 'sm:max-w-4xl max-h-[80vh]'} overflow-hidden flex flex-col`}>
                           <DialogHeader>
                             <DialogTitle>Add Team Members</DialogTitle>
                           </DialogHeader>
@@ -1159,14 +1169,14 @@ const permissions = usePagePermissions(companyData?._id || '');
                 {activeTab === 'products' && (
                   <div>
                     <div className="flex justify-end items-center mb-6">
-{permissions.canCreateProduct && (
-  <Button
-    onClick={() => navigate(`/new/company/product/setup?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}&companyUrl=${companyData.company_url}`)}
-  >
-    <Plus className="w-4 h-4 mr-2" />
-    Add Product
-  </Button>
-)}
+                      {permissions.canCreateProduct && (
+                        <Button
+                          onClick={() => navigate(`/new/company/product/setup?companyId=${companyData._id}&companyName=${encodeURIComponent(companyData.name)}&companyUrl=${companyData.company_url}`)}
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Product
+                        </Button>
+                      )}
                     </div>
                     {products.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1202,8 +1212,8 @@ const permissions = usePagePermissions(companyData?._id || '');
                           </div>
                           <h3 className="text-lg font-medium">No products available or created yet</h3>
                           <p className="text-muted-foreground text-sm">
-                            {permissions.canCreateProduct 
-                              ? "Create your first product to get started!" 
+                            {permissions.canCreateProduct
+                              ? "Create your first product to get started!"
                               : "No products have been created for this company."
                             }
                           </p>

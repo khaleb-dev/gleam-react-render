@@ -39,6 +39,7 @@ export interface MessageData {
   file_urls?: string[];
   reply_to?: MessageData | string | null;
   isRead: boolean;
+  read_by?: string[]; // Array of user IDs who have read this message
   timestamp: string;
   createdAt: string;
   updatedAt: string;

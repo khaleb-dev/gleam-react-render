@@ -163,9 +163,9 @@ export default function Messages() {
 
   const handleUserSelect = async (conversation: InboxUser) => {
     if (!conversation.participant) return;
-    
+
     let userToSelect: any;
-    
+
     if (isUserParticipant(conversation.participant)) {
       // Handle user conversation
       userToSelect = {
@@ -200,10 +200,15 @@ export default function Messages() {
     // Mark messages as read
     try {
       // Mark messages as read between current user and selected participant
-      const recipientId = conversation.participant._id;
-      const senderId = user?._id;
-      // Determine chat type based on conversation data
-      const chatType = conversation.chat_type_ref === 'Page' ? 'page_channel' : 'private';
+      const recipientId =
+        conversation.chat_type_ref === 'Page' ? conversation.participant._id : user._id;
+
+      const senderId =
+        conversation.chat_type_ref === 'Page' ? user._id : conversation.participant._id;
+
+      const chatType =
+        conversation.chat_type_ref === 'Page' ? 'page_channel' : 'private';
+
       if (senderId) {
         await messageApi.markAsRead(senderId, recipientId, chatType);
       }
@@ -308,11 +313,11 @@ export default function Messages() {
               <div className="space-y-1 p-2">
                 {filteredConversations.map((conversation) => {
                   if (!conversation.participant) return null;
-                  
+
                   const displayName = getDisplayName(conversation.participant);
                   const avatar = getAvatar(conversation.participant);
                   const isUser = isUserParticipant(conversation.participant);
-                  
+
                   return (
                     <div
                       key={conversation.participant._id}
