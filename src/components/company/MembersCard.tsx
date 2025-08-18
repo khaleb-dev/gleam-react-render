@@ -64,7 +64,7 @@ export const MembersCard = ({ member }: MembersCardProps) => {
   };
 
   return (
-    <Card className="p-4 md:p-6 hover:shadow-md transition-all duration-300 cursor-pointer relative lg:flex-1">
+    <Card className="p-4 md:p-6 hover:shadow-md transition-all duration-300 cursor-pointer relative w-full">
       <CardContent className="p-0">
         <div className="flex flex-col items-center space-y-4 text-center">
           <Avatar className="h-20 w-20">
