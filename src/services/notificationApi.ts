@@ -202,6 +202,35 @@ export const sendPageInvite = async (
   }
 };
 
+export const sendBulkPageInvites = async (
+  pageId: string,
+  invites: Array<{ user_id: string; role_id: string }>
+): Promise<{ message: string; data: any; success: boolean }> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/page/invite`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ 
+        page_id: pageId,
+        invites: invites
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Send bulk page invites error:", error);
+    throw error;
+  }
+};
+
 export const checkInviteStatus = async (
   pageId: string
 ): Promise<{ message: string; data: { hasPending: boolean }; success: boolean }> => {
