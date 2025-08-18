@@ -303,6 +303,8 @@ const CompanyProfile = () => {
       firstName: companyData.name,
       lastName: "",
       profileAvatar: companyData.logo || "",
+      isPage: "true",
+      chatType: "page_channel"
     })
 
     navigate(`/messages?${queryParams.toString()}`)

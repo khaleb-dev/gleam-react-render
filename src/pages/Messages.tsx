@@ -114,6 +114,8 @@ export default function Messages() {
     const firstName = searchParams.get('firstName');
     const lastName = searchParams.get('lastName');
     const profileAvatar = searchParams.get('profileAvatar');
+    const isPage = searchParams.get('isPage') === 'true';
+    const chatType = searchParams.get('chatType');
 
     if (!userId) return;
 
@@ -123,13 +125,18 @@ export default function Messages() {
 
     if (existingConversation) {
       handleUserSelect(existingConversation);
-    } else if (firstName && lastName) {
+    } else if (firstName) {
       const newUser = {
         user_id: userId,
         first_name: firstName,
-        last_name: lastName,
+        last_name: lastName || '',
         profile_avatar: profileAvatar || undefined,
         isOnline: false,
+        ...(isPage && {
+          isPage: true,
+          chat_type: chatType || 'page_channel',
+          chat_type_ref: 'Page'
+        })
       };
       setSelectedUser(newUser);
       // Always hide sidebar on mobile when user is selected
