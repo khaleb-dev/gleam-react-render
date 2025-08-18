@@ -103,23 +103,42 @@ export const MembersList = ({ pageId, showTitle = true, compact = false }: Membe
           </CardHeader>
         )}
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {members.map((member: PageMember) => (
-              <Card key={member._id} className="p-3 hover:shadow-md transition-all duration-300 cursor-pointer">
-                <div className="flex flex-col items-center text-center space-y-2">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage 
-                      src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(member.user_id.first_name)}`}
-                      alt={`${member.user_id.first_name} ${member.user_id.last_name}`}
-                    />
-                    <AvatarFallback>
-                      {member.user_id.first_name.charAt(0)}{member.user_id.last_name.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-sm font-medium truncate">
-                      {member.user_id.first_name} {member.user_id.last_name}
-                    </p>
+              <Card key={member._id} className="p-4 hover:shadow-md transition-all duration-300">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-12 w-12">
+                       <AvatarImage 
+                         src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(member.user_id.first_name)}`}
+                        alt={`${member.user_id.first_name} ${member.user_id.last_name}`}
+                      />
+                      <AvatarFallback>
+                        {member.user_id.first_name.charAt(0)}{member.user_id.last_name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">
+                        {member.user_id.first_name} {member.user_id.last_name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {member.user_id.email}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <Badge 
+                      variant={getRoleBadgeVariant(member.role_id.role_name)}
+                      className="flex items-center gap-1 text-xs"
+                    >
+                      {getRoleIcon(member.role_id.role_name)}
+                      {member.role_id.role_name}
+                    </Badge>
+                  </div>
+                  
+                  <div className="text-xs text-muted-foreground">
+                    <p>Joined: {new Date(member.createdAt).toLocaleDateString()}</p>
                   </div>
                 </div>
               </Card>
