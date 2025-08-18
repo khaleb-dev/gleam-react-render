@@ -64,9 +64,44 @@ export const MembersCard = ({ member }: MembersCardProps) => {
   };
 
   return (
-    <Card className="p-6 hover:shadow-md transition-all duration-300 cursor-pointer relative text-center">
+    <Card className="p-4 md:p-6 hover:shadow-md transition-all duration-300 cursor-pointer relative">
       <CardContent className="p-0">
-        <div className="flex flex-col items-center space-y-4">
+        {/* Mobile Layout - Horizontal */}
+        <div className="flex md:hidden items-center space-x-4">
+          <Avatar className="h-16 w-16 flex-shrink-0">
+            <AvatarImage 
+              src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(member.user_id.first_name)}`}
+              alt={`${member.user_id.first_name} ${member.user_id.last_name}`}
+            />
+            <AvatarFallback className="text-sm">
+              {member.user_id.first_name.charAt(0)}{member.user_id.last_name.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+          
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-base truncate">
+              {member.user_id.first_name} {member.user_id.last_name}
+            </h3>
+            <p className="text-sm text-muted-foreground truncate mb-2">
+              {member.user_id.email}
+            </p>
+            <div className="flex items-center justify-between">
+              <Badge 
+                variant={getRoleBadgeVariant(member.role_id.role_name)}
+                className="flex items-center gap-1 text-xs"
+              >
+                {getRoleIcon(member.role_id.role_name)}
+                {member.role_id.role_name}
+              </Badge>
+              <p className="text-xs text-muted-foreground">
+                Joined {new Date(member.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Layout - Vertical */}
+        <div className="hidden md:flex flex-col items-center space-y-4 text-center">
           <Avatar className="h-20 w-20">
             <AvatarImage 
               src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(member.user_id.first_name)}`}
