@@ -103,42 +103,38 @@ export const MembersList = ({ pageId, showTitle = true, compact = false }: Membe
           </CardHeader>
         )}
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {members.map((member: PageMember) => (
-              <Card key={member._id} className="p-4 hover:shadow-md transition-all duration-300">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-12 w-12">
-                       <AvatarImage 
-                         src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(member.user_id.first_name)}`}
+              <Card key={member._id} className="p-6 hover:shadow-md transition-all duration-300 text-center">
+                <div className="space-y-4">
+                  <div className="flex flex-col items-center">
+                    <Avatar className="h-20 w-20 mb-3">
+                      <AvatarImage 
+                        src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(member.user_id.first_name)}`}
                         alt={`${member.user_id.first_name} ${member.user_id.last_name}`}
                       />
-                      <AvatarFallback>
+                      <AvatarFallback className="text-lg">
                         {member.user_id.first_name.charAt(0)}{member.user_id.last_name.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1">
-                      <p className="font-medium text-sm">
-                        {member.user_id.first_name} {member.user_id.last_name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {member.user_id.email}
-                      </p>
-                    </div>
+                    <h3 className="font-semibold text-base">
+                      {member.user_id.first_name} {member.user_id.last_name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {member.user_id.email}
+                    </p>
                   </div>
                   
-                  <div className="flex items-center justify-between">
-                    <Badge 
-                      variant={getRoleBadgeVariant(member.role_id.role_name)}
-                      className="flex items-center gap-1 text-xs"
-                    >
-                      {getRoleIcon(member.role_id.role_name)}
-                      {member.role_id.role_name}
-                    </Badge>
-                  </div>
+                  <Badge 
+                    variant={getRoleBadgeVariant(member.role_id.role_name)}
+                    className="flex items-center justify-center gap-1 text-xs mx-auto w-fit"
+                  >
+                    {getRoleIcon(member.role_id.role_name)}
+                    {member.role_id.role_name}
+                  </Badge>
                   
                   <div className="text-xs text-muted-foreground">
-                    <p>Joined: {new Date(member.createdAt).toLocaleDateString()}</p>
+                    <p>Joined {new Date(member.createdAt).toLocaleDateString()}</p>
                   </div>
                 </div>
               </Card>
