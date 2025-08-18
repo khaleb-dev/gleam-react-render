@@ -293,14 +293,8 @@ const Feed = () => {
                 </div>
               )}
 
-              {/* Mobile Suggested Users - Only show on mobile */}
-              <div className="block lg:hidden">
-                <MobileSuggestedUsers />
-              </div>
-
-
               {/* Filter Tabs */}
-              <div className="w-full px-0 sm:px-4 lg:px-0 mb-3">
+              <div className="w-full px-0 sm:px-4 lg:px-0 mb-3 mt-2">
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
                   <TabsList className="grid grid-cols-4 h-8 mx-6 sm:mx-8 lg:mx-0">
                     <TabsTrigger value="all" className="text-xs">

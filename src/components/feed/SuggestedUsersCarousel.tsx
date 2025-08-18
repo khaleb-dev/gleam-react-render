@@ -52,7 +52,7 @@ export const SuggestedUsersCarousel: React.FC = () => {
   }
 
   return (
-    <Card className="mx-4 lg:mx-0 mb-6">
+    <Card className="lg:mx-0 mb-6" style={{ borderRadius: 0 }}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm">People you may know</CardTitle>
