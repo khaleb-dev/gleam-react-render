@@ -106,8 +106,8 @@ export const MembersList = ({ pageId, showTitle = true, compact = false }: Membe
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {members.map((member: PageMember) => (
               <Card key={member._id} className="p-3 hover:shadow-md transition-all duration-300 cursor-pointer">
-                <div className="text-center">
-                  <Avatar className="h-12 w-12 mx-auto mb-2">
+                <div className="flex flex-col items-center text-center space-y-2">
+                  <Avatar className="h-12 w-12">
                     <AvatarImage 
                       src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(member.user_id.first_name)}`}
                       alt={`${member.user_id.first_name} ${member.user_id.last_name}`}
@@ -116,20 +116,10 @@ export const MembersList = ({ pageId, showTitle = true, compact = false }: Membe
                       {member.user_id.first_name.charAt(0)}{member.user_id.last_name.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
-                  <h4 className="font-medium text-xs mb-1 truncate">
-                    {member.user_id.first_name} {member.user_id.last_name}
-                  </h4>
-                  <p className="text-xs text-muted-foreground mb-2 truncate">{member.user_id.email}</p>
-                  <div className="flex flex-col gap-1">
-                    <Badge variant={getRoleBadgeVariant(member.role_id.role_name)} className="text-xs w-fit mx-auto">
-                      <span className="flex items-center gap-1">
-                        {getRoleIcon(member.role_id.role_name)}
-                        {member.role_id.role_name}
-                      </span>
-                    </Badge>
-                    <span className="text-xs text-muted-foreground truncate">
-                      Joined {new Date(member.joined_at).toLocaleDateString()}
-                    </span>
+                  <div>
+                    <p className="text-sm font-medium truncate">
+                      {member.user_id.first_name} {member.user_id.last_name}
+                    </p>
                   </div>
                 </div>
               </Card>

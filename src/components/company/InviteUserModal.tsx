@@ -4,69 +4,85 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { UserPlus, Crown, Shield, User, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { UserPlus, Crown, Shield, User, X, Search } from 'lucide-react';
 import { useSuggestedUsers } from '@/hooks/useSuggestedUsers';
 import { useCompanyPageRoles } from '@/hooks/useCompanyPageRoles';
-import { useSendBulkPageInvites } from '@/hooks/useSendPageInvite';
+import { useSendMultiplePageInvites } from '@/hooks/useSendPageInvite';
 
 interface InviteUserModalProps {
   pageId: string;
   trigger?: React.ReactNode;
 }
 
+interface SelectedMember {
+  user_id: string;
+  role_id: string;
+  user: any;
+  role: any;
+}
+
 export const InviteUserModal = ({ pageId, trigger }: InviteUserModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedUsers, setSelectedUsers] = useState<Array<{ userId: string; roleId: string }>>([]);
-  const [defaultRole, setDefaultRole] = useState<string>('');
+  const [selectedMembers, setSelectedMembers] = useState<SelectedMember[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { data: usersData } = useSuggestedUsers(20);
   const { data: rolesData } = useCompanyPageRoles();
-  const sendBulkInvites = useSendBulkPageInvites();
+  const sendMultipleInvites = useSendMultiplePageInvites();
 
-  const handleUserToggle = (userId: string, checked: boolean) => {
-    if (checked && defaultRole) {
-      setSelectedUsers(prev => [...prev, { userId, roleId: defaultRole }]);
-    } else {
-      setSelectedUsers(prev => prev.filter(item => item.userId !== userId));
-    }
+  const filteredUsers = usersData?.data?.filter(user => 
+    `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleAddMember = (userId: string, roleId: string) => {
+    const user = usersData?.data?.find(u => u._id === userId);
+    const role = rolesData?.data?.find(r => r._id === roleId);
+    
+    if (!user || !role) return;
+
+    // Check if user is already selected
+    if (selectedMembers.some(member => member.user_id === userId)) return;
+
+    setSelectedMembers(prev => [...prev, {
+      user_id: userId,
+      role_id: roleId,
+      user,
+      role
+    }]);
   };
 
-  const handleRoleChange = (userId: string, roleId: string) => {
-    setSelectedUsers(prev => 
-      prev.map(item => 
-        item.userId === userId ? { ...item, roleId } : item
-      )
-    );
+  const handleRemoveMember = (userId: string) => {
+    setSelectedMembers(prev => prev.filter(member => member.user_id !== userId));
   };
 
-  const handleDefaultRoleChange = (roleId: string) => {
-    setDefaultRole(roleId);
-    // Update all selected users with the new default role if they don't have a specific role set
-    setSelectedUsers(prev => 
-      prev.map(item => ({ ...item, roleId }))
-    );
-  };
+  const handleRoleChange = (userId: string, newRoleId: string) => {
+    const role = rolesData?.data?.find(r => r._id === newRoleId);
+    if (!role) return;
 
-  const removeUser = (userId: string) => {
-    setSelectedUsers(prev => prev.filter(item => item.userId !== userId));
+    setSelectedMembers(prev => prev.map(member => 
+      member.user_id === userId 
+        ? { ...member, role_id: newRoleId, role }
+        : member
+    ));
   };
 
   const handleSendInvites = () => {
-    if (selectedUsers.length === 0) return;
+    if (selectedMembers.length === 0) return;
 
-    const invites = selectedUsers.map(item => ({
-      user_id: item.userId,
-      role_id: item.roleId
+    const invites = selectedMembers.map(member => ({
+      user_id: member.user_id,
+      role_id: member.role_id
     }));
 
-    sendBulkInvites.mutate(
+    sendMultipleInvites.mutate(
       { pageId, invites },
       {
         onSuccess: () => {
           setIsOpen(false);
-          setSelectedUsers([]);
-          setDefaultRole('');
+          setSelectedMembers([]);
+          setSearchQuery('');
         }
       }
     );
@@ -83,160 +99,157 @@ export const InviteUserModal = ({ pageId, trigger }: InviteUserModalProps) => {
     }
   };
 
-  const defaultRoleData = rolesData?.data?.find(role => role._id === defaultRole);
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
           <Button>
             <UserPlus className="h-4 w-4 mr-2" />
-            Invite User
+            Add Team Members
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] max-h-[85vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Invite User to Company Page</DialogTitle>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto flex flex-col">
+        <DialogHeader className="flex-shrink-0">
+          <DialogTitle>Add Team Members</DialogTitle>
         </DialogHeader>
         
-        <div className="flex-1 overflow-y-auto space-y-6 px-1">
-          {/* Default Role Selection */}
-          <div className="space-y-3">
-            <label className="text-sm font-medium">Default Role</label>
-            <Select value={defaultRole} onValueChange={handleDefaultRoleChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose a default role">
-                  {defaultRoleData && (
-                    <div className="flex items-center gap-2">
-                      {getRoleIcon(defaultRoleData.role_name)}
-                      <span>{defaultRoleData.role_name}</span>
-                    </div>
-                  )}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {rolesData?.data?.map((role) => (
-                  <SelectItem key={role._id} value={role._id}>
-                    <div className="flex items-center gap-2">
-                      {getRoleIcon(role.role_name)}
-                      <div>
-                        <div className="font-medium">{role.role_name}</div>
-                        <div className="text-xs text-muted-foreground">{role.description}</div>
-                      </div>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <div className="flex-1 px-1 space-y-4">
+
+          {/* Search Input */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Search users..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
           </div>
 
           {/* User Selection */}
-          <div className="space-y-3">
-            <label className="text-sm font-medium">Select Users</label>
-            <div className="max-h-[200px] overflow-y-auto space-y-2 border rounded-lg p-3">
-              {usersData?.data?.map((user) => {
-                const isSelected = selectedUsers.some(item => item.userId === user._id);
-                return (
-                  <div key={user._id} className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded-lg">
-                    <Checkbox
-                      checked={isSelected}
-                      onCheckedChange={(checked) => handleUserToggle(user._id, checked as boolean)}
-                      disabled={!defaultRole}
-                    />
-                    <Avatar className="h-8 w-8">
+          <div className="space-y-2 max-h-[200px] overflow-y-auto">
+            {filteredUsers?.map((user) => {
+              const isSelected = selectedMembers.some(member => member.user_id === user._id);
+              
+              return (
+                <div
+                  key={user._id}
+                  className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                    isSelected 
+                      ? 'border-primary bg-primary/5' 
+                      : 'border-border hover:bg-muted/50'
+                  }`}
+                  onClick={() => {
+                    if (!isSelected && rolesData?.data?.[0]) {
+                      handleAddMember(user._id, rolesData.data[0]._id);
+                    }
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10">
                       <AvatarImage src={user.profile_avatar} />
                       <AvatarFallback>
                         {user.first_name[0]}{user.last_name[0]}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
-                      <div className="font-medium text-sm">{user.first_name} {user.last_name}</div>
-                      <div className="text-xs text-muted-foreground">{user.email}</div>
+                      <div className="font-medium">{user.first_name} {user.last_name}</div>
+                      <div className="text-sm text-muted-foreground">@{user.user_id}</div>
                     </div>
+                    {isSelected && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0 text-primary"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveMember(user._id);
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
 
-          {/* Selected Users Preview */}
-          {selectedUsers.length > 0 && (
+          {/* Selected Members */}
+          {selectedMembers.length > 0 && (
             <div className="space-y-3">
-              <label className="text-sm font-medium">Selected Users ({selectedUsers.length})</label>
-              <div className="space-y-2 max-h-[150px] overflow-y-auto">
-                {selectedUsers.map((item) => {
-                  const userData = usersData?.data?.find(user => user._id === item.userId);
-                  const roleData = rolesData?.data?.find(role => role._id === item.roleId);
-                  
-                  return (
-                    <Card key={item.userId} className="p-3">
+              <div className="text-sm font-medium">Selected Members ({selectedMembers.length})</div>
+              <div className="space-y-3 max-h-[300px] overflow-y-auto">
+                {selectedMembers.map((member) => (
+                  <Card key={member.user_id}>
+                    <CardContent className="p-4">
                       <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={userData?.profile_avatar} />
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={member.user.profile_avatar} />
                           <AvatarFallback>
-                            {userData?.first_name[0]}{userData?.last_name[0]}
+                            {member.user.first_name[0]}{member.user.last_name[0]}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
-                          <div className="font-medium text-sm">
-                            {userData?.first_name} {userData?.last_name}
+                          <div className="font-medium">
+                            {member.user.first_name} {member.user.last_name}
                           </div>
-                          <div className="text-xs text-muted-foreground">{userData?.email}</div>
                         </div>
-                        <Select value={item.roleId} onValueChange={(roleId) => handleRoleChange(item.userId, roleId)}>
-                          <SelectTrigger className="w-[140px]">
-                            <SelectValue>
-                              {roleData && (
+                        <div className="flex items-center gap-2">
+                          <div className="text-sm text-muted-foreground">Role:</div>
+                          <Select 
+                            value={member.role_id} 
+                            onValueChange={(value) => handleRoleChange(member.user_id, value)}
+                          >
+                            <SelectTrigger className="w-[140px] h-8">
+                              <SelectValue>
                                 <div className="flex items-center gap-1">
-                                  {getRoleIcon(roleData.role_name)}
-                                  <span className="text-xs">{roleData.role_name}</span>
+                                  {getRoleIcon(member.role.role_name)}
+                                  <span className="text-xs">{member.role.role_name}</span>
                                 </div>
-                              )}
-                            </SelectValue>
-                          </SelectTrigger>
-                          <SelectContent>
-                            {rolesData?.data?.map((role) => (
-                              <SelectItem key={role._id} value={role._id}>
-                                <div className="flex items-center gap-2">
-                                  {getRoleIcon(role.role_name)}
-                                  <span>{role.role_name}</span>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeUser(item.userId)}
-                          className="h-8 w-8 p-0"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              {rolesData?.data?.map((role) => (
+                                <SelectItem key={role._id} value={role._id}>
+                                  <div className="flex items-center gap-2">
+                                    {getRoleIcon(role.role_name)}
+                                    <span>{role.role_name}</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
-                    </Card>
-                  );
-                })}
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </div>
           )}
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-2 border-t pt-4">
+        <div className="flex-shrink-0 flex justify-end gap-2 pt-4 border-t">
           <Button 
             variant="outline" 
-            onClick={() => setIsOpen(false)}
-            disabled={sendBulkInvites.isPending}
+            onClick={() => {
+              setIsOpen(false);
+              setSelectedMembers([]);
+              setSearchQuery('');
+            }}
+            disabled={sendMultipleInvites.isPending}
           >
             Cancel
           </Button>
           <Button 
             onClick={handleSendInvites}
-            disabled={selectedUsers.length === 0 || sendBulkInvites.isPending}
+            disabled={selectedMembers.length === 0 || sendMultipleInvites.isPending}
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            {sendBulkInvites.isPending ? 'Sending...' : `Send ${selectedUsers.length} Invite${selectedUsers.length === 1 ? '' : 's'}`}
+            {sendMultipleInvites.isPending ? 'Sending...' : `Send Invites (${selectedMembers.length})`}
           </Button>
         </div>
       </DialogContent>

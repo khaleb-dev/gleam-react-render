@@ -95,33 +95,37 @@ export const PendingMembersList = ({ pageId, showTitle = true }: PendingMembersL
         </CardHeader>
       )}
       <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+        <div className="space-y-3">
           {pendingMembers.map((member: PendingPageMember) => (
-            <Card key={member._id} className="p-3 hover:shadow-md transition-all duration-300">
-              <div className="text-center">
-                <Avatar className="h-12 w-12 mx-auto mb-2">
-                  <AvatarImage 
-                    src={member.user_id.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(member.user_id.first_name)}`}
-                    alt={`${member.user_id.first_name} ${member.user_id.last_name}`}
-                  />
-                  <AvatarFallback>
-                    {member.user_id.first_name.charAt(0)}{member.user_id.last_name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <h4 className="font-medium text-xs mb-1 truncate">
-                  {member.user_id.first_name} {member.user_id.last_name}
-                </h4>
-                <p className="text-xs text-muted-foreground mb-2 truncate">{member.user_id.email}</p>
-                <div className="flex flex-col gap-1">
-                  <Badge variant={getRoleBadgeVariant(member.role_id.role_name)} className="text-xs w-fit mx-auto">
-                    <span className="flex items-center gap-1">
-                      {getRoleIcon(member.role_id.role_name)}
-                      {member.role_id.role_name}
-                    </span>
-                  </Badge>
-                  <span className="text-xs text-muted-foreground truncate">
-                    By {member.invited_by.first_name}
-                  </span>
+            <Card key={member._id} className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage 
+                      src={member.user_id.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(member.user_id.first_name)}`}
+                      alt={`${member.user_id.first_name} ${member.user_id.last_name}`}
+                    />
+                    <AvatarFallback>
+                      {member.user_id.first_name.charAt(0)}{member.user_id.last_name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <p className="font-medium">
+                      {member.user_id.first_name} {member.user_id.last_name}
+                    </p>
+                    <p className="text-sm text-muted-foreground">{member.user_id.email}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant={getRoleBadgeVariant(member.role_id.role_name)} className="text-xs">
+                        <span className="flex items-center gap-1">
+                          {getRoleIcon(member.role_id.role_name)}
+                          {member.role_id.role_name}
+                        </span>
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        Invited by {member.invited_by.first_name} {member.invited_by.last_name}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </Card>

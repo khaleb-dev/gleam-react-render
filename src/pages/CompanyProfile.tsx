@@ -26,6 +26,7 @@ import { MembersCard } from '@/components/company/MembersCard';
 import { PendingMembersList } from '@/components/company/PendingMembersList';
 import { usePageMembers } from '@/hooks/usePageMembers';
 import { usePagePermissions } from '@/hooks/usePagePermissions';
+import { useSendMultiplePageInvites } from '@/hooks/useSendPageInvite';
 import { API_BASE_URL } from '@/config/env';
 
 // Mock posts data for feed
@@ -112,6 +113,7 @@ const CompanyProfile = () => {
   const updateCompanyPage = useUpdateCompanyPage();
   const { data: rolesData } = useCompanyPageRoles();
   const { uploadFile, isUploading } = useSingleFileUpload();
+  const sendMultipleInvites = useSendMultiplePageInvites();
 
   // Search users using API
   const searchUsersApi = async (query: string) => {
@@ -243,39 +245,23 @@ const CompanyProfile = () => {
         return;
       }
 
-      // Send invites for all selected users
-      const invitePromises = selectedUsers.map(async user => {
-        const response = await fetch(`${API_BASE_URL}/page/invite`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            user_id: user._id,
-            role_id: defaultRole._id,
-            page_id: companyData._id
-          })
-        });
+      // Prepare invites array with user-selected roles or default role
+      const invites = selectedUsers.map(user => ({
+        user_id: user._id,
+        role_id: (user as any).selectedRole || defaultRole._id
+      }));
 
-        const result = await response.json();
-
-        if (!result.success) {
-          throw new Error(result.message || 'Failed to send invite');
-        }
-
-        return result;
+      // Use the multiple invites API
+      await sendMultipleInvites.mutateAsync({
+        pageId: companyData._id,
+        invites
       });
 
-      await Promise.all(invitePromises);
-
-      toast.success(`Invited ${selectedUsers.length} user(s) successfully!`);
       setInviteModalOpen(false);
       setSelectedUsers([]);
       setSearchQuery('');
     } catch (error) {
       console.error('Failed to invite users:', error);
-      toast.error('Failed to invite users');
     }
   };
 
@@ -1004,11 +990,11 @@ const CompanyProfile = () => {
                             </Button>
                           </DialogTrigger>
                         )}
-                        <DialogContent className={`${isMobile ? 'max-w-[95vw] max-h-[90vh] p-4' : 'sm:max-w-4xl max-h-[80vh]'} overflow-hidden flex flex-col`}>
+                        <DialogContent className={`${isMobile ? 'max-w-[95vw] p-4' : 'sm:max-w-4xl'} max-h-[90vh] overflow-y-auto flex flex-col`}>
                           <DialogHeader>
                             <DialogTitle>Add Team Members</DialogTitle>
                           </DialogHeader>
-                          <div className={`flex-1 overflow-hidden ${isMobile ? 'flex flex-col space-y-4' : 'flex space-x-6'}`}>
+                          <div className={`flex-1 ${isMobile ? 'flex flex-col space-y-4' : 'flex space-x-6'}`}>
                             {/* Left side - User search */}
                             <div className={`${isMobile ? 'w-full' : 'flex-1'} flex flex-col space-y-4`}>
                               <div className="relative">
@@ -1021,7 +1007,8 @@ const CompanyProfile = () => {
                                 />
                               </div>
 
-                              <div className="flex-1 overflow-y-auto space-y-3">
+                              <div className="space-y-3">
+
                                 {isSearching ? (
                                   <div className="flex items-center justify-center py-8">
                                     <div className="text-sm text-muted-foreground">Searching...</div>
@@ -1068,7 +1055,7 @@ const CompanyProfile = () => {
                             {selectedUsers.length > 0 && (
                               <div className={`${isMobile ? 'w-full border-t pt-4 mt-4' : 'w-80 border-l pl-6'} flex flex-col space-y-4`}>
                                 <h3 className="font-semibold">Selected Members ({selectedUsers.length})</h3>
-                                <div className="flex-1 overflow-y-auto space-y-3">
+                                <div className="space-y-3">
                                   {selectedUsers.map((user) => (
                                     <div key={user._id} className="p-3 rounded-lg border bg-muted/30 space-y-3">
                                       <div className="flex items-center gap-3">
@@ -1112,8 +1099,12 @@ const CompanyProfile = () => {
                                     </div>
                                   ))}
                                 </div>
-                                <Button onClick={handleInviteUsers} className="w-full">
-                                  Add Selected Members
+                                <Button 
+                                  onClick={handleInviteUsers} 
+                                  className="w-full"
+                                  disabled={sendMultipleInvites.isPending}
+                                >
+                                  {sendMultipleInvites.isPending ? 'Sending Invites...' : 'Add Selected Members'}
                                 </Button>
                               </div>
                             )}
