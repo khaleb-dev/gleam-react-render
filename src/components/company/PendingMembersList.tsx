@@ -95,43 +95,75 @@ export const PendingMembersList = ({ pageId, showTitle = true }: PendingMembersL
         </CardHeader>
       )}
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="space-y-4">
           {pendingMembers.map((member: PendingPageMember) => (
             <Card key={member._id} className="p-4 hover:shadow-md transition-all duration-300">
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage 
-                      src={member.user_id.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(member.user_id.first_name)}`}
-                      alt={`${member.user_id.first_name} ${member.user_id.last_name}`}
-                    />
-                    <AvatarFallback>
-                      {member.user_id.first_name.charAt(0)}{member.user_id.last_name.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <p className="font-medium text-sm">
-                      {member.user_id.first_name} {member.user_id.last_name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {member.user_id.email}
-                    </p>
+              {/* Mobile Layout - Horizontal */}
+              <div className="flex md:hidden items-center space-x-4">
+                <Avatar className="h-12 w-12 flex-shrink-0">
+                  <AvatarImage 
+                    src={member.user_id.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(member.user_id.first_name)}`}
+                    alt={`${member.user_id.first_name} ${member.user_id.last_name}`}
+                  />
+                  <AvatarFallback>
+                    {member.user_id.first_name.charAt(0)}{member.user_id.last_name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate">
+                    {member.user_id.first_name} {member.user_id.last_name}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate mb-2">
+                    {member.user_id.email}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <Badge 
+                      variant={getRoleBadgeVariant(member.role_id.role_name)}
+                      className="flex items-center gap-1 text-xs"
+                    >
+                      {getRoleIcon(member.role_id.role_name)}
+                      {member.role_id.role_name}
+                    </Badge>
                   </div>
+                  <p className="text-xs text-muted-foreground mt-1 truncate">
+                    Invited by {member.invited_by.first_name} {member.invited_by.last_name}
+                  </p>
+                </div>
+              </div>
+
+              {/* Desktop Layout - Vertical */}
+              <div className="hidden md:flex flex-col items-center space-y-3 text-center">
+                <Avatar className="h-16 w-16">
+                  <AvatarImage 
+                    src={member.user_id.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(member.user_id.first_name)}`}
+                    alt={`${member.user_id.first_name} ${member.user_id.last_name}`}
+                  />
+                  <AvatarFallback>
+                    {member.user_id.first_name.charAt(0)}{member.user_id.last_name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                
+                <div className="space-y-1">
+                  <p className="font-medium text-sm">
+                    {member.user_id.first_name} {member.user_id.last_name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {member.user_id.email}
+                  </p>
                 </div>
                 
-                <div className="flex items-center justify-between">
-                  <Badge 
-                    variant={getRoleBadgeVariant(member.role_id.role_name)}
-                    className="flex items-center gap-1 text-xs"
-                  >
-                    {getRoleIcon(member.role_id.role_name)}
-                    {member.role_id.role_name}
-                  </Badge>
-                </div>
+                <Badge 
+                  variant={getRoleBadgeVariant(member.role_id.role_name)}
+                  className="flex items-center gap-1 text-xs mx-auto w-fit"
+                >
+                  {getRoleIcon(member.role_id.role_name)}
+                  {member.role_id.role_name}
+                </Badge>
                 
-                <div className="text-xs text-muted-foreground">
-                  <p>Invited by {member.invited_by.first_name} {member.invited_by.last_name}</p>
-                </div>
+                <p className="text-xs text-muted-foreground">
+                  Invited by {member.invited_by.first_name} {member.invited_by.last_name}
+                </p>
               </div>
             </Card>
           ))}
