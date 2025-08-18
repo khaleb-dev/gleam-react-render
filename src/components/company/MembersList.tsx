@@ -103,7 +103,7 @@ export const MembersList = ({ pageId, showTitle = true, compact = false }: Membe
           </CardHeader>
         )}
         <CardContent>
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
             {members.map((member: PageMember) => (
               <Card key={member._id} className="p-6 hover:shadow-md transition-all duration-300 text-center">
                 <div className="space-y-4">
