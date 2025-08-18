@@ -34,6 +34,8 @@ export default function Messages() {
     profile_avatar?: string;
   } | null>(null);
 
+  console.log('page', searchParams)
+
   const fetchConversations = useCallback(async () => {
     if (!user) return;
 

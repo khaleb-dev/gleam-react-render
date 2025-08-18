@@ -297,6 +297,17 @@ const CompanyProfile = () => {
     navigate(`/profile/${user_id}`)
   }
 
+  const handleMessageChannel = () => {
+    const queryParams = new URLSearchParams({
+      userId: companyData._id,
+      firstName: companyData.name,
+      lastName: "",
+      profileAvatar: companyData.logo || "",
+    })
+
+    navigate(`/messages?${queryParams.toString()}`)
+  }
+
   const handleFollowToggle = async () => {
     if (!companyData?._id) return;
 
@@ -623,16 +634,7 @@ const CompanyProfile = () => {
                     variant="outline"
                     size={isMobile ? "sm" : "sm"}
                     className={`rounded-full ${isMobile ? 'flex-1 px-2 text-xs' : 'px-4'} border-primary text-primary bg-white hover:bg-primary hover:text-white`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-
-                      const searchParams = new URLSearchParams({
-                        name: companyData.name,
-                        ...(companyData.logo && { logo: companyData.logo })
-                      });
-                      navigate(`/messages/${companyData._id}?${searchParams.toString()}`);
-                    }}
+                    onClick={handleMessageChannel}
                   >
                     <MessageCircle className={`${isMobile ? 'w-3 h-3 mr-1' : 'w-3 h-3 mr-1'}`} />
                     Channel
@@ -1099,8 +1101,8 @@ const CompanyProfile = () => {
                                     </div>
                                   ))}
                                 </div>
-                                <Button 
-                                  onClick={handleInviteUsers} 
+                                <Button
+                                  onClick={handleInviteUsers}
                                   className="w-full"
                                   disabled={sendMultipleInvites.isPending}
                                 >
