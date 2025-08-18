@@ -95,12 +95,12 @@ export const InviteUserModal = ({ pageId, trigger }: InviteUserModalProps) => {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[500px] max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Invite User to Company Page</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-6">
+        <div className="flex-1 overflow-y-auto space-y-6 px-1">
           {/* Default Role Selection */}
           <div className="space-y-3">
             <label className="text-sm font-medium">Default Role</label>
@@ -221,23 +221,23 @@ export const InviteUserModal = ({ pageId, trigger }: InviteUserModalProps) => {
               </div>
             </div>
           )}
+        </div>
 
-          {/* Actions */}
-          <div className="flex justify-end gap-2">
-            <Button 
-              variant="outline" 
-              onClick={() => setIsOpen(false)}
-              disabled={sendBulkInvites.isPending}
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleSendInvites}
-              disabled={selectedUsers.length === 0 || sendBulkInvites.isPending}
-            >
-              {sendBulkInvites.isPending ? 'Sending...' : `Send ${selectedUsers.length} Invite${selectedUsers.length === 1 ? '' : 's'}`}
-            </Button>
-          </div>
+        {/* Actions */}
+        <div className="flex justify-end gap-2 border-t pt-4">
+          <Button 
+            variant="outline" 
+            onClick={() => setIsOpen(false)}
+            disabled={sendBulkInvites.isPending}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSendInvites}
+            disabled={selectedUsers.length === 0 || sendBulkInvites.isPending}
+          >
+            {sendBulkInvites.isPending ? 'Sending...' : `Send ${selectedUsers.length} Invite${selectedUsers.length === 1 ? '' : 's'}`}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
