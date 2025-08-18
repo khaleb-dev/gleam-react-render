@@ -207,7 +207,7 @@ export const sendBulkPageInvites = async (
   invites: Array<{ user_id: string; role_id: string }>
 ): Promise<{ message: string; data: any; success: boolean }> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/page/invite`, {
+    const response = await fetch(`${API_BASE_URL}/page/invite/bulk`, {
       method: "POST",
       credentials: "include",
       headers: {
