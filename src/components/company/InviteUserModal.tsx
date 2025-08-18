@@ -221,6 +221,14 @@ export const InviteUserModal = ({ pageId, trigger }: InviteUserModalProps) => {
                               ))}
                             </SelectContent>
                           </Select>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => handleRemoveMember(member.user_id)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     </CardContent>
