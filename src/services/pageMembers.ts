@@ -1,11 +1,12 @@
-
 import { API_BASE_URL } from "@/config/env";
 import { handleApiErrors, handleNetworkError } from "@/utils/apiResponse";
 
 export interface PageMember {
+  [x: string]: any;
   _id: string;
   page_id: string;
   user_id: {
+    profile_avatar: string;
     _id: string;
     first_name: string;
     last_name: string;
@@ -33,7 +34,9 @@ export interface PageMembersResponse {
   success: boolean;
 }
 
-export const getPageMembers = async (pageId: string): Promise<PageMembersResponse> => {  
+export const getPageMembers = async (
+  pageId: string
+): Promise<PageMembersResponse> => {
   try {
     const response = await fetch(`${API_BASE_URL}/page/${pageId}/members`, {
       method: "GET",
@@ -93,15 +96,20 @@ export interface PendingPageMembersResponse {
   success: boolean;
 }
 
-export const getPendingPageMembers = async (pageId: string): Promise<PendingPageMembersResponse> => {
+export const getPendingPageMembers = async (
+  pageId: string
+): Promise<PendingPageMembersResponse> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/page/${pageId}/pending-members`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/page/${pageId}/pending-members`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }
+    );
 
     const result = await response.json();
 

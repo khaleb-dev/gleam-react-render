@@ -38,7 +38,7 @@ export const MembersCard = ({ member }: MembersCardProps) => {
         return 'outline';
     }
   };
-  
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -48,10 +48,10 @@ export const MembersCard = ({ member }: MembersCardProps) => {
         console.error('Error fetching user:', error);
       }
     };
-    
+
     fetchUser();
   }, [loggedInUser]);
-  
+
   const isOwnProfile = currentUser?.user_id === member.user_id._id;
 
   const handleLinkupClick = async (e: React.MouseEvent) => {
@@ -68,15 +68,16 @@ export const MembersCard = ({ member }: MembersCardProps) => {
       <CardContent className="p-0">
         <div className="flex flex-col items-center space-y-4 text-center">
           <Avatar className="h-20 w-20">
-            <AvatarImage 
-              src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(member.user_id.first_name)}`}
+            <AvatarImage
+              style={{ objectFit: 'cover' }}
+              src={member.user_id ? member.user_id.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(member.user_id.first_name)}`}
               alt={`${member.user_id.first_name} ${member.user_id.last_name}`}
             />
             <AvatarFallback className="text-lg">
               {member.user_id.first_name.charAt(0)}{member.user_id.last_name.charAt(0)}
             </AvatarFallback>
           </Avatar>
-          
+
           <div className="space-y-2">
             <h3 className="font-semibold text-base">
               {member.user_id.first_name} {member.user_id.last_name}
@@ -86,19 +87,19 @@ export const MembersCard = ({ member }: MembersCardProps) => {
             </p>
           </div>
 
-          <Badge 
+          <Badge
             variant={getRoleBadgeVariant(member.role_id.role_name)}
             className="flex items-center justify-center gap-1 text-xs mx-auto w-fit"
           >
             {getRoleIcon(member.role_id.role_name)}
             {member.role_id.role_name}
           </Badge>
-          
+
           <div className="text-xs text-muted-foreground">
             <p>Joined {new Date(member.createdAt).toLocaleDateString()}</p>
           </div>
         </div>
-        
+
         {!isOwnProfile && (
           <Button
             size="icon"

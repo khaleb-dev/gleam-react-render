@@ -310,6 +310,7 @@ export const SingleFeed: React.FC = () => {
                     <AvatarImage
                       src={post?.user?.profile_avatar ? post?.user?.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(post?.user?.first_name)}`}
                       alt={`${post.user.first_name} ${post.user.last_name}`}
+                      style={{ objectFit: 'cover' }}
                     />
                     <AvatarFallback>
                       {post.user.first_name[0]}

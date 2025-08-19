@@ -178,7 +178,7 @@ export const Header = () => {
                       <AvatarImage
                         src={user.profile_avatar || dicebearUrl || "/placeholder.svg"}
                         alt={user.first_name}
-                        className="object-cover"
+                        style={{ objectFit: 'cover' }}
                         onError={(e) => {
                           console.error("Failed to load dicebear image in header:", dicebearUrl)
                         }}
@@ -224,6 +224,7 @@ export const Header = () => {
                     <AvatarImage
                       src={dicebearUrl || "/placeholder.svg"}
                       alt={user.first_name}
+                      style={{ objectFit: 'cover' }}
                       onError={(e) => {
                         console.error("Failed to load dicebear image in mobile header:", dicebearUrl)
                       }}
@@ -252,6 +253,7 @@ export const Header = () => {
                         <AvatarImage
                           src={user.profile_avatar ? user.profile_avatar : dicebearUrl || "/placeholder.svg"}
                           alt={user.first_name}
+                          style={{ objectFit: 'cover' }}
                           onError={(e) => {
                             console.error("Failed to load dicebear image in mobile sheet:", dicebearUrl)
                           }}
@@ -269,16 +271,16 @@ export const Header = () => {
                     </div>
                   )}
 
-                    <nav className="flex flex-col space-y-4">
-                     {menuItems.map((item) => (
-                       <button
-                         key={item.path}
-                         className="text-gray-600 hover:text-primary text-left py-2 text-sm"
-                         onClick={item.onClick}
-                       >
-                         {item.label}
-                       </button>
-                     ))}
+                  <nav className="flex flex-col space-y-4">
+                    {menuItems.map((item) => (
+                      <button
+                        key={item.path}
+                        className="text-gray-600 hover:text-primary text-left py-2 text-sm"
+                        onClick={item.onClick}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
 
                     {!userLoading && user && (
                       <>
