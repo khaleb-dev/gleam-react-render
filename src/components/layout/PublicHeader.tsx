@@ -163,81 +163,12 @@ export const PublicHeader = () => {
                   </Button>
                 </Link>
 
-                {/* Signup Dropdown for Desktop */}
-                <div className="hidden md:block">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button className="bg-primary hover:bg-primary/80 text-white text-xs">
-                        Choose Your Path
-                        <ChevronDown size={14} className="ml-1" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuLabel className="text-sm font-medium text-gray-900">
-                        Choose your path
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => navigate('/register')}
-                        className="text-sm cursor-pointer"
-                      >
-                        <span className="mr-2">📋</span>
-                        <div>
-                          <div className="font-medium">Register</div>
-                          <div className="text-xs text-gray-500">Post update to the community</div>
-                        </div>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => window.open(RESPONDER_BASE_URL, "_blank")}
-                        className="text-sm cursor-pointer"
-                      >
-                        <span className="mr-2">🎯</span>
-                        <div>
-                          <div className="font-medium">Become an Expert</div>
-                          <div className="text-xs text-gray-500">Use your skills to earn money</div>
-                        </div>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+                <Link to="/register">
+                  <Button variant="outline" className="bg-primary hover:bg-primary/80 text-white text-xs hidden md:inline-flex text-xs border-gray-300 hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800">
+                    Register
+                  </Button>
+                </Link>
 
-                {/* Mobile signup dropdown button */}
-                <div className="md:hidden">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button className="bg-primary hover:bg-primary/80 text-white text-xs">
-                        Join
-                        <ChevronDown size={14} className="ml-1" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-64 z-50 bg-white border border-gray-200 shadow-lg">
-                      <DropdownMenuLabel className="text-sm font-medium text-gray-900">
-                        Choose your path
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => navigate('/register')}
-                        className="text-sm cursor-pointer p-3"
-                      >
-                        <span className="mr-3 text-lg">📋</span>
-                        <div>
-                          <div className="font-medium">Register</div>
-                          <div className="text-xs text-gray-500">Post update to the community</div>
-                        </div>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => window.open(RESPONDER_BASE_URL, "_blank")}
-                        className="text-sm cursor-pointer p-3"
-                      >
-                        <span className="mr-3 text-lg">🎯</span>
-                        <div>
-                          <div className="font-medium">Become an Expert</div>
-                          <div className="text-xs text-gray-500">Use your skills to earn money</div>
-                        </div>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
               </>
             ) : (
               <div className="hidden md:flex items-center space-x-4">
@@ -361,6 +292,15 @@ export const PublicHeader = () => {
                             onClick={() => setIsMenuOpen(false)}
                           >
                             <Button variant="outline" className="w-full border-gray-300 hover:bg-gray-100">Sign In</Button>
+                          </Link>
+
+
+                          <Link to="/register"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            <Button variant="outline" className="bg-primary w-full hover:bg-gray-100">
+                              Register
+                            </Button>
                           </Link>
                         </>
                       ) : (

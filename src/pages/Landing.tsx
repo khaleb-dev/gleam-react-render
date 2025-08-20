@@ -43,16 +43,17 @@ const Landing = () => {
             <div>
               <div className="space-y-6">
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-                  Your Space to Share, Delegate, and Connect<span className="text-primary">.</span>
+                  The Social Network for Builders, Creators, and Doers<span className="text-primary">.</span>
                 </h1>
                 <h2 className="text-3xl md:text-4xl font-bold text-primary">
-                  What’s Your Team Working On?
+                  Share Your Journey.
                   <br />
-                  Show the World What You’re Building<span className="text-primary">.</span>
+                  Grow Your Community<span className="text-primary">.</span>
                 </h2>
                 <p className="text-medium text-gray-600 dark:text-gray-400">
-                  Beembyte is more than a task platform — it’s a vibrant space where professionals post updates, showcase projects, and collaborate with trusted experts.
-                  Whether you're sharing progress or looking to delegate work, Beembyte brings your ideas to life — faster, easier, and with real community support.
+                  Beembyte is more than a workplace tool — it’s a social platform where developers, teams, and businesses connect,
+                  share updates, showcase ideas, and rally support. Whether you’re announcing a new project, growing your brand,
+                  or finding talent for micro-jobs, Beembyte gives you a space to belong and thrive.
                 </p>
               </div>
 
@@ -64,15 +65,7 @@ const Landing = () => {
                       size="lg"
                       className="bg-primary hover:bg-primary/90 text-base py-6 px-8"
                     >
-                      Start sharing
-                    </Button>
-                    <Button
-                      onClick={() => window.open(RESPONDER_BASE_URL, "_blank")}
-                      variant="outline"
-                      size="lg"
-                      className="border-2 border-gray-300 hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800 text-base py-6 px-8"
-                    >
-                      Become an expert
+                      Join the Community
                     </Button>
                   </>
                 ) : (
@@ -85,12 +78,12 @@ const Landing = () => {
                       Go to Dashboard
                     </Button>
                     <Button
-                      onClick={() => navigate("/create-task")}
+                      onClick={() => navigate("/create-post")}
                       variant="outline"
                       size="lg"
                       className="border-2 border-gray-300 hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800 text-base py-6 px-8"
                     >
-                      Create New Task
+                      Create a Post
                     </Button>
                   </>
                 )}
@@ -101,21 +94,17 @@ const Landing = () => {
               <div className="absolute -z-10 -top-10 -right-10 w-64 h-64 rounded-full bg-primary/10 blur-3xl"></div>
               <div className="absolute -z-10 -bottom-10 -left-10 w-64 h-64 rounded-full bg-blue-400/10 blur-3xl"></div>
 
-              {/* Main image with floating elements - Reduced size */}
+              {/* Main image with floating elements */}
               <div className="relative max-w-sm mx-auto">
                 <img
                   src="https://res.cloudinary.com/dxayyjtsq/image/upload/v1752440772/Hero_section_image_gradient_pf72z7.jpg"
-                  alt="Task Platform"
+                  alt="Beembyte Social Network"
                   className="rounded-lg shadow-xl w-full relative z-10"
                 />
 
                 {/* Floating elements */}
-                <div className="absolute -top-6 -left-6 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg z-20">
-                  <CheckCircle className="h-8 w-8 text-primary" />
-                </div>
-                <div className="absolute -bottom-6 -right-6 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg z-20">
-                  <Users className="h-8 w-8 text-primary" />
-                </div>
+                <div className="absolute -top-6 -left-6 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg z-20"> <CheckCircle className="h-8 w-8 text-primary" /> </div>
+                <div className="absolute -bottom-6 -right-6 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg z-20"> <Users className="h-8 w-8 text-primary" /> </div>
               </div>
             </div>
           </div>
@@ -126,11 +115,14 @@ const Landing = () => {
       <section className="py-12 border-y border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4">
           <p className="text-center text-gray-600 dark:text-gray-400 mb-8">
-            Over 2,000 tasks created, 500+ vetted responders onboarded
+            Trusted by developers, startups, and businesses building communities and sharing ideas every day
           </p>
           <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all">
+              <div
+                key={i}
+                className="grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all"
+              >
                 <img
                   src={`/placeholder.svg?height=40&width=120&text=Partner${i}`}
                   alt={`Partner ${i}`}
@@ -142,14 +134,14 @@ const Landing = () => {
         </div>
       </section>
 
+
       {/* Task Types Section - Replacing "Our Values" */}
       <section className="py-16 px-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Tasks for every need</h2>
+            <h2 className="text-3xl font-bold mb-4">A Social Hub for Builders</h2>
             <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-              From research to content creation, data analysis to technical tasks, Beembyte handles diverse professional
-              needs
+              Beembyte isn’t just about tasks — it’s a community where developers, creators, and businesses share updates, showcase ideas, and grow together.
             </p>
           </div>
 
@@ -158,39 +150,43 @@ const Landing = () => {
               {
                 icon: <FileType2 className="h-8 w-8 text-primary" />,
                 title: "Project Showcases",
-                description: "Share your completed work, in-progress ideas, or personal portfolio updates with the community.",
+                description:
+                  "Highlight your latest projects, side hustles, or startup ideas and inspire others in the community.",
               },
               {
                 icon: <Settings className="h-8 w-8 text-primary" />,
-                title: "Technical Demos",
-                description: "From bug fixes to full builds, show your process, seek help, or teach others through your posts.",
+                title: "Tech Demos",
+                description:
+                  "Share workflows, experiments, or quick tutorials to spark conversations and collaborations.",
               },
               {
                 icon: <Award className="h-8 w-8 text-primary" />,
                 title: "Creative Content",
-                description: "Post your designs, writing, videos, and other creative work to get feedback and visibility.",
+                description:
+                  "Post designs, articles, videos, or podcasts to get feedback, recognition, and engagement.",
               },
               {
                 icon: <LineChart className="h-8 w-8 text-primary" />,
                 title: "Insights & Learnings",
-                description: "Share lessons learned, data insights, or breakdowns from your recent work or research.",
+                description:
+                  "Exchange knowledge, lessons, and industry insights that help others grow and stay ahead.",
               },
-            ]
-              .map((item, index) => (
-                <div
-                  key={index}
-                  className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-sm hover:shadow-md transition-all"
-                >
-                  <div className="rounded-full bg-primary/10 w-16 h-16 flex items-center justify-center mb-6">
-                    {item.icon}
-                  </div>
-                  <h3 className="text-xl font-bold mb-3">{item.title}</h3>
-                  <p className="text-gray-600 dark:text-gray-400">{item.description}</p>
+            ].map((item, index) => (
+              <div
+                key={index}
+                className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-sm hover:shadow-md transition-all"
+              >
+                <div className="rounded-full bg-primary/10 w-16 h-16 flex items-center justify-center mb-6">
+                  {item.icon}
                 </div>
-              ))}
+                <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+                <p className="text-gray-600 dark:text-gray-400">{item.description}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
+
 
       {/* Accept Tasks, Scale Without Limits Section - Reverted to original white background */}
       <section className="py-20 px-4 bg-white dark:bg-gray-900">
@@ -198,13 +194,12 @@ const Landing = () => {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-4xl font-bold mb-6 text-black dark:text-white">
-                Accept Tasks, Scale
+                Share, Collaborate &
                 <br />
-                Without Limits
+                Scale Without Limits
               </h2>
               <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
-                We've built a robust task management system that removes complexity so you can focus on what you do best
-                - getting results.
+                Beembyte combines social sharing with smart talent matching, helping creators, startups, and businesses grow their ideas, communities, and results — faster.
               </p>
             </div>
           </div>
@@ -213,41 +208,47 @@ const Landing = () => {
           <div className="grid md:grid-cols-3 gap-6 mt-16">
             <div className="bg-gray-800 p-8 rounded-lg">
               <h3 className="text-2xl font-bold mb-4 text-white">Diverse Post Types</h3>
-              <p className="text-gray-300 mb-4">From project showcases and updates to questions, thoughts, and inspiration — share what matters to you.</p>
+              <p className="text-gray-300 mb-4">
+                From project showcases and updates to questions, insights, and inspiration — share what matters most with your community.
+              </p>
               <div className="mt-6">
                 <img
                   src="https://res.cloudinary.com/dxayyjtsq/image/upload/v1751716594/Multitasks_gradient_cpr8hy.png"
-                  alt="Task types illustration"
+                  alt="Post types illustration"
                   className="w-full h-40 object-cover rounded-md"
                 />
               </div>
             </div>
             <div className="bg-primary p-8 rounded-lg">
-              <h3 className="text-2xl font-bold mb-4 text-white">Fast Completion</h3>
-              <p className="text-white/80 mb-4">Most tasks completed within 24-48 hours by qualified experts</p>
+              <h3 className="text-2xl font-bold mb-4 text-white">Fast Collaboration</h3>
+              <p className="text-white/80 mb-4">
+                Get feedback, support, or tasks completed within 24–48 hours by qualified experts and collaborators.
+              </p>
               <div className="mt-6">
                 <img
                   src="https://res.cloudinary.com/dxayyjtsq/image/upload/v1751716593/fast_completion_gradient_k5hzx7.png"
-                  alt="Fast completion illustration"
+                  alt="Collaboration illustration"
                   className="w-full h-40 object-cover rounded-md"
                 />
               </div>
             </div>
             <div className="bg-gray-800 p-8 rounded-lg">
-              <h3 className="text-2xl font-bold mb-4 text-white">Smart Task Matching</h3>
-              <p className="text-gray-300 mb-4">Automatically connects you to tasks that match your skills, experience, and availability</p>
+              <h3 className="text-2xl font-bold mb-4 text-white">Smart Matching</h3>
+              <p className="text-gray-300 mb-4">
+                Connect instantly with people, projects, and opportunities that align with your skills, goals, and interests.
+              </p>
               <div className="mt-6">
                 <img
                   src="https://res.cloudinary.com/dxayyjtsq/image/upload/v1751718852/Gemini_Generated_Image_ad97anad97anad97_ydrb8r.png"
-                  alt="Smart task matching illustration"
+                  alt="Smart matching illustration"
                   className="w-full h-40 object-cover rounded-md"
                 />
               </div>
             </div>
-
           </div>
         </div>
       </section>
+
 
       {/* Register as a Responder Section */}
       <section
@@ -274,7 +275,7 @@ const Landing = () => {
                   size="lg"
                   className="bg-white text-primary hover:bg-white/90 text-base py-6 px-8 group relative"
                 >
-                  Register as a responder
+                  Responder console
                   <span className="absolute -right-16 top-1/2 -translate-y-1/2">
                     <ArrowRight className="h-10 w-10 text-white animate-pulse-slow group-hover:translate-x-2 transition-transform" />
                   </span>
@@ -330,9 +331,9 @@ const Landing = () => {
       <section className="py-20 px-4 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">How Beembyte works</h2>
+            <h2 className="text-3xl font-bold mb-4">How Beembyte Works</h2>
             <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-              Our platform connects you with vetted experts who deliver high-quality results on your schedule
+              Beembyte makes it simple to share ideas, find collaborators, and get work done — all in one social-first platform.
             </p>
           </div>
 
@@ -340,20 +341,20 @@ const Landing = () => {
             {[
               {
                 step: "1",
-                title: "Describe your task",
-                description: "Detail your requirements, upload relevant files, and set your deadline and budget",
+                title: "Post & Share",
+                description: "Create a post to showcase your idea, ask a question, or describe a task — with files, deadlines, or budget if needed.",
                 icon: <Sparkles className="h-8 w-8 text-primary" />,
               },
               {
                 step: "2",
-                title: "Get matched with experts",
-                description: "Our system connects you with qualified professionals with relevant expertise",
+                title: "Get Matched",
+                description: "Our smart system connects you with people and experts whose skills, interests, and experience align with your needs.",
                 icon: <Users className="h-8 w-8 text-primary" />,
               },
               {
                 step: "3",
-                title: "Review quality work",
-                description: "Receive completed tasks and provide feedback to finalize the deliverable",
+                title: "Collaborate & Grow",
+                description: "Work together seamlessly, exchange feedback, and complete tasks — while building your network and reputation.",
                 icon: <BadgeCheck className="h-8 w-8 text-primary" />,
               },
             ].map((item, index) => (
@@ -371,6 +372,7 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
 
       {/* Features Section */}
       <section className="py-20 px-4 bg-gray-50 dark:bg-gray-800/50">
@@ -399,39 +401,35 @@ const Landing = () => {
       {/* Mobile App Download Section */}
       <section className="py-20 px-4 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-10 items-center">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            {/* Text Content */}
             <div className="order-2 md:order-1">
               <div className="inline-block bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium mb-6">
                 Mobile App
               </div>
-              <h2 className="text-3xl font-bold mb-6">Manage tasks on the go with Beembyte</h2>
-              <p className="text-gray-600 dark:text-gray-400 text-lg mb-8">
-                Our mobile app works like a task-hailing system—no need to search for jobs. We match you with tasks that fit your skills,
-                so opportunities come straight to you, anytime, anywhere.
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 leading-snug">
+                Manage tasks on the go with Beembyte
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 text-lg mb-8 leading-relaxed">
+                Our mobile app works like a task-hailing system—no need to search for jobs.
+                We match you with tasks that fit your skills, so opportunities come straight to you,
+                anytime, anywhere.
               </p>
+
+              {/* Store Buttons */}
               <div className="flex flex-col sm:flex-row gap-4">
+                {/* Google Play */}
                 <button
                   onClick={() => window.open("https://play.google.com/store", "_blank")}
-                  className="flex items-center bg-black text-white px-4 py-2 rounded-lg w-[200px] h-[60px] transition-transform hover:scale-105"
+                  className="flex items-center bg-black text-white px-5 py-3 rounded-xl w-[200px] h-[60px] transition-transform hover:scale-105"
                 >
                   <div className="mr-3">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        d="M4.5 2.01001C4.5 1.73001 4.76 1.54001 5.03 1.64001L15.5 6.50001L12.5 9.50001L4.5 2.01001Z"
-                        fill="#EA4335"
-                      />
-                      <path
-                        d="M19.5 12L15.5 14.5L12 11L15.5 7.50001L19.5 10C20.5 10.5 20.5 11.5 19.5 12Z"
-                        fill="#FBBC04"
-                      />
-                      <path
-                        d="M4.5 21.99C4.5 22.27 4.76 22.46 5.03 22.36L15.5 17.5L12.5 14.5L4.5 21.99Z"
-                        fill="#34A853"
-                      />
-                      <path
-                        d="M4.5 22V2.00001C4.5 1.45001 3.91 1.13001 3.5 1.50001C3.18 1.78001 3 2.21001 3 2.69001V21.31C3 21.79 3.18 22.22 3.5 22.5C3.91 22.87 4.5 22.55 4.5 22Z"
-                        fill="#4285F4"
-                      />
+                    {/* Google Play SVG */}
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path d="M4.5 2.01c0-.28.26-.47.53-.37l10.47 4.86-3 3L4.5 2.01Z" fill="#EA4335" />
+                      <path d="M19.5 12l-4 2.5-3.5-3.5 3.5-3.5 4 2.5c1 .5 1 1.5 0 2Z" fill="#FBBC04" />
+                      <path d="M4.5 21.99c0 .28.26.47.53.37L15.5 17.5l-3-3L4.5 21.99Z" fill="#34A853" />
+                      <path d="M4.5 22V2c0-.55-.59-.87-1-.5a1.1 1.1 0 0 0-.5.69v18.62c0 .48.18.91.5 1.19.41.37 1 .05 1-.5Z" fill="#4285F4" />
                     </svg>
                   </div>
                   <div className="flex flex-col items-start">
@@ -440,20 +438,16 @@ const Landing = () => {
                   </div>
                 </button>
 
+                {/* App Store */}
                 <button
                   onClick={() => window.open("https://www.apple.com/app-store/", "_blank")}
-                  className="flex items-center bg-black text-white px-4 py-2 rounded-lg w-[200px] h-[60px] transition-transform hover:scale-105"
+                  className="flex items-center bg-black text-white px-5 py-3 rounded-xl w-[200px] h-[60px] transition-transform hover:scale-105"
                 >
                   <div className="mr-3">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        d="M14.94 5.19002C16 3.95002 15.89 2.10002 14.7 1C13.5 2.10002 13.39 3.95002 14.45 5.19002C15.5 6.44002 16.56 7.69002 18.94 7.69002C18.94 5.19002 17.89 5.19002 14.94 5.19002Z"
-                        fill="white"
-                      />
-                      <path
-                        d="M18.94 7.69C16.94 7.69 15.94 8.69 14.44 8.69C12.94 8.69 11.44 7.69 9.44 7.69C7.44 7.69 5.44 9.19 5.44 12.69C5.44 16.69 7.44 22.69 9.44 22.69C11.44 22.69 11.94 21.69 14.44 21.69C16.94 21.69 17.44 22.69 19.44 22.69C21.44 22.69 22.94 17.69 22.94 16.69C22.94 15.69 22.44 15.19 21.44 14.69C20.44 14.19 18.94 12.69 18.94 10.69C18.94 8.69 21.44 7.69 21.44 7.69C20.44 7.19 19.94 7.69 18.94 7.69Z"
-                        fill="white"
-                      />
+                    {/* Apple SVG */}
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                      <path d="M14.94 5.19C16 3.95 15.89 2.1 14.7 1c-1.2 1.1-1.31 2.95-.25 4.19 1.05 1.25 2.11 2.5 4.49 2.5 0-2.5-1.05-2.5-3.99-2.5Z" />
+                      <path d="M18.94 7.69c-2 0-3 .99-4.5.99s-3-1-5-1c-2 0-4 1.5-4 5.01 0 4 2 10 4 10s2.5-1 5-1 3.5 1 5.5 1 3.5-5 3.5-6c0-1-.5-1.5-1.5-2-1-.5-2.5-2-2.5-4 0-2 2.5-2.5 2.5-2.5-1-.5-1.5 0-3 0Z" />
                     </svg>
                   </div>
                   <div className="flex flex-col items-start">
@@ -463,19 +457,22 @@ const Landing = () => {
                 </button>
               </div>
             </div>
+
+            {/* Image */}
             <div className="order-1 md:order-2 relative">
               <div className="relative">
                 <img
                   src="https://res.cloudinary.com/dxayyjtsq/image/upload/v1751710071/Phones_s9wrir.png"
-                  alt="beembyte mobile app"
+                  alt="Beembyte mobile app"
                   className="w-full max-w-md mx-auto h-auto object-contain"
                 />
-                <div className="absolute -z-10 -bottom-5 -right-5 w-64 h-64 bg-primary/20 rounded-full blur-3xl"></div>
+                <div className="absolute -z-10 -bottom-6 -right-6 w-72 h-72 bg-primary/20 rounded-full blur-3xl"></div>
               </div>
             </div>
           </div>
         </div>
       </section>
+
 
       {/* CTA Section - Updated with background image */}
       <section
