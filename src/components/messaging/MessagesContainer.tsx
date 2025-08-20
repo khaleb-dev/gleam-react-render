@@ -19,6 +19,7 @@ import { ImagePreviewModal } from '@/components/chat/ImagePreviewModal';
 import { VideoPlayer } from '@/components/ui/VideoPlayer';
 import { MessageStatus } from './MessageStatus';
 import { format, isToday, isYesterday, isSameDay } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 interface MessagesContainerProps {
   selectedUser: any;
@@ -85,6 +86,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
   setMessageSearchTerm,
   onMessageSent
 }) => {
+  const navigate = useNavigate();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -515,7 +517,10 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                   {/* Sender info for page_channel messages only */}
                   {selectedUser.isPage && !isOwn && (
                     <div className="flex items-start gap-2 mb-2">
-                      <Avatar className="h-8 w-8 flex-shrink-0">
+                      <Avatar 
+                        className="h-8 w-8 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => navigate(`/profile/${message.sender_id.user_id || message.sender_id._id}`)}
+                      >
                         <AvatarImage
                           src={message.sender_id.profile_avatar ? message.sender_id.profile_avatar : `https://robohash.org/${encodeURIComponent(message.sender_id.first_name || 'user')}?set=set4&size=200x200`}
                           alt=""
@@ -526,7 +531,10 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <span className={`text-xs font-medium ${getSenderColor(message.sender_id._id || message.sender_id.user_id)}`}>
+                        <span 
+                          className={`text-xs font-medium cursor-pointer hover:underline ${getSenderColor(message.sender_id._id || message.sender_id.user_id)}`}
+                          onClick={() => navigate(`/profile/${message.sender_id.user_id || message.sender_id._id}`)}
+                        >
                           ~{`${message.sender_id.first_name || ''} ${message.sender_id.last_name || ''}`.trim() || 'Unknown User'}
                         </span>
                       </div>
