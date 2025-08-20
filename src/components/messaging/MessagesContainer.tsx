@@ -451,7 +451,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
       {/* Messages Area - Scrollable */}
       <div
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto p-4 bg-background messages-background"
+        className="flex-1 overflow-y-auto p-4 bg-background"
       >
         {messages.map((message, messageIndex) => {
           const isOwn = message.sender_id.user_id === user?.user_id || message.sender_id === user?.user_id;
@@ -517,7 +517,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                     <div className="flex items-start gap-2 mb-2">
                       <Avatar className="h-8 w-8 flex-shrink-0">
                         <AvatarImage
-                          src={`https://robohash.org/${encodeURIComponent(message.sender_id.first_name || 'user')}?set=set4&size=200x200`}
+                          src={message.sender_id.profile_avatar ? message.sender_id.profile_avatar : `https://robohash.org/${encodeURIComponent(message.sender_id.first_name || 'user')}?set=set4&size=200x200`}
                           alt=""
                           className="object-cover w-full h-full"
                         />
