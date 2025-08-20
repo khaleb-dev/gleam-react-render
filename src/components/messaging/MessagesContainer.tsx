@@ -474,27 +474,34 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
 
           // Check if this is the currently highlighted match
           const isCurrentMatch = matchesSearch && matchIndex === currentHighlight - 1;
+          
+          // Remove avatars from private messages completely
+          const showAvatar = false;
+          // For page channels, indent message bubble under the sender name (not the avatar)
+          const indentLeft = !isOwn && selectedUser.isPage;
 
           // Check if we need to show a date divider
           const currentMessageDate = new Date(message.createdAt);
           const prevMessage = messageIndex > 0 ? messages[messageIndex - 1] : null;
           const showDateDivider = !prevMessage || !isSameDay(currentMessageDate, new Date(prevMessage.createdAt));
 
-          return (
+           return (
             <React.Fragment key={message._id}>
               {/* Date Divider */}
               {showDateDivider && (
-                <div className="flex justify-center my-6">
+                <div className="flex justify-start my-6">
                   <div className="bg-muted text-muted-foreground text-xs px-3 py-1 rounded-full">
                     {formatDateDivider(currentMessageDate)}
                   </div>
                 </div>
               )}
-
-              <div
-                ref={matchesSearch ? (el) => { highlightRefs.current[matchIndex] = el; } : undefined}
-                className={`group mb-6 ${isCurrentMatch ? 'bg-yellow-100 dark:bg-yellow-900/20 rounded-lg p-2' : ''}`}
-              >
+              
+              {/* Message Container with spacing */}
+              <div className="mb-4">
+                <div
+                  ref={matchesSearch ? (el) => { highlightRefs.current[matchIndex] = el; } : undefined}
+                  className={`group ${isCurrentMatch ? 'bg-yellow-100 dark:bg-yellow-900/20 rounded-lg p-2' : ''}`}
+                >
                 {/* Replied Message Context */}
                 {repliedMessage && (
                   <div className={`flex mb-2 ${isOwn ? 'justify-end' : 'justify-start'}`}>
@@ -529,8 +536,10 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
               {/* Message Content */}
               {(message.content && message.content.trim()) && (!message.image_urls || message.image_urls.length === 0) && (
                 <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                  {/* Left spacer so bubble sits under the name when page channel */}
+                  {indentLeft && <div className="w-11" />}
                   {/* Avatar for private messages only - single avatar */}
-                  {!isOwn && !selectedUser.isPage && (
+                  {!isOwn && showAvatar && (
                     <Avatar className="h-8 w-8 mr-3 mt-1 flex-shrink-0">
                       <AvatarImage
                         src={selectedUser.profile_picture || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(selectedUser.name || 'User')}`}
@@ -663,9 +672,10 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                 </div>
               )}
 
-              <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                <div className={`flex items-center gap-1 ${isOwn ? 'mr-3' : 'ml-11'}`}>
-                  <p className="text-xs text-muted-foreground">
+              {/* Timestamp with more spacing */}
+              <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mt-3`}>
+                <div className={`flex items-center gap-1 ${isOwn ? 'mr-3' : (indentLeft ? 'ml-11' : '')}`}>
+                  <p className="text-xs text-muted-foreground text-left">
                     {formatTime(message.timestamp)}
                   </p>
                   <MessageStatus 
@@ -676,6 +686,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                   />
                 </div>
               </div>
+                </div>
               </div>
             </React.Fragment>
           );

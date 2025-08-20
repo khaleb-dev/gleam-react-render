@@ -56,107 +56,116 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
 
   return (
     <div className="w-full">
-      {/* Sender name - shown for responder messages only */}
-      {message.sender_type === "responder" && (
-        <div className="mb-1 ml-10">
-          <span className={cn("text-xs font-medium", senderColor)}>
-            {senderName}
-          </span>
-        </div>
-      )}
-      
       <div
         className={cn(
-          'group flex w-full items-end gap-2',
+          'group flex w-full',
           isOwn ? 'justify-end' : 'justify-start'
         )}
       >
-      {/* Avatar (left, for others only) */}
-      {!isOwn && showAvatar ? (
-        <Avatar className="h-8 w-8 flex-shrink-0">
-          <AvatarImage
-            src={`https://robohash.org/${encodeURIComponent(sender?.first_name || 'user')}?set=set4&size=200x200`}
-            alt=""
-            className="object-cover w-full h-full"
-          />
-          <AvatarFallback className="bg-secondary text-sm">
-            {(sender?.first_name || 'U').substring(0, 2).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-      ) : !isOwn && <div className="w-8" />}
+        {!isOwn ? (
+          <div className="flex flex-col">
+            {/* Sender name - shown for responder messages only */}
+            {message.sender_type === "responder" && (
+              <div className="mb-1 ml-2">
+                <span className={cn("text-xs font-medium", senderColor)}>
+                  {senderName}
+                </span>
+              </div>
+            )}
+            
+            {/* Chat bubble aligned under the name */}
+            <div
+              className={cn(
+                'relative max-w-md rounded-xl p-3 space-y-1 shadow-sm transition-all',
+                'bg-white border text-gray-900 rounded-bl-md'
+              )}
+              style={{
+                borderTopLeftRadius: 16,
+                borderBottomLeftRadius: 6,
+              }}
+            >
+              {/* Link preview appears ABOVE the chat text */}
+              {detectedUrl && (
+                <div className="pb-2">
+                  <LinkPreview url={detectedUrl} />
+                </div>
+              )}
 
-      {/* Chat bubble */}
-      <div
-        className={cn(
-          'relative max-w-md rounded-xl p-3 space-y-1 shadow-sm transition-all',
-          isOwn
-            ? 'bg-primary text-white rounded-br-md ml-8'
-            : 'bg-white border text-gray-900 rounded-bl-md mr-8'
-        )}
-        style={{
-          borderTopRightRadius: isOwn ? 16 : undefined,
-          borderBottomRightRadius: isOwn ? 6 : undefined,
-          borderTopLeftRadius: !isOwn ? 16 : undefined,
-          borderBottomLeftRadius: !isOwn ? 6 : undefined,
-        }}
-      >
-        {/* Link preview appears ABOVE the chat text */}
-        {detectedUrl && (
-          <div className="pb-2">
-            <LinkPreview url={detectedUrl} />
+              {/* Chat message text with links */}
+              {message.message && (
+                <p className="text-[13px] whitespace-pre-wrap leading-snug">
+                  <ChatMessageText text={message.message} isOwn={isOwn} />
+                </p>
+              )}
+
+              {message.file_urls && message.file_urls.length > 0 && (
+                <div className={message.message ? 'mt-2' : ''}>
+                  <FileDisplay fileUrls={message.file_urls} compact />
+                </div>
+              )}
+              <p
+                className="text-xs text-left pt-1 text-muted-foreground"
+                style={{ fontSize: "11px" }}
+              >
+                {messageTime}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-end">
+            {/* Chat bubble for own messages */}
+            <div
+              className={cn(
+                'relative max-w-md rounded-xl p-3 space-y-1 shadow-sm transition-all',
+                'bg-primary text-white rounded-br-md'
+              )}
+              style={{
+                borderTopRightRadius: 16,
+                borderBottomRightRadius: 6,
+              }}
+            >
+              {/* Link preview appears ABOVE the chat text */}
+              {detectedUrl && (
+                <div className="pb-2">
+                  <LinkPreview url={detectedUrl} />
+                </div>
+              )}
+
+              {/* Chat message text with links */}
+              {message.message && (
+                <p className="text-[13px] whitespace-pre-wrap leading-snug">
+                  <ChatMessageText text={message.message} isOwn={isOwn} />
+                </p>
+              )}
+
+              {message.file_urls && message.file_urls.length > 0 && (
+                <div className={message.message ? 'mt-2' : ''}>
+                  <FileDisplay fileUrls={message.file_urls} compact />
+                </div>
+              )}
+              <p
+                className="text-xs text-left pt-1 text-white/80"
+                style={{ fontSize: "11px" }}
+              >
+                {messageTime}
+              </p>
+              {/* Delete button (for user's own message, show only on hover and within one day) */}
+              {canDelete && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute -left-8 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity h-7 w-7 !bg-transparent hover:!bg-transparent focus-visible:!bg-transparent"
+                  onClick={() => onDelete(message._id)}
+                  aria-label="Delete message"
+                  tabIndex={-1}
+                  type="button"
+                >
+                  <Trash2 size={16} />
+                </Button>
+              )}
+            </div>
           </div>
         )}
-
-        {/* Chat message text with links */}
-        {message.message && (
-          <p className="text-[13px] whitespace-pre-wrap leading-snug">
-            <ChatMessageText text={message.message} isOwn={isOwn} />
-          </p>
-        )}
-
-        {message.file_urls && message.file_urls.length > 0 && (
-          <div className={message.message ? 'mt-2' : ''}>
-            <FileDisplay fileUrls={message.file_urls} compact />
-          </div>
-        )}
-        <p
-          className={cn(
-            'text-xs text-right pt-1',
-            isOwn ? 'text-white/80' : 'text-muted-foreground'
-          )}
-          style={{ fontSize: "11px" }}
-        >
-          {messageTime}
-        </p>
-        {/* Delete button (for user's own message, show only on hover and within one day) */}
-        {isOwn && canDelete && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute -left-8 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity h-7 w-7 !bg-transparent hover:!bg-transparent focus-visible:!bg-transparent"
-            onClick={() => onDelete(message._id)}
-            aria-label="Delete message"
-            tabIndex={-1}
-            type="button"
-          >
-            <Trash2 size={16} />
-          </Button>
-        )}
-      </div>
-
-      {/* Avatar (right, for own messages only) */}
-      {isOwn && showAvatar ? (
-        <Avatar className="h-8 w-8 flex-shrink-0 ml-1">
-          <AvatarImage 
-            src={`https://robohash.org/${encodeURIComponent(sender?.first_name || 'user')}?set=set3&size=200x200`} 
-            alt=""
-            className="object-cover w-full h-full"
-          />
-          <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-            {(user?.first_name || 'Y').substring(0, 2).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-      ) : isOwn && <div className="w-8" />}
       </div>
     </div>
   );
