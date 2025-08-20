@@ -505,10 +505,10 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                   </div>
                 )}
 
-                {/* Sender name and avatar - shown for page_channel messages only */}
+                {/* Sender info for page_channel messages only */}
                 {selectedUser.isPage && !isOwn && (
-                  <div className="flex items-center gap-2 mb-2">
-                    <Avatar className="h-6 w-6 flex-shrink-0">
+                  <div className="flex items-start gap-2 mb-2">
+                    <Avatar className="h-8 w-8 flex-shrink-0">
                       <AvatarImage
                         src={`https://robohash.org/${encodeURIComponent(message.sender_id.first_name || 'user')}?set=set4&size=200x200`}
                         alt=""
@@ -518,31 +518,44 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                         {(message.sender_id.first_name || 'U').substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <span className={`text-xs font-medium ${getSenderColor(message.sender_id._id || message.sender_id.user_id)}`}>
-                      ~{`${message.sender_id.first_name || ''} ${message.sender_id.last_name || ''}`.trim() || 'Unknown User'}
-                    </span>
+                    <div className="flex-1">
+                      <span className={`text-xs font-medium ${getSenderColor(message.sender_id._id || message.sender_id.user_id)}`}>
+                        ~{`${message.sender_id.first_name || ''} ${message.sender_id.last_name || ''}`.trim() || 'Unknown User'}
+                      </span>
+                    </div>
                   </div>
                 )}
 
               {/* Message Content */}
               {(message.content && message.content.trim()) && (!message.image_urls || message.image_urls.length === 0) && (
                 <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                  {!isOwn && (
-                    <Avatar className="h-8 w-8 mr-3 mt-1">
+                  {/* Avatar for private messages only - single avatar */}
+                  {!isOwn && !selectedUser.isPage && (
+                    <Avatar className="h-8 w-8 mr-3 mt-1 flex-shrink-0">
                       <AvatarImage
-                        src={message.sender_id.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(message.sender_id.first_name || 'User')}`}
+                        src={selectedUser.profile_picture || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(selectedUser.name || 'User')}`}
                         className="object-cover"
                       />
                       <AvatarFallback className="bg-muted text-muted-foreground text-sm">
-                        {message.sender_id.first_name?.[0] || 'U'}{message.sender_id.last_name?.[0] || 'N'}
+                        {selectedUser.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   )}
+                  
                    <div className="relative flex items-center gap-2">
-                     <div className={`${isEmojiOnly ? 'bg-transparent px-0 py-0' : `max-w-xs px-4 py-2 rounded-2xl ${isOwn
-                       ? 'bg-primary text-primary-foreground'
-                       : 'bg-muted text-foreground'
+                     <div className={`relative ${isEmojiOnly ? 'bg-transparent px-0 py-0' : `max-w-xs px-4 py-2 ${isOwn 
+                       ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-md' 
+                       : 'bg-muted text-foreground rounded-2xl rounded-bl-md'
                        }`} ${isEmojiOnly ? 'text-4xl' : 'text-sm'}`}>
+                       
+                       {/* Speech bubble pointer for private messages */}
+                       {!isOwn && !selectedUser.isPage && !isEmojiOnly && (
+                         <div className="absolute left-0 top-4 -translate-x-1 w-0 h-0 border-t-[8px] border-t-transparent border-r-[8px] border-r-muted border-b-[8px] border-b-transparent"></div>
+                       )}
+                       {isOwn && !isEmojiOnly && (
+                         <div className="absolute right-0 top-4 translate-x-1 w-0 h-0 border-t-[8px] border-t-transparent border-l-[8px] border-l-primary border-b-[8px] border-b-transparent"></div>
+                       )}
+                       
                        {searchTerm ? (
                          <HighlightedText text={message.content} searchTerm={searchTerm} />
                        ) : (
