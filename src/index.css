@@ -78,16 +78,6 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
     font-size: 0.95rem;
-    background-image: url('/lovable-uploads/5efb7111-f4ff-40a0-84a3-68ec5be37e41.png');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position: center;
-  }
-
-  .dark body {
-    background-image: url('/lovable-uploads/5efb7111-f4ff-40a0-84a3-68ec5be37e41.png');
-    filter: brightness(0.3) contrast(1.2);
   }
 
   h1,

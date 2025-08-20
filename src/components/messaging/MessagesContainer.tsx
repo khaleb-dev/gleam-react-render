@@ -489,17 +489,15 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
             <React.Fragment key={message._id}>
               {/* Date Divider */}
               {showDateDivider && (
-                <div className="flex items-center justify-center my-6">
-                  <div className="flex-1 h-px bg-border"></div>
-                  <div className="bg-muted text-muted-foreground text-xs px-3 py-1 rounded-full mx-4">
+                <div className="flex justify-center my-6">
+                  <div className="bg-muted text-muted-foreground text-xs px-3 py-1 rounded-full">
                     {formatDateDivider(currentMessageDate)}
                   </div>
-                  <div className="flex-1 h-px bg-border"></div>
                 </div>
               )}
 
               {/* Message Container with spacing */}
-              <div className="mb-6">
+              <div className="mb-4">
                 <div
                   ref={matchesSearch ? (el) => { highlightRefs.current[matchIndex] = el; } : undefined}
                   className={`group ${isCurrentMatch ? 'bg-yellow-100 dark:bg-yellow-900/20 rounded-lg p-2' : ''}`}
@@ -553,7 +551,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                         </Avatar>
                       )}
 
-                      <div className="relative flex items-center gap-2">
+                      <div className="relative flex items-center gap-2 mt-[-13px]">
                         <div className={`relative ${isEmojiOnly ? 'bg-transparent px-0 py-0' : `max-w-xs px-4 py-2 ${isOwn
                           ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-md'
                           : 'bg-muted text-foreground rounded-2xl rounded-bl-md'
