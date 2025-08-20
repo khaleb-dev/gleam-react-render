@@ -499,7 +499,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
               )}
 
               {/* Message Container with spacing */}
-              <div className="mb-4">
+              <div className={`${selectedUser.isPage ? 'mb-4' : 'mb-6'}`}>
                 <div
                   ref={matchesSearch ? (el) => { highlightRefs.current[matchIndex] = el; } : undefined}
                   className={`group ${isCurrentMatch ? 'bg-yellow-100 dark:bg-yellow-900/20 rounded-lg p-2' : ''}`}
