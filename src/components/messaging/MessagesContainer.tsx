@@ -451,7 +451,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
       {/* Messages Area - Scrollable */}
       <div
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto p-4 bg-background"
+        className="flex-1 overflow-y-auto p-4 bg-background messages-background"
       >
         {messages.map((message, messageIndex) => {
           const isOwn = message.sender_id.user_id === user?.user_id || message.sender_id === user?.user_id;

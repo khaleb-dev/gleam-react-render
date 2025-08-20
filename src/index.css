@@ -216,6 +216,36 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
   }
+
+  /* Messages background */
+  .messages-background {
+    background-image: url('/lovable-uploads/c4384677-6927-4dde-a1c9-0251834d6146.png');
+    background-size: 400px 400px;
+    background-repeat: repeat;
+    background-position: center;
+    opacity: 0.05;
+    position: relative;
+  }
+
+  .messages-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/lovable-uploads/c4384677-6927-4dde-a1c9-0251834d6146.png');
+    background-size: 400px 400px;
+    background-repeat: repeat;
+    background-position: center;
+    opacity: 0.03;
+    z-index: -1;
+  }
+
+  .dark .messages-background::before {
+    filter: invert(1) brightness(0.3);
+    opacity: 0.02;
+  }
 }
 
 @layer utilities {
