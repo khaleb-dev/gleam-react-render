@@ -148,7 +148,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
 
     setTotalMatches(matchingMessages.length);
     setCurrentHighlight(matchingMessages.length > 0 ? 1 : 0);
-    
+
     // Reset highlight refs array
     highlightRefs.current = new Array(matchingMessages.length).fill(null);
 
@@ -169,7 +169,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
     const filesToUpload = [...selectedFiles];
     const replyTo = replyToMessage?._id;
 
-      // Separate files by type
+    // Separate files by type
     const imageFiles = filesToUpload.filter(file => file.type.startsWith('image/'));
     const videoFiles = filesToUpload.filter(file => file.type.startsWith('video/'));
 
@@ -233,8 +233,8 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
         // Replace optimistic message with real one and update status
         setMessages(prev =>
           prev.map(msg =>
-            msg._id === optimisticMessage._id ? { 
-              ...response.data, 
+            msg._id === optimisticMessage._id ? {
+              ...response.data,
               status: response.data?.isRead ? 'read' : 'sent'
             } : msg
           )
@@ -295,17 +295,17 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
 
   const getRepliedMessage = (replyTo: MessageData | string | undefined): MessageData | undefined => {
     if (!replyTo) return undefined;
-    
+
     // If reply_to is already a full message object, return it
     if (typeof replyTo === 'object' && '_id' in replyTo) {
       return replyTo;
     }
-    
+
     // If reply_to is just an ID string, find it in messages
     if (typeof replyTo === 'string') {
       return messages.find(msg => msg._id === replyTo);
     }
-    
+
     return undefined;
   };
 
@@ -374,13 +374,13 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
         // Replace failed message with successful one
         setMessages(prev =>
           prev.map(msg =>
-            msg._id === failedMessage._id ? { 
-              ...response.data, 
+            msg._id === failedMessage._id ? {
+              ...response.data,
               status: response.data?.isRead ? 'read' : 'sent'
             } : msg
           )
         );
-        
+
         // Notify parent component about new message for inbox update
         if (onMessageSent && failedMessage.content) {
           onMessageSent(failedMessage.recipient_id, failedMessage.content);
@@ -460,7 +460,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
           const isEmojiOnly = isSingleEmoji(message.content);
 
           // Check if this message matches the search
-          const matchesSearch = searchTerm && 
+          const matchesSearch = searchTerm &&
             message.content?.toLowerCase().includes(searchTerm.toLowerCase());
 
           // Get the index of this message among all matching messages
@@ -474,7 +474,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
 
           // Check if this is the currently highlighted match
           const isCurrentMatch = matchesSearch && matchIndex === currentHighlight - 1;
-          
+
           // Remove avatars from private messages completely
           const showAvatar = false;
           // For page channels, indent message bubble under the sender name (not the avatar)
@@ -485,207 +485,207 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
           const prevMessage = messageIndex > 0 ? messages[messageIndex - 1] : null;
           const showDateDivider = !prevMessage || !isSameDay(currentMessageDate, new Date(prevMessage.createdAt));
 
-           return (
+          return (
             <React.Fragment key={message._id}>
               {/* Date Divider */}
               {showDateDivider && (
-                <div className="flex justify-start my-6">
+                <div className="flex justify-center my-6">
                   <div className="bg-muted text-muted-foreground text-xs px-3 py-1 rounded-full">
                     {formatDateDivider(currentMessageDate)}
                   </div>
                 </div>
               )}
-              
+
               {/* Message Container with spacing */}
               <div className="mb-4">
                 <div
                   ref={matchesSearch ? (el) => { highlightRefs.current[matchIndex] = el; } : undefined}
                   className={`group ${isCurrentMatch ? 'bg-yellow-100 dark:bg-yellow-900/20 rounded-lg p-2' : ''}`}
                 >
-                {/* Replied Message Context */}
-                {repliedMessage && (
-                  <div className={`flex mb-2 ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                    {!isOwn && <div className="w-11" />}
-                    <div className="max-w-xs">
-                      <RepliedMessage repliedMessage={repliedMessage} isOwn={isOwn} />
+                  {/* Replied Message Context */}
+                  {repliedMessage && (
+                    <div className={`flex mb-2 ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                      {!isOwn && <div className="w-11" />}
+                      <div className="max-w-xs">
+                        <RepliedMessage repliedMessage={repliedMessage} isOwn={isOwn} />
+                      </div>
                     </div>
-                  </div>
-                )}
-
-                {/* Sender info for page_channel messages only */}
-                {selectedUser.isPage && !isOwn && (
-                  <div className="flex items-start gap-2 mb-2">
-                    <Avatar className="h-8 w-8 flex-shrink-0">
-                      <AvatarImage
-                        src={`https://robohash.org/${encodeURIComponent(message.sender_id.first_name || 'user')}?set=set4&size=200x200`}
-                        alt=""
-                        className="object-cover w-full h-full"
-                      />
-                      <AvatarFallback className="bg-secondary text-xs">
-                        {(message.sender_id.first_name || 'U').substring(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <span className={`text-xs font-medium ${getSenderColor(message.sender_id._id || message.sender_id.user_id)}`}>
-                        ~{`${message.sender_id.first_name || ''} ${message.sender_id.last_name || ''}`.trim() || 'Unknown User'}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-              {/* Message Content */}
-              {(message.content && message.content.trim()) && (!message.image_urls || message.image_urls.length === 0) && (
-                <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                  {/* Left spacer so bubble sits under the name when page channel */}
-                  {indentLeft && <div className="w-11" />}
-                  {/* Avatar for private messages only - single avatar */}
-                  {!isOwn && showAvatar && (
-                    <Avatar className="h-8 w-8 mr-3 mt-1 flex-shrink-0">
-                      <AvatarImage
-                        src={selectedUser.profile_picture || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(selectedUser.name || 'User')}`}
-                        className="object-cover"
-                      />
-                      <AvatarFallback className="bg-muted text-muted-foreground text-sm">
-                        {selectedUser.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
                   )}
-                  
-                   <div className="relative flex items-center gap-2">
-                     <div className={`relative ${isEmojiOnly ? 'bg-transparent px-0 py-0' : `max-w-xs px-4 py-2 ${isOwn 
-                       ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-md' 
-                       : 'bg-muted text-foreground rounded-2xl rounded-bl-md'
-                       }`} ${isEmojiOnly ? 'text-4xl' : 'text-sm'}`}>
-                       
-                       {/* Speech bubble pointer for private messages */}
-                       {!isOwn && !selectedUser.isPage && !isEmojiOnly && (
-                         <div className="absolute left-0 top-4 -translate-x-1 w-0 h-0 border-t-[8px] border-t-transparent border-r-[8px] border-r-muted border-b-[8px] border-b-transparent"></div>
-                       )}
-                       {isOwn && !isEmojiOnly && (
-                         <div className="absolute right-0 top-4 translate-x-1 w-0 h-0 border-t-[8px] border-t-transparent border-l-[8px] border-l-primary border-b-[8px] border-b-transparent"></div>
-                       )}
-                       
-                       {searchTerm ? (
-                         <HighlightedText text={message.content} searchTerm={searchTerm} />
-                       ) : (
-                         isEmojiOnly ? (
-                           <span className="text-4xl">{message.content}</span>
-                         ) : (
-                           <ChatMessageText text={message.content} isOwn={isOwn} />
-                         )
-                       )}
-                     </div>
-                    <MessageActions
-                      isOwn={isOwn}
-                      onReply={() => handleReply(message)}
-                      onDelete={isOwn ? () => handleDeleteMessage(message._id) : undefined}
-                      className={isOwn ? 'order-first' : ''}
-                    />
-                  </div>
-                </div>
-              )}
 
-              {/* Images */}
-              {message.image_urls && message.image_urls.length > 0 && (
-                <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                  {!isOwn && <div className="w-11" />}
-                  <div className="relative flex items-center gap-2">
-                    <div className="max-w-xs space-y-1">
-                      {message.image_urls.map((imageUrl, index) => (
-                        <img
-                          key={index}
-                          src={imageUrl}
-                          alt="Shared image"
-                          className="rounded-lg max-w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
-                          onClick={() => handleImageClick(message.image_urls!, index)}
+                  {/* Sender info for page_channel messages only */}
+                  {selectedUser.isPage && !isOwn && (
+                    <div className="flex items-start gap-2 mb-2">
+                      <Avatar className="h-8 w-8 flex-shrink-0">
+                        <AvatarImage
+                          src={`https://robohash.org/${encodeURIComponent(message.sender_id.first_name || 'user')}?set=set4&size=200x200`}
+                          alt=""
+                          className="object-cover w-full h-full"
                         />
-                      ))}
-                      {message.content && message.content.trim() && (
-                        <div className={`inline-block px-4 py-2 rounded-2xl text-sm max-w-full ${isOwn
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted text-foreground'
-                          }`}>
+                        <AvatarFallback className="bg-secondary text-xs">
+                          {(message.sender_id.first_name || 'U').substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <span className={`text-xs font-medium ${getSenderColor(message.sender_id._id || message.sender_id.user_id)}`}>
+                          ~{`${message.sender_id.first_name || ''} ${message.sender_id.last_name || ''}`.trim() || 'Unknown User'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Message Content */}
+                  {(message.content && message.content.trim()) && (!message.image_urls || message.image_urls.length === 0) && (
+                    <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                      {/* Left spacer so bubble sits under the name when page channel */}
+                      {indentLeft && <div className="w-11" />}
+                      {/* Avatar for private messages only - single avatar */}
+                      {!isOwn && showAvatar && (
+                        <Avatar className="h-8 w-8 mr-3 mt-1 flex-shrink-0">
+                          <AvatarImage
+                            src={selectedUser.profile_picture || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(selectedUser.name || 'User')}`}
+                            className="object-cover"
+                          />
+                          <AvatarFallback className="bg-muted text-muted-foreground text-sm">
+                            {selectedUser.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+
+                      <div className="relative flex items-center gap-2">
+                        <div className={`relative ${isEmojiOnly ? 'bg-transparent px-0 py-0' : `max-w-xs px-4 py-2 ${isOwn
+                          ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-md'
+                          : 'bg-muted text-foreground rounded-2xl rounded-bl-md'
+                          }`} ${isEmojiOnly ? 'text-4xl' : 'text-sm'}`}>
+
+                          {/* Speech bubble pointer for private messages */}
+                          {!isOwn && !selectedUser.isPage && !isEmojiOnly && (
+                            <div className="absolute left-0 top-4 -translate-x-1 w-0 h-0 border-t-[8px] border-t-transparent border-r-[8px] border-r-muted border-b-[8px] border-b-transparent"></div>
+                          )}
+                          {isOwn && !isEmojiOnly && (
+                            <div className="absolute right-0 top-4 translate-x-1 w-0 h-0 border-t-[8px] border-t-transparent border-l-[8px] border-l-primary border-b-[8px] border-b-transparent"></div>
+                          )}
+
                           {searchTerm ? (
                             <HighlightedText text={message.content} searchTerm={searchTerm} />
                           ) : (
-                            <ChatMessageText text={message.content} isOwn={isOwn} />
+                            isEmojiOnly ? (
+                              <span className="text-4xl">{message.content}</span>
+                            ) : (
+                              <ChatMessageText text={message.content} isOwn={isOwn} />
+                            )
                           )}
                         </div>
-                      )}
-                    </div>
-                    <MessageActions
-                      isOwn={isOwn}
-                      onReply={() => handleReply(message)}
-                      onDelete={isOwn ? () => handleDeleteMessage(message._id) : undefined}
-                      className={isOwn ? 'order-first' : ''}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Videos */}
-              {message.video_urls && message.video_urls.length > 0 && (
-                <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                  {!isOwn && <div className="w-11" />}
-                  <div className="relative flex items-center gap-2">
-                    <div className="max-w-xs space-y-1">
-                      {message.video_urls.map((videoUrl, index) => (
-                        <VideoPlayer
-                          key={index}
-                          src={videoUrl}
-                          className="rounded-lg max-w-full"
-                          enableScrollAutoPlay={false}
-                          enablePictureInPicture={false}
-                          showMinimalControls={true}
+                        <MessageActions
+                          isOwn={isOwn}
+                          onReply={() => handleReply(message)}
+                          onDelete={isOwn ? () => handleDeleteMessage(message._id) : undefined}
+                          className={isOwn ? 'order-first' : ''}
                         />
-                      ))}
-                      {message.content && message.content.trim() && (
-                        <div className={`inline-block px-4 py-2 rounded-2xl text-sm max-w-full ${isOwn
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted text-foreground'
-                          }`}>
-                          {searchTerm ? (
-                            <HighlightedText text={message.content} searchTerm={searchTerm} />
-                          ) : (
-                            <ChatMessageText text={message.content} isOwn={isOwn} />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Images */}
+                  {message.image_urls && message.image_urls.length > 0 && (
+                    <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                      {!isOwn && <div className="w-11" />}
+                      <div className="relative flex items-center gap-2">
+                        <div className="max-w-xs space-y-1">
+                          {message.image_urls.map((imageUrl, index) => (
+                            <img
+                              key={index}
+                              src={imageUrl}
+                              alt="Shared image"
+                              className="rounded-lg max-w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={() => handleImageClick(message.image_urls!, index)}
+                            />
+                          ))}
+                          {message.content && message.content.trim() && (
+                            <div className={`inline-block px-4 py-2 rounded-2xl text-sm max-w-full ${isOwn
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted text-foreground'
+                              }`}>
+                              {searchTerm ? (
+                                <HighlightedText text={message.content} searchTerm={searchTerm} />
+                              ) : (
+                                <ChatMessageText text={message.content} isOwn={isOwn} />
+                              )}
+                            </div>
                           )}
                         </div>
-                      )}
+                        <MessageActions
+                          isOwn={isOwn}
+                          onReply={() => handleReply(message)}
+                          onDelete={isOwn ? () => handleDeleteMessage(message._id) : undefined}
+                          className={isOwn ? 'order-first' : ''}
+                        />
+                      </div>
                     </div>
-                    <MessageActions
-                      isOwn={isOwn}
-                      onReply={() => handleReply(message)}
-                      onDelete={isOwn ? () => handleDeleteMessage(message._id) : undefined}
-                      className={isOwn ? 'order-first' : ''}
-                    />
-                  </div>
-                </div>
-              )}
+                  )}
 
-              {/* Link Preview */}
-              {url && (
-                <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                  {!isOwn && <div className="w-11" />}
-                  <div className="max-w-xs">
-                    <LinkPreview url={url} compact />
-                  </div>
-                </div>
-              )}
+                  {/* Videos */}
+                  {message.video_urls && message.video_urls.length > 0 && (
+                    <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                      {!isOwn && <div className="w-11" />}
+                      <div className="relative flex items-center gap-2">
+                        <div className="max-w-xs space-y-1">
+                          {message.video_urls.map((videoUrl, index) => (
+                            <VideoPlayer
+                              key={index}
+                              src={videoUrl}
+                              className="rounded-lg max-w-full"
+                              enableScrollAutoPlay={false}
+                              enablePictureInPicture={false}
+                              showMinimalControls={true}
+                            />
+                          ))}
+                          {message.content && message.content.trim() && (
+                            <div className={`inline-block px-4 py-2 rounded-2xl text-sm max-w-full ${isOwn
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted text-foreground'
+                              }`}>
+                              {searchTerm ? (
+                                <HighlightedText text={message.content} searchTerm={searchTerm} />
+                              ) : (
+                                <ChatMessageText text={message.content} isOwn={isOwn} />
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <MessageActions
+                          isOwn={isOwn}
+                          onReply={() => handleReply(message)}
+                          onDelete={isOwn ? () => handleDeleteMessage(message._id) : undefined}
+                          className={isOwn ? 'order-first' : ''}
+                        />
+                      </div>
+                    </div>
+                  )}
 
-              {/* Timestamp with more spacing */}
-              <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mt-3`}>
-                <div className={`flex items-center gap-1 ${isOwn ? 'mr-3' : (indentLeft ? 'ml-11' : '')}`}>
-                  <p className="text-xs text-muted-foreground text-left">
-                    {formatTime(message.timestamp)}
-                  </p>
-                  <MessageStatus 
-                    message={message} 
-                    isOwn={isOwn}
-                    currentUserId={user?._id}
-                    onRetry={() => handleRetryMessage(message)}
-                  />
-                </div>
-              </div>
+                  {/* Link Preview */}
+                  {url && (
+                    <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                      {!isOwn && <div className="w-11" />}
+                      <div className="max-w-xs">
+                        <LinkPreview url={url} compact />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Timestamp with more spacing */}
+                  <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mt-3`}>
+                    <div className={`flex items-center gap-1 ${isOwn ? 'mr-3' : (indentLeft ? 'ml-11' : '')}`}>
+                      <p className="text-xs text-muted-foreground text-left">
+                        {formatTime(message.timestamp)}
+                      </p>
+                      <MessageStatus
+                        message={message}
+                        isOwn={isOwn}
+                        currentUserId={user?._id}
+                        onRetry={() => handleRetryMessage(message)}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </React.Fragment>
