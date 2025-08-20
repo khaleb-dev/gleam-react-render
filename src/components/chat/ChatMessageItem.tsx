@@ -56,8 +56,8 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
 
   return (
     <div className="w-full">
-      {/* Sender name - shown for all messages */}
-      {!isOwn && (
+      {/* Sender name - shown for responder messages only */}
+      {message.sender_type === "responder" && (
         <div className="mb-1 ml-10">
           <span className={cn("text-xs font-medium", senderColor)}>
             {senderName}
