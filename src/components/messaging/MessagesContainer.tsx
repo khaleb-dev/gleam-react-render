@@ -52,6 +52,20 @@ const HighlightedText: React.FC<{ text: string; searchTerm: string }> = ({ text,
   );
 };
 
+// Generate unique color for sender name based on sender ID
+const getSenderColor = (senderId: string) => {
+  const colors = [
+    'text-blue-600', 'text-green-600', 'text-purple-600', 'text-red-600',
+    'text-indigo-600', 'text-pink-600', 'text-yellow-600', 'text-teal-600',
+    'text-orange-600', 'text-cyan-600', 'text-emerald-600', 'text-violet-600'
+  ];
+  let hash = 0;
+  for (let i = 0; i < senderId.length; i++) {
+    hash = ((hash << 5) - hash + senderId.charCodeAt(i)) & 0xffffffff;
+  }
+  return colors[Math.abs(hash) % colors.length];
+};
+
 export const MessagesContainer: React.FC<MessagesContainerProps> = ({
   selectedUser,
   user,
@@ -466,6 +480,15 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                   <div className="max-w-xs">
                     <RepliedMessage repliedMessage={repliedMessage} isOwn={isOwn} />
                   </div>
+                </div>
+              )}
+
+              {/* Sender name - shown for page_channel messages only */}
+              {selectedUser.isPage && !isOwn && (
+                <div className="mb-1 ml-11">
+                  <span className={`text-xs font-medium ${getSenderColor(message.sender_id._id || message.sender_id.user_id)}`}>
+                    {`${message.sender_id.first_name || ''} ${message.sender_id.last_name || ''}`.trim() || 'Unknown User'}
+                  </span>
                 </div>
               )}
 
