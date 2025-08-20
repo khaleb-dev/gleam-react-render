@@ -489,15 +489,17 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
             <React.Fragment key={message._id}>
               {/* Date Divider */}
               {showDateDivider && (
-                <div className="flex justify-center my-6">
-                  <div className="bg-muted text-muted-foreground text-xs px-3 py-1 rounded-full">
+                <div className="flex items-center justify-center my-6">
+                  <div className="flex-1 h-px bg-border"></div>
+                  <div className="bg-muted text-muted-foreground text-xs px-3 py-1 rounded-full mx-4">
                     {formatDateDivider(currentMessageDate)}
                   </div>
+                  <div className="flex-1 h-px bg-border"></div>
                 </div>
               )}
 
               {/* Message Container with spacing */}
-              <div className="mb-4">
+              <div className="mb-6">
                 <div
                   ref={matchesSearch ? (el) => { highlightRefs.current[matchIndex] = el; } : undefined}
                   className={`group ${isCurrentMatch ? 'bg-yellow-100 dark:bg-yellow-900/20 rounded-lg p-2' : ''}`}

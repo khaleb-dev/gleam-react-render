@@ -101,7 +101,7 @@ export const EmojiPicker = ({ onEmojiSelect }: EmojiPickerProps) => {
 
   const handleEmojiClick = (emoji: string) => {
     onEmojiSelect(emoji);
-    setIsOpen(false);
+    // Don't close the picker when selecting an emoji
   };
 
   return (
