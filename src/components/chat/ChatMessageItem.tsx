@@ -37,13 +37,40 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
   // Look for a link to show preview
   const detectedUrl = findFirstUrl(message.message || "");
 
+  // Generate unique color for sender name based on sender ID
+  const getSenderColor = (senderId: string) => {
+    const colors = [
+      'text-blue-600', 'text-green-600', 'text-purple-600', 'text-red-600',
+      'text-indigo-600', 'text-pink-600', 'text-yellow-600', 'text-teal-600',
+      'text-orange-600', 'text-cyan-600', 'text-emerald-600', 'text-violet-600'
+    ];
+    let hash = 0;
+    for (let i = 0; i < senderId.length; i++) {
+      hash = ((hash << 5) - hash + senderId.charCodeAt(i)) & 0xffffffff;
+    }
+    return colors[Math.abs(hash) % colors.length];
+  };
+
+  const senderName = `${sender?.first_name || ''} ${sender?.last_name || ''}`.trim() || 'Unknown User';
+  const senderColor = getSenderColor(message.sender_id.user_id || message.sender_id._id);
+
   return (
-    <div
-      className={cn(
-        'group flex w-full items-end gap-2',
-        isOwn ? 'justify-end' : 'justify-start'
+    <div className="w-full">
+      {/* Sender name - shown for all messages */}
+      {!isOwn && (
+        <div className="mb-1 ml-10">
+          <span className={cn("text-xs font-medium", senderColor)}>
+            {senderName}
+          </span>
+        </div>
       )}
-    >
+      
+      <div
+        className={cn(
+          'group flex w-full items-end gap-2',
+          isOwn ? 'justify-end' : 'justify-start'
+        )}
+      >
       {/* Avatar (left, for others only) */}
       {!isOwn && showAvatar ? (
         <Avatar className="h-8 w-8 flex-shrink-0">
@@ -130,6 +157,7 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
           </AvatarFallback>
         </Avatar>
       ) : isOwn && <div className="w-8" />}
+      </div>
     </div>
   );
 };

@@ -429,8 +429,10 @@ const CompanyProfile = () => {
 
     return (
       <div className="space-y-6">
-        {/* Pending Invites */}
-        <PendingMembersList pageId={companyId} showTitle={true} />
+        {/* Pending Invites - Only visible to admin and super admin */}
+        {(permissions.isAdmin || permissions.isSuperAdmin) && (
+          <PendingMembersList pageId={companyId} showTitle={true} />
+        )}
 
         {/* Team Members */}
         <div>
