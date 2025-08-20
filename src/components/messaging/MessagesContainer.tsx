@@ -18,6 +18,7 @@ import { isSingleEmoji } from '@/utils/emojiUtils';
 import { ImagePreviewModal } from '@/components/chat/ImagePreviewModal';
 import { VideoPlayer } from '@/components/ui/VideoPlayer';
 import { MessageStatus } from './MessageStatus';
+import { format, isToday, isYesterday, isSameDay } from 'date-fns';
 
 interface MessagesContainerProps {
   selectedUser: any;
@@ -64,6 +65,13 @@ const getSenderColor = (senderId: string) => {
     hash = ((hash << 5) - hash + senderId.charCodeAt(i)) & 0xffffffff;
   }
   return colors[Math.abs(hash) % colors.length];
+};
+
+// Format date for dividers
+const formatDateDivider = (date: Date) => {
+  if (isToday(date)) return 'Today';
+  if (isYesterday(date)) return 'Yesterday';
+  return format(date, 'MMMM d, yyyy');
 };
 
 export const MessagesContainer: React.FC<MessagesContainerProps> = ({
@@ -443,7 +451,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
       {/* Messages Area - Scrollable */}
       <div
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto p-4 space-y-4 bg-background"
+        className="flex-1 overflow-y-auto p-4 bg-background"
       >
         {messages.map((message, messageIndex) => {
           const isOwn = message.sender_id.user_id === user?.user_id || message.sender_id === user?.user_id;
@@ -467,30 +475,54 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
           // Check if this is the currently highlighted match
           const isCurrentMatch = matchesSearch && matchIndex === currentHighlight - 1;
 
+          // Check if we need to show a date divider
+          const currentMessageDate = new Date(message.createdAt);
+          const prevMessage = messageIndex > 0 ? messages[messageIndex - 1] : null;
+          const showDateDivider = !prevMessage || !isSameDay(currentMessageDate, new Date(prevMessage.createdAt));
+
           return (
-            <div
-              key={message._id}
-              ref={matchesSearch ? (el) => { highlightRefs.current[matchIndex] = el; } : undefined}
-              className={`group space-y-2 ${isCurrentMatch ? 'bg-yellow-100 dark:bg-yellow-900/20 rounded-lg p-2' : ''}`}
-            >
-              {/* Replied Message Context */}
-              {repliedMessage && (
-                <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                  {!isOwn && <div className="w-11" />}
-                  <div className="max-w-xs">
-                    <RepliedMessage repliedMessage={repliedMessage} isOwn={isOwn} />
+            <React.Fragment key={message._id}>
+              {/* Date Divider */}
+              {showDateDivider && (
+                <div className="flex justify-center my-6">
+                  <div className="bg-muted text-muted-foreground text-xs px-3 py-1 rounded-full">
+                    {formatDateDivider(currentMessageDate)}
                   </div>
                 </div>
               )}
 
-              {/* Sender name - shown for page_channel messages only */}
-              {selectedUser.isPage && !isOwn && (
-                <div className="mb-1 ml-11">
-                  <span className={`text-xs font-medium ${getSenderColor(message.sender_id._id || message.sender_id.user_id)}`}>
-                    {`${message.sender_id.first_name || ''} ${message.sender_id.last_name || ''}`.trim() || 'Unknown User'}
-                  </span>
-                </div>
-              )}
+              <div
+                ref={matchesSearch ? (el) => { highlightRefs.current[matchIndex] = el; } : undefined}
+                className={`group mb-6 ${isCurrentMatch ? 'bg-yellow-100 dark:bg-yellow-900/20 rounded-lg p-2' : ''}`}
+              >
+                {/* Replied Message Context */}
+                {repliedMessage && (
+                  <div className={`flex mb-2 ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                    {!isOwn && <div className="w-11" />}
+                    <div className="max-w-xs">
+                      <RepliedMessage repliedMessage={repliedMessage} isOwn={isOwn} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Sender name and avatar - shown for page_channel messages only */}
+                {selectedUser.isPage && !isOwn && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <Avatar className="h-6 w-6 flex-shrink-0">
+                      <AvatarImage
+                        src={`https://robohash.org/${encodeURIComponent(message.sender_id.first_name || 'user')}?set=set4&size=200x200`}
+                        alt=""
+                        className="object-cover w-full h-full"
+                      />
+                      <AvatarFallback className="bg-secondary text-xs">
+                        {(message.sender_id.first_name || 'U').substring(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className={`text-xs font-medium ${getSenderColor(message.sender_id._id || message.sender_id.user_id)}`}>
+                      ~{`${message.sender_id.first_name || ''} ${message.sender_id.last_name || ''}`.trim() || 'Unknown User'}
+                    </span>
+                  </div>
+                )}
 
               {/* Message Content */}
               {(message.content && message.content.trim()) && (!message.image_urls || message.image_urls.length === 0) && (
@@ -631,7 +663,8 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                   />
                 </div>
               </div>
-            </div>
+              </div>
+            </React.Fragment>
           );
         })}
 
