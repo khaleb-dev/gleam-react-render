@@ -47,6 +47,7 @@ interface FeedPost {
     // For users
     first_name?: string
     last_name?: string
+    profile_avatar: string
     // For pages
     name?: string
     company_url?: string
@@ -276,7 +277,7 @@ const Feed = () => {
             </div>
 
             {/* Main Feed - Fixed width for large screens */}
-            <div className="w-full lg:w-[600px] lg:flex-shrink-0 lg:pt-4">
+            <div className="w-full lg:w-[550px] lg:flex-shrink-0 lg:pt-4">
 
               {/* Create Post Card - only show if logged in */}
               {user && (
@@ -416,7 +417,7 @@ const Feed = () => {
             </div>
 
             {/* Right Sidebar - Only show on large screens with proper sticky positioning */}
-            <div className="hidden lg:block lg:w-[21rem] lg:flex-shrink-0 lg:pt-4">
+            <div className="hidden lg:block lg:w-[20rem] lg:flex-shrink-0 lg:pt-4">
               <div className="space-y-4">
                 <FollowingPagesCard />
                 <SuggestedPagesCard />

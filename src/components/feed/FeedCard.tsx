@@ -38,6 +38,7 @@ interface FeedPost {
   updated_at: string
   __v: number
   owner: {
+    profile_avatar: string
     type: 'user' | 'page'
     // For users
     first_name?: string
@@ -244,10 +245,11 @@ export const FeedCard: React.FC<FeedCardProps> = ({
               >
                 <AvatarImage
                   src={
-                    post.owner?.logo ||
-                    `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(
-                      post.owner?.name || post.owner?.first_name || 'User'
-                    )}`
+                    post.owner.type === 'user' ? post.owner.profile_avatar :
+                      post.owner?.logo ||
+                      `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(
+                        post.owner?.name || post.owner?.first_name || 'User'
+                      )}`
                   }
                   alt={
                     post.owner?.type === 'page'
@@ -315,7 +317,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
                           user_id: post.user_id,
                           first_name: post.owner.first_name || '',
                           last_name: post.owner.last_name || '',
-                          profile_avatar: null
+                          profile_avatar: post.owner.profile_avatar || ''
                         }}
                         className="scale-75"
                       />
