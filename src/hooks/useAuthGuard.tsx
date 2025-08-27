@@ -3,8 +3,24 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from './useAuth';
 
-// Track whether we've already shown an offline toast in this session
-let offlineToastShown = false;
+// Track offline toasts per session with better management
+const offlineToastState = {
+  shown: false,
+  timestamp: 0,
+  reset() {
+    this.shown = false;
+    this.timestamp = 0;
+  },
+  canShow() {
+    const now = Date.now();
+    // Allow showing toast again after 5 minutes or if never shown
+    return !this.shown || (now - this.timestamp > 300000);
+  },
+  markShown() {
+    this.shown = true;
+    this.timestamp = Date.now();
+  }
+};
 
 export const useAuthGuard = (requireAuth = true) => {
   const { verifyAuthToken } = useAuth()
@@ -14,13 +30,23 @@ export const useAuthGuard = (requireAuth = true) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasVerified, setHasVerified] = useState(false);
 
-  // Reset single-toast guard when we come back online
+  // Reset offline toast state when connection is restored
   useEffect(() => {
     const onOnline = () => {
-      offlineToastShown = false;
+      console.log('Network connection restored');
+      offlineToastState.reset();
     };
+    
+    const onOffline = () => {
+      console.log('Network connection lost');
+    };
+    
     window.addEventListener('online', onOnline);
-    return () => window.removeEventListener('online', onOnline);
+    window.addEventListener('offline', onOffline);
+    return () => {
+      window.removeEventListener('online', onOnline);
+      window.removeEventListener('offline', onOffline);
+    };
   }, []);
 
   // Check only cookie for auth (no localStorage dependency)
@@ -72,8 +98,8 @@ export const useAuthGuard = (requireAuth = true) => {
           } else if (result?.offline) {
             // Network issue: keep user in place, do not clear cookie or redirect
             setIsAuthenticated(true);
-            if (!offlineToastShown) {
-              offlineToastShown = true;
+            if (offlineToastState.canShow()) {
+              offlineToastState.markShown();
               toast.error("Network connection issue. You're still signed in; some features may be limited.");
             }
           } else {
@@ -85,10 +111,10 @@ export const useAuthGuard = (requireAuth = true) => {
         } catch (error) {
           console.log("Token verification error:", error);
           if (isNetworkError(error)) {
-            // Network error: keep session, single toast, no redirect
+            // Network error: keep session, prevent toast spam
             setIsAuthenticated(true);
-            if (!offlineToastShown) {
-              offlineToastShown = true;
+            if (offlineToastState.canShow()) {
+              offlineToastState.markShown();
               toast.error("Network connection issue. You're still signed in; some features may be limited.");
             }
           } else {

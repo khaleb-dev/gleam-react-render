@@ -130,11 +130,18 @@ export const useAuth = () => {
           // Notify other tabs of auth change
           notifyAuthChange();
           
-          // Navigate to home after successful login
-          setTimeout(() => {
-            console.log("🔐 Auth successful, navigating to home page...");
-            navigate("/")
-          }, 200);
+          // Force immediate auth state verification to prevent stale state
+          setTimeout(async () => {
+            console.log("🔐 Auth successful, verifying state and navigating...");
+            // Clear any cached verification results to force fresh check
+            lastVerifyResult = null;
+            lastVerifyAt = 0;
+            
+            // Navigate to intended page or home
+            const urlParams = new URLSearchParams(location.search);
+            const returnTo = urlParams.get('returnTo');
+            navigate(returnTo || "/");
+          }, 100);
         } else {
           console.error("🔐 No user data received from login response");
         }
@@ -259,11 +266,18 @@ export const useAuth = () => {
           // Notify other tabs of auth change
           notifyAuthChange();
           
-          // Navigate to home after successful login
-          setTimeout(() => {
-            console.log("🔐 Google Auth successful, navigating to home page...");
-            navigate("/");
-          }, 200);
+          // Force immediate auth state verification to prevent stale state
+          setTimeout(async () => {
+            console.log("🔐 Google Auth successful, verifying state and navigating...");
+            // Clear any cached verification results to force fresh check
+            lastVerifyResult = null;
+            lastVerifyAt = 0;
+            
+            // Navigate to intended page or home
+            const urlParams = new URLSearchParams(location.search);
+            const returnTo = urlParams.get('returnTo');
+            navigate(returnTo || "/");
+          }, 100);
         } else {
           console.error("🔐 No user data received from Google login response");
           toast.error("Login failed. No user data received.");
