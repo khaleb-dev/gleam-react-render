@@ -27,6 +27,9 @@ import { UserPagesCard } from "@/components/feed/UserPagesCard"
 interface FeedPost {
   _id: string
   user_id: string
+  user_type: 'user' | 'Page'
+  created_by?: string
+  visibility: string
   title: string
   description: string
   images: string[]
@@ -39,28 +42,17 @@ interface FeedPost {
   created_at: string
   updated_at: string
   __v: number
-  user: {
-    first_name: string
-    last_name: string
-    profile_avatar: string
-    email: string
-    is_vetted: boolean
-    responder_info: {
-      job_title: string
-      years_of_experience: number
-      skills: string[]
-      rank_status: {
-        _id: string
-        rank_name: string
-        rank_color: string
-        min_tasks_completed: number
-        min_rating: number
-        __v: number
-        createdAt: string
-        updatedAt: string
-      }
-      availability_status: string
-    }
+  owner: {
+    type: 'user' | 'page'
+    // For users
+    first_name?: string
+    last_name?: string
+    // For pages
+    name?: string
+    company_url?: string
+    website?: string
+    industry?: string
+    logo?: string
   }
   has_scored: boolean
   people_score_count: number
@@ -274,7 +266,7 @@ const Feed = () => {
           <div className="w-full lg:max-w-8xl lg:mx-auto lg:flex lg:gap-6 lg:px-4 lg:items-start">
 
             {/* Left Sidebar - Profile Stats and Top Responders (Only show on large screens) */}
-            <div className="hidden lg:block lg:w-75 lg:flex-shrink-0 lg:pt-4">
+            <div className="hidden lg:block lg:w-64 lg:flex-shrink-0 lg:pt-4">
               <div className="space-y-4">
                 <ProfileStatsCard user={user} />
                 <UserPagesCard />
@@ -284,7 +276,7 @@ const Feed = () => {
             </div>
 
             {/* Main Feed - Fixed width for large screens */}
-            <div className="w-full lg:w-[510px] lg:flex-shrink-0 lg:pt-4">
+            <div className="w-full lg:w-[600px] lg:flex-shrink-0 lg:pt-4">
 
               {/* Create Post Card - only show if logged in */}
               {user && (
@@ -424,7 +416,7 @@ const Feed = () => {
             </div>
 
             {/* Right Sidebar - Only show on large screens with proper sticky positioning */}
-            <div className="hidden lg:block lg:w-80 lg:flex-shrink-0 lg:pt-4">
+            <div className="hidden lg:block lg:w-[21rem] lg:flex-shrink-0 lg:pt-4">
               <div className="space-y-4">
                 <FollowingPagesCard />
                 <SuggestedPagesCard />

@@ -3,6 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { API_BASE_URL } from '@/config/env'
 
 interface CreatePostPayload {
+  user_id: string
+  user_type: 'user' | 'Page'
+  visibility: 'public' | 'private' | 'followers'
   title: string
   description: string
   images?: string[]
@@ -22,6 +25,9 @@ interface ScorePayload {
 interface FeedPost {
   _id: string
   user_id: string
+  user_type: 'user' | 'Page'
+  created_by?: string
+  visibility: string
   title: string
   description: string
   images: string[]
@@ -34,29 +40,20 @@ interface FeedPost {
   created_at: string
   updated_at: string
   __v: number
-  user: {
-    first_name: string
-    last_name: string
-    email: string
-    is_vetted: boolean
-    responder_info: {
-      job_title: string
-      years_of_experience: number
-      skills: string[]
-      rank_status: {
-        _id: string
-        rank_name: string
-        rank_color: string
-        min_tasks_completed: number
-        min_rating: number
-        __v: number
-        createdAt: string
-        updatedAt: string
-      }
-      availability_status: string
-    }
+  owner: {
+    type: 'user' | 'page'
+    // For users
+    first_name?: string
+    last_name?: string
+    // For pages
+    name?: string
+    company_url?: string
+    website?: string
+    industry?: string
+    logo?: string
   }
   has_scored: boolean
+  people_score_count: number
 }
 
 interface ApiResponse {
@@ -100,6 +97,10 @@ const getAuthToken = () => {
 // Helper function to transform API post to component format (not used but kept for future reference)
 const transformPost = (apiPost: FeedPost) => {
   const timeAgo = new Date(apiPost.created_at).toLocaleDateString()
+  
+  const ownerName = apiPost.owner.type === 'page' 
+    ? apiPost.owner.name || '' 
+    : `${apiPost.owner.first_name || ''} ${apiPost.owner.last_name || ''}`.trim()
 
   return {
     id: apiPost._id,
@@ -112,8 +113,10 @@ const transformPost = (apiPost: FeedPost) => {
     comments: apiPost.comments_count,
     timeAgo: timeAgo,
     user: {
-      name: `${apiPost.user.first_name} ${apiPost.user.last_name}`,
-      avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(apiPost.user.first_name)}`,
+      name: ownerName,
+      avatar: apiPost.owner.type === 'page' 
+        ? apiPost.owner.logo || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(ownerName)}`
+        : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(ownerName)}`,
       rating: 4.5,
       completedTasks: 0,
       rank: "intermediate" as const,

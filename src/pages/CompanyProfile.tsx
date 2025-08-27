@@ -28,6 +28,7 @@ import { usePageMembers } from '@/hooks/usePageMembers';
 import { usePagePermissions } from '@/hooks/usePagePermissions';
 import { useSendMultiplePageInvites } from '@/hooks/useSendPageInvite';
 import { API_BASE_URL } from '@/config/env';
+import { useFeed } from '@/hooks/useFeed';
 
 // Mock posts data for feed
 const mockPosts = [
@@ -114,6 +115,7 @@ const CompanyProfile = () => {
   const { data: rolesData } = useCompanyPageRoles();
   const { uploadFile, isUploading } = useSingleFileUpload();
   const sendMultipleInvites = useSendMultiplePageInvites();
+  const { createPost } = useFeed();
 
   // Search users using API
   const searchUsersApi = async (query: string) => {
@@ -371,6 +373,7 @@ const CompanyProfile = () => {
 
   const handlePostSubmit = async (postData: any) => {
     try {
+      await createPost(postData);
       toast.success('Post created successfully!');
       setPostContent('');
     } catch (error) {
@@ -896,6 +899,8 @@ const CompanyProfile = () => {
                     role: 'admin'
                   } as any}
                   onPostCreate={handlePostSubmit}
+                  pageId={companyData._id}
+                  pageName={companyData.name}
                 />
               )}
 

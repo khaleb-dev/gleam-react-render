@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { Heart, MessageCircle, Share2, Star, ChevronLeft, ChevronRight, Trash2, Check, MoreHorizontal, Send } from "lucide-react"
+import { Heart, MessageCircle, Share2, Star, ChevronLeft, ChevronRight, Trash2, Check, MoreHorizontal, Send, Globe } from "lucide-react"
 import { getMediaType } from "@/utils/mediaUtils"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -22,6 +22,9 @@ import { useLinkup } from "@/hooks/useLinkup"
 interface FeedPost {
   _id: string
   user_id: string
+  user_type: 'user' | 'Page'
+  created_by?: string
+  visibility: string
   title: string
   description: string
   images: string[]
@@ -34,28 +37,17 @@ interface FeedPost {
   created_at: string
   updated_at: string
   __v: number
-  user: {
-    profile_avatar: any
-    first_name: string
-    last_name: string
-    email: string
-    is_vetted: boolean
-    responder_info?: {
-      job_title: string
-      years_of_experience: number
-      skills: string[]
-      rank_status: {
-        _id: string
-        rank_name: string
-        rank_color: string
-        min_tasks_completed: number
-        min_rating: number
-        __v: number
-        createdAt: string
-        updatedAt: string
-      }
-      availability_status: string
-    }
+  owner: {
+    type: 'user' | 'page'
+    // For users
+    first_name?: string
+    last_name?: string
+    // For pages
+    name?: string
+    company_url?: string
+    website?: string
+    industry?: string
+    logo?: string
   }
   has_scored: boolean
   people_score_count: number
@@ -240,23 +232,40 @@ export const FeedCard: React.FC<FeedCardProps> = ({
           <div className="flex items-center space-x-2.5">
             <div className="relative">
               <Avatar
-                className="h-10 w-10 flex-shrink-0 cursor-pointer"
+                className="h-12 w-12 flex-shrink-0 cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(`/profile/${post.user_id}`);
+                  if (post.user_type === 'Page' && post.owner?.company_url) {
+                    navigate(`/company/page/${post.owner.company_url}`);
+                  } else {
+                    navigate(`/profile/${post.user_id}`);
+                  }
                 }}
               >
                 <AvatarImage
-                  src={post.user?.profile_avatar ? post.user?.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(post.user.first_name)}`}
-                  alt={`${post.user.first_name} ${post.user.last_name}`}
+                  src={
+                    post.owner?.logo ||
+                    `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(
+                      post.owner?.name || post.owner?.first_name || 'User'
+                    )}`
+                  }
+                  alt={
+                    post.owner?.type === 'page'
+                      ? post.owner?.name || 'Page'
+                      : `${post.owner?.first_name || ''} ${post.owner?.last_name || ''}`.trim()
+                  }
                   className="object-cover"
                 />
                 <AvatarFallback style={{ fontSize: '12px' }}>
-                  {post.user.first_name?.[0]}
-                  {post.user.last_name?.[0]}
+                  {(
+                    post.owner?.type === 'page'
+                      ? post.owner?.name?.[0]
+                      : post.owner?.first_name?.[0]
+                  ) || 'U'}
+                  {post.owner?.type === 'user' ? post.owner?.last_name?.[0] || '' : ''}
                 </AvatarFallback>
               </Avatar>
-              
+
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
@@ -266,64 +275,60 @@ export const FeedCard: React.FC<FeedCardProps> = ({
                     style={{ fontSize: '12px' }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`/profile/${post.user_id}`);
+                      if (post.user_type === 'Page' && post.owner?.company_url) {
+                        navigate(`/company/page/${post.owner.company_url}`);
+                      } else {
+                        navigate(`/profile/${post.user_id}`);
+                      }
                     }}
                   >
-                    {post.user.first_name} {post.user.last_name}
-                  </h4>
-                  {post.user.is_vetted && (
-                    <>
-                      <Check className="h-3 w-3 text-green-600" />
-                      <span className="text-gray-400" style={{ fontSize: '12px' }}>•</span>
-                    </>
-                  )}
-                  {post.user.responder_info?.rank_status && (
-                    <span
-                      className="text-xs capitalize px-1.5 py-0.5 rounded-full"
-                      style={{
-                        fontSize: '12px',
-                        backgroundColor: post.user.responder_info.rank_status.rank_color + '20',
-                        color: post.user.responder_info.rank_status.rank_color
-                      }}
-                    >
-                      {post.user.responder_info.rank_status.rank_name}
-                    </span>
-                  )}
-                 </div>
-                 <div className="flex items-center gap-2">
-                    {/* Don't show message button if it's the current user's post - hide on mobile */}
-                    {currentUser && currentUser.user_id !== post.user_id && (
-                      <div className="hidden lg:block">
-                        <MessageButton 
-                          user={{
-                            user_id: post.user_id,
-                            first_name: post.user.first_name,
-                            last_name: post.user.last_name,
-                            profile_avatar: post.user.profile_avatar
-                          }}
-                          className="scale-75"
-                        />
-                      </div>
+                    {post.owner?.type === 'page' ? (post.owner?.name || 'Page') : `${post.owner?.first_name || ''} ${post.owner?.last_name || ''}`.trim()}
+                    <br />
+                    {post.user_type === 'Page' && post.owner?.industry && (
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {post.owner.industry}
+                      </span>
                     )}
-                   <LinkupButton userId={post.user_id} />
-                 </div>
-               </div>
+                  </h4>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                        <Globe className="h-3 w-3 text-gray-500" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 z-50">
+                      <DropdownMenuItem className="text-xs">
+                        <span className="capitalize">{post.visibility}</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+
+                </div>
+                <div className="flex items-center gap-2">
+                  {/* Don't show message button if it's the current user's post - hide on mobile */}
+                  {currentUser && currentUser.user_id !== post.user_id && post.user_type === 'user' && (
+                    <div className="hidden lg:block">
+                      <MessageButton
+                        user={{
+                          user_id: post.user_id,
+                          first_name: post.owner.first_name || '',
+                          last_name: post.owner.last_name || '',
+                          profile_avatar: null
+                        }}
+                        className="scale-75"
+                      />
+                    </div>
+                  )}
+                  {post.user_type === 'user' && <LinkupButton userId={post.user_id} />}
+                </div>
+              </div>
 
               <div className="flex items-center space-x-1.5 text-gray-500 dark:text-gray-400" style={{ fontSize: '12px' }}>
-                {post.user.is_vetted && post.user.responder_info && (
-                  <>
-                    <span>{post.user.responder_info.job_title}</span>
-                    <span>•</span>
-                    <div className="flex items-center">
-                      <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400 mr-0.5" />
-                      <span>{post.user.responder_info.years_of_experience}y</span>
-                    </div>
-                    <span>•</span>
-                  </>
-                )}
                 <span>{new Date(post.created_at).toLocaleDateString()}</span>
               </div>
-              <LinkupCount userId={post.user_id} className="mb-1" />
+              {post.user_type === 'user' && <LinkupCount userId={post.user_id} className="mb-1" />}
             </div>
             {/* Menu Dropdown - Show for everyone */}
             <DropdownMenu>
@@ -537,12 +542,18 @@ export const FeedCard: React.FC<FeedCardProps> = ({
                 <div key={comment._id} className="flex items-start space-x-2.5">
                   <Avatar className="h-6 w-6 flex-shrink-0">
                     <AvatarImage
-                      src={comment.user_id.profile_avatar ? comment.user_id.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(comment.user_id.first_name)}`}
-                      alt={`${comment.user_id.first_name} ${comment.user_id.last_name}`}
+                      src={
+                        typeof comment.user_id === 'object' && comment.user_id?.profile_avatar
+                          ? comment.user_id.profile_avatar
+                          : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(
+                            (typeof comment.user_id === 'object' ? comment.user_id?.first_name : 'User') || 'User'
+                          )}`
+                      }
+                      alt={`${(typeof comment.user_id === 'object' ? comment.user_id?.first_name : 'User') || ''} ${(typeof comment.user_id === 'object' ? comment.user_id?.last_name : '') || ''}`}
                     />
                     <AvatarFallback style={{ fontSize: '12px' }}>
-                      {comment.user_id.first_name?.[0]}
-                      {comment.user_id.last_name?.[0]}
+                      {(typeof comment.user_id === 'object' ? comment.user_id?.first_name?.[0] : 'U')}
+                      {(typeof comment.user_id === 'object' ? comment.user_id?.last_name?.[0] : '')}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
@@ -550,14 +561,14 @@ export const FeedCard: React.FC<FeedCardProps> = ({
                       <div className="flex items-center justify-between mb-0.5">
                         <div className="flex items-center space-x-1">
                           <p className="font-medium text-gray-900 dark:text-white" style={{ fontSize: '12px' }}>
-                            {comment.user_id.first_name} {comment.user_id.last_name}
+                            {(typeof comment.user_id === 'object' ? comment.user_id?.first_name : 'User')} {(typeof comment.user_id === 'object' ? comment.user_id?.last_name : '')}
                           </p>
                           <span className="text-gray-400" style={{ fontSize: '12px' }}>•</span>
                           <p className="text-gray-500 dark:text-gray-400" style={{ fontSize: '12px' }}>
                             {new Date(comment.created_at).toLocaleDateString()}
                           </p>
                         </div>
-                        {currentUser && comment.user_id._id === currentUser.user_id && (
+                        {currentUser && ((typeof comment.user_id === 'object' ? comment.user_id?._id : comment.user_id) === currentUser.user_id) && (
                           <button
                             onClick={() => onDeleteComment?.(comment._id)}
                             className="text-gray-400 hover:text-red-500 transition-colors"

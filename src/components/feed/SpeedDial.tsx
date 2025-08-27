@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react"
 import { Plus, FileText, CheckSquare, Users } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { CreatePostCard } from "./CreatePostCard"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useAuth } from "@/hooks/useAuth"
 import type { User } from "@/types"
 
@@ -119,6 +119,9 @@ export const SpeedDial: React.FC<SpeedDialProps> = ({ onPostCreate, onInviteMemb
       {/* Create Post Modal - Opens directly */}
       <Dialog open={showCreatePost} onOpenChange={setShowCreatePost}>
         <DialogContent className="max-w-2xl">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Create New Post</DialogTitle>
+          </DialogHeader>
           <CreatePostCard user={user} onPostCreate={handlePostCreate} />
         </DialogContent>
       </Dialog>

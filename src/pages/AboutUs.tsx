@@ -80,21 +80,22 @@ const AboutUs = () => {
                   Beembyte wasn’t just built — it was born out of frustration.
                 </p>
                 <p>
-                  For over six years, we tried everything to land freelance work and gigs online. But no matter how skilled or prepared we were, we kept running into the same barriers: endless competition, pay-to-apply systems, account boosting requirements,
-                  and no real guarantee of success — or even payment. It became harder to get noticed, harder to earn, and harder to keep trying.
+                  For over six years, we tried everything to land freelance work and gigs online. But no matter how skilled or prepared we were, we kept running into the same barriers: endless competition, pay-to-apply systems, account boosting requirements, and no real guarantee of success — or even payment. It became harder to get noticed, harder to earn, and harder to keep trying.
                 </p>
                 <p>
                   So we stopped applying — and started building.
                 </p>
                 <p>
-                  In 2025, we created Beembyte, a platform that flips the script. Instead of freelancers fighting to get noticed, we give task creators the tools to fund and post their tasks, and responders (our vetted experts) the opportunity to pick up what matches their skills — no bidding wars, no hidden fees, no games.
+                  In 2025, we launched Beembyte — not just another freelancing site, but a social network for work and knowledge sharing. A place where people, companies, and startups can showcase ideas, grow communities, and connect through real-time task hailing.
 
-                  We use AI to estimate task complexity and urgency, helping clients price fairly and get faster matches. Each responder can only accept one task at a time, encouraging speed, quality, and equal access for others. And with task-hailing built into our mobile app, you don’t have to go looking for gigs anymore — we bring them to you in real-time, based on your skills and location.
+                  Instead of freelancers fighting to get noticed, task creators fund and post their needs, while vetted responders pick up what matches their skills — no bidding wars, no hidden fees, no games. Every task is secured with escrow-backed payments, and every responder can only accept one task at a time, encouraging speed, quality, and fair access for others.
 
-                  Every task is tracked. Every payment is secure. Every responder grows in rank — from Novice to Expert to Master — based on what they deliver.
+                  But Beembyte is more than transactions — it’s a network of people and possibilities. Profiles double as social hubs where you can share insights, highlight achievements, and grow your reputation. Our ranking system — from Novice to Expert to Master — is public and community-driven, making your growth visible and trusted. And with AI matching tasks to your skills and location, you don’t just wait for opportunities — the right ones come to you.
+
                 </p>
                 <blockquote className="text-sm italic text-gray-600 border-l-4 border-blue-500 pl-4 my-6">
-                  “Beembyte is for those who are ready to work — and deserve to be seen.”
+                  “ Work meets community. Tasks meet talent. Connections turn into collaborations.
+                  That’s Beembyte.”
                 </blockquote>
 
               </div>

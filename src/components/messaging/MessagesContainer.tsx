@@ -499,7 +499,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
               )}
 
               {/* Message Container with spacing */}
-              <div className={`${selectedUser.isPage ? 'mb-4' : 'mb-6'}`}>
+              <div className={`${selectedUser.isPage ? 'mb-4' : 'mb-8'}`}>
                 <div
                   ref={matchesSearch ? (el) => { highlightRefs.current[matchIndex] = el; } : undefined}
                   className={`group ${isCurrentMatch ? 'bg-yellow-100 dark:bg-yellow-900/20 rounded-lg p-2' : ''}`}
@@ -517,7 +517,7 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                   {/* Sender info for page_channel messages only */}
                   {selectedUser.isPage && !isOwn && (
                     <div className="flex items-start gap-2 mb-2">
-                      <Avatar 
+                      <Avatar
                         className="h-8 w-8 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                         onClick={() => navigate(`/profile/${message.sender_id.user_id || message.sender_id._id}`)}
                       >
@@ -531,8 +531,8 @@ export const MessagesContainer: React.FC<MessagesContainerProps> = ({
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <span 
-                          className={`text-xs font-medium cursor-pointer hover:underline ${getSenderColor(message.sender_id._id || message.sender_id.user_id)}`}
+                        <span
+                          className={`text-xs font-medium cursor-pointer ${getSenderColor(message.sender_id._id || message.sender_id.user_id)}`}
                           onClick={() => navigate(`/profile/${message.sender_id.user_id || message.sender_id._id}`)}
                         >
                           ~{`${message.sender_id.first_name || ''} ${message.sender_id.last_name || ''}`.trim() || 'Unknown User'}

@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { ImageIcon, Plus, Video, X } from "lucide-react"
+import { ImageIcon, Plus, Video, X, Globe, Lock, Users } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,9 +21,11 @@ import type { User } from "@/types"
 interface CreatePostCardProps {
   user: User
   onPostCreate: (postData: any) => Promise<void>
+  pageId?: string
+  pageName?: string
 }
 
-export const CreatePostCard: React.FC<CreatePostCardProps> = ({ user, onPostCreate }) => {
+export const CreatePostCard: React.FC<CreatePostCardProps> = ({ user, onPostCreate, pageId, pageName }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [formData, setFormData] = useState({
     title: "",
@@ -32,6 +34,7 @@ export const CreatePostCard: React.FC<CreatePostCardProps> = ({ user, onPostCrea
     videos: [] as string[],
     category: "",
     tags: [] as string[],
+    visibility: "public" as "public" | "private" | "followers",
   })
   const [tagInput, setTagInput] = useState("")
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
@@ -140,6 +143,9 @@ export const CreatePostCard: React.FC<CreatePostCardProps> = ({ user, onPostCrea
       setUploadProgress(90)
 
       const postData = {
+        user_id: pageId || user._id,
+        user_type: pageId ? 'Page' as const : 'user' as const,
+        visibility: formData.visibility,
         title: formData.title,
         description: formData.description,
         images: imageUrls,
@@ -163,6 +169,7 @@ export const CreatePostCard: React.FC<CreatePostCardProps> = ({ user, onPostCrea
         videos: [],
         category: "",
         tags: [],
+        visibility: "public",
       })
       setTagInput("")
       setImagePreviews([])
@@ -220,7 +227,7 @@ export const CreatePostCard: React.FC<CreatePostCardProps> = ({ user, onPostCrea
               </Avatar>
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-white">
-                  {user.first_name} {user.last_name}
+                  {pageName || `${user.first_name} ${user.last_name}`}
                 </h3>
                 <p className="text-sm text-gray-500">Post to feed</p>
               </div>
@@ -409,6 +416,43 @@ export const CreatePostCard: React.FC<CreatePostCardProps> = ({ user, onPostCrea
                       </div>
                     </Button>
                   </label>
+
+                  {/* Visibility Selector */}
+                  <Select
+                    value={formData.visibility}
+                    onValueChange={(value: "public" | "private" | "followers") => 
+                      setFormData({ ...formData, visibility: value })
+                    }
+                  >
+                    <SelectTrigger className="w-auto h-10 px-3 border-0 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800">
+                      <div className="flex items-center space-x-2">
+                        {formData.visibility === "public" && <Globe className="h-4 w-4 text-gray-600" />}
+                        {formData.visibility === "private" && <Lock className="h-4 w-4 text-gray-600" />}
+                        {formData.visibility === "followers" && <Users className="h-4 w-4 text-gray-600" />}
+                        <span className="text-sm text-gray-600 capitalize">{formData.visibility}</span>
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="public">
+                        <div className="flex items-center space-x-2">
+                          <Globe className="h-4 w-4" />
+                          <span>Public</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="followers">
+                        <div className="flex items-center space-x-2">
+                          <Users className="h-4 w-4" />
+                          <span>Followers</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="private">
+                        <div className="flex items-center space-x-2">
+                          <Lock className="h-4 w-4" />
+                          <span>Private</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <Button
