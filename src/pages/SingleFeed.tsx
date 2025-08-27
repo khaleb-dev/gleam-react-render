@@ -1,6 +1,7 @@
+
 import React, { useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { ArrowLeft, Star, ChevronLeft, ChevronRight, Share2, MessageCircle, Check, MoreHorizontal, Trash2, Send } from "lucide-react"
+import { ArrowLeft, Star, ChevronLeft, ChevronRight, Share2, MessageCircle, MoreHorizontal, Trash2, Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -35,14 +36,14 @@ export const SingleFeed: React.FC = () => {
   const { data: postResponse, isLoading: isLoadingPost, error: postError } = getPost(postId || '')
   const post = postResponse?.data
 
-  // Check mutual linkup status
-  const { status: linkupStatus } = useLinkup(post?.user_id || '')
+  // Check mutual linkup status - only for user posts
+  const { status: linkupStatus } = useLinkup(post?.user_type === 'user' ? post?.user_id || '' : '')
 
-  // Always call this hook, but conditionally enable it
+  // Always call this hook, but conditionally enable it for user posts only
   const { data: suggestedPosts = [], isLoading: isLoadingSuggested } = getSuggestedPostsByUser(
     postId || '',
     post?.user_id || '',
-    { enabled: !!post?.user_id } // Only enable when we have user_id
+    { enabled: !!post?.user_id && post?.user_type === 'user' } // Only enable for user posts
   )
 
   // Fetch user data - always call useEffect
@@ -116,7 +117,10 @@ export const SingleFeed: React.FC = () => {
   }
 
   // Check if current user is the post owner
-  const isOwner = user && post && user.user_id === post.user_id
+  const isOwner = user && post && (
+    (post.user_type === 'user' && user.user_id === post.user_id) ||
+    (post.user_type === 'Page' && user.user_id === post.created_by)
+  )
 
   const handleOptimisticUpdate = (scoreChange: number, peopleChange: number) => {
     setCurrentScore(prev => prev + scoreChange)
@@ -124,15 +128,40 @@ export const SingleFeed: React.FC = () => {
   }
 
   const handleMessageUser = () => {
+    // Only allow messaging for user posts, not page posts
+    if (post.user_type !== 'user') return
+
     // Navigate to messages with all necessary user information
     const queryParams = new URLSearchParams({
       userId: post.user_id || "",
-      firstName: post.user.first_name || "",
-      lastName: post.user.last_name || "",
-      profileAvatar: post.user.profile_avatar || "",
+      firstName: post.owner.first_name || "",
+      lastName: post.owner.last_name || "",
+      profileAvatar: post.owner.profile_avatar || "",
     })
 
     navigate(`/messages?${queryParams.toString()}`)
+  }
+
+  const getDisplayName = () => {
+    if (post.owner.type === 'page') {
+      return post.owner.name || 'Page'
+    }
+    return `${post.owner.first_name || ''} ${post.owner.last_name || ''}`.trim()
+  }
+
+  const getAvatarSrc = () => {
+    if (post.owner.type === 'page') {
+      return post.owner.logo || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(post.owner.name || 'Page')}`
+    }
+    return post.owner.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(post.owner.first_name || 'User')}`
+  }
+
+  const handleProfileClick = () => {
+    if (post.owner.type === 'page' && post.owner.company_url) {
+      navigate(`/company/page/${post.owner.company_url}`)
+    } else if (post.owner.type === 'user') {
+      navigate(`/profile/${post.user_id}`)
+    }
   }
 
   return (
@@ -305,16 +334,15 @@ export const SingleFeed: React.FC = () => {
                   <Avatar
                     className="h-16 w-16 cursor-pointer"
                     style={{ alignSelf: 'self-start' }}
-                    onClick={() => navigate(`/profile/${post.user_id}`)}
+                    onClick={handleProfileClick}
                   >
                     <AvatarImage
-                      src={post?.user?.profile_avatar ? post?.user?.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(post?.user?.first_name)}`}
-                      alt={`${post.user.first_name} ${post.user.last_name}`}
+                      src={getAvatarSrc()}
+                      alt={getDisplayName()}
                       style={{ objectFit: 'cover' }}
                     />
                     <AvatarFallback>
-                      {post.user.first_name[0]}
-                      {post.user.last_name[0]}
+                      {getDisplayName()[0] || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
@@ -323,20 +351,21 @@ export const SingleFeed: React.FC = () => {
                         <h3
                           className="font-semibold cursor-pointer hover:underline mb-1"
                           style={{ fontSize: '16px' }}
-                          onClick={() => navigate(`/profile/${post.user_id}`)}
+                          onClick={handleProfileClick}
                         >
-                          {post.user.first_name} {post.user.last_name}
+                          {getDisplayName()}
                         </h3>
                         <p className="text-muted-foreground text-sm mb-1">
-                          {post.user.is_vetted && post.user.responder_info?.job_title
-                            ? post.user.responder_info.job_title
-                            : 'Community Member'}
+                          {post.owner.type === 'page' 
+                            ? post.owner.industry || 'Company Page'
+                            : 'Community Member'
+                          }
                         </p>
-                        <LinkupCount userId={post.user_id} className="mb-2" />
+                        {post.owner.type === 'user' && <LinkupCount userId={post.user_id} className="mb-2" />}
                       </div>
                     </div>
 
-                    {!isOwner && (
+                    {!isOwner && post.owner.type === 'user' && (
                       <div className="flex items-center gap-2 mb-3 h-9">
                         <>
                           {/* Only show message button if mutually linked */}
@@ -356,68 +385,29 @@ export const SingleFeed: React.FC = () => {
                       </div>
                     )}
 
-                    {post.user.is_vetted && post.user.responder_info && (
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-2">
-                          <Check className="h-4 w-4 text-green-600" />
-                          <span className="text-green-600 font-medium" style={{ fontSize: '12px' }}>
-                            Vetted Verified
-                          </span>
-                        </div>
-                        {post.user.responder_info.rank_status && (
-                          <Badge
-                            variant="outline"
-                            className="capitalize text-xs"
-                            style={{
-                              backgroundColor: post.user.responder_info.rank_status.rank_color + '20',
-                              borderColor: post.user.responder_info.rank_status.rank_color,
-                              color: post.user.responder_info.rank_status.rank_color
-                            }}
-                          >
-                            {post.user.responder_info.rank_status.rank_name}
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-
-                    {!post.user.is_vetted && (
-                      <div className="space-y-1">
+                    <div className="space-y-1">
+                      <p className="text-muted-foreground" style={{ fontSize: '12px' }}>
+                        Posted {new Date(post.created_at).toLocaleDateString()}
+                      </p>
+                      {post.owner.type === 'page' && post.owner.website && (
                         <p className="text-muted-foreground" style={{ fontSize: '12px' }}>
-                          Joined {new Date(post.created_at).toLocaleDateString()}
+                          <a href={post.owner.website} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                            {post.owner.website}
+                          </a>
                         </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Stats */}
-                <div className="space-y-2">
-                  {post.user.is_vetted && post.user.responder_info && (
-                    <div className="grid grid-cols-2 gap-4 text-xs">
-                      <div>
-                        <span className="text-muted-foreground">Experience:</span>
-                        <div className="font-medium">{post.user.responder_info.years_of_experience} years</div>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Status:</span>
-                        <div>
-                          <Badge variant="outline" className="text-green-600 text-xs">
-                            {post.user.responder_info.availability_status}
-                          </Badge>
-                        </div>
-                      </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Suggested Posts */}
-            {suggestedPosts.length > 0 && (
+            {/* Suggested Posts - Only show for user posts */}
+            {post.owner.type === 'user' && suggestedPosts.length > 0 && (
               <Card>
                 <CardContent className="p-6">
                   <h3 className="font-semibold mb-4" style={{ fontSize: '14px' }}>
-                    More from {post.user.first_name}
+                    More from {post.owner.first_name}
                   </h3>
                   <div className="space-y-4">
                     {suggestedPosts.map((suggestedPost) => (
