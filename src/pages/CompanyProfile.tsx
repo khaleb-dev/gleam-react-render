@@ -115,7 +115,10 @@ const CompanyProfile = () => {
   const { data: rolesData } = useCompanyPageRoles();
   const { uploadFile, isUploading } = useSingleFileUpload();
   const sendMultipleInvites = useSendMultiplePageInvites();
-  const { createPost } = useFeed();
+  const { createPost, getPagePosts, scorePost, unscorePost, commentOnPost, deletePost } = useFeed();
+  
+  // Get page posts
+  const { data: pagePostsData, isLoading: isLoadingPosts, refetch: refetchPosts } = getPagePosts(companyData?._id || '');
 
   // Search users using API
   const searchUsersApi = async (query: string) => {
@@ -376,6 +379,7 @@ const CompanyProfile = () => {
       await createPost(postData);
       toast.success('Post created successfully!');
       setPostContent('');
+      refetchPosts(); // Refresh the posts after creating a new one
     } catch (error) {
       console.error('Error creating post:', error);
       toast.error('Failed to create post');
@@ -906,16 +910,67 @@ const CompanyProfile = () => {
 
               {/* Posts Feed */}
               <div className="space-y-0">
-                {mockPosts.length > 0 ? (
-                  mockPosts.map((post) => (
+                {isLoadingPosts ? (
+                  <div className="space-y-4">
+                    {[1, 2, 3].map((i) => (
+                      <Card key={i} className="p-4">
+                        <div className="animate-pulse space-y-3">
+                          <div className="flex items-center space-x-3">
+                            <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+                            <div className="space-y-2 flex-1">
+                              <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                              <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+                            </div>
+                          </div>
+                          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                          <div className="h-32 bg-gray-200 rounded"></div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                ) : pagePostsData?.posts && pagePostsData.posts.length > 0 ? (
+                  pagePostsData.posts.map((post) => (
                     <FeedCard
                       key={post._id}
                       post={post}
-                      onLike={() => { }}
-                      onUnlike={() => { }}
-                      onComment={() => { }}
-                      onDeleteComment={() => { }}
-                      onDeletePost={() => { }}
+                      onLike={async () => {
+                        try {
+                          await scorePost({ postId: post._id, payload: { score: 1 } });
+                          refetchPosts();
+                        } catch (error) {
+                          console.error('Error scoring post:', error);
+                        }
+                      }}
+                      onUnlike={async () => {
+                        try {
+                          await unscorePost(post._id);
+                          refetchPosts();
+                        } catch (error) {
+                          console.error('Error unscoring post:', error);
+                        }
+                      }}
+                      onComment={async (content: string) => {
+                        try {
+                          await commentOnPost({ postId: post._id, payload: { content } });
+                          refetchPosts();
+                        } catch (error) {
+                          console.error('Error commenting on post:', error);
+                        }
+                      }}
+                      onDeleteComment={async (commentId: string) => {
+                        // Add delete comment logic here if needed
+                        refetchPosts();
+                      }}
+                      onDeletePost={async (postId: string) => {
+                        try {
+                          await deletePost(postId);
+                          refetchPosts();
+                          toast.success('Post deleted successfully');
+                        } catch (error) {
+                          console.error('Error deleting post:', error);
+                          toast.error('Failed to delete post');
+                        }
+                      }}
                     />
                   ))
                 ) : (

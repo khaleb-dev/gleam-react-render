@@ -407,12 +407,50 @@ export const useFeed = () => {
     },
   })
 
+  // Get page posts
+  const getPagePosts = (pageId: string, page: number = 1, limit: number = 10) => {
+    return useQuery({
+      queryKey: ['page-posts', pageId, page, limit],
+      queryFn: async () => {
+        if (!pageId) return { posts: [], message: '', success: false };
+        
+        const params = new URLSearchParams({
+          page: page.toString(),
+          limit: limit.toString(),
+        });
+
+        const response = await fetch(`${API_BASE_URL}/feed/all-page-posts/${pageId}?${params.toString()}`, {
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!response.ok) throw new Error('Failed to fetch page posts');
+        const apiResponse: ApiResponse = await response.json();
+
+        // Sort posts by created_at in descending order
+        const sortedPosts = apiResponse.data.sort((a, b) => 
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+
+        return {
+          posts: sortedPosts,
+          message: apiResponse.message,
+          success: apiResponse.success
+        };
+      },
+      enabled: !!pageId,
+    });
+  };
+
   return {
     getFeedPosts,
     getPost,
     getPostComments,
     getPeopleScored,
     getSuggestedPostsByUser,
+    getPagePosts,
     createPost: createPostMutation.mutateAsync,
     scorePost: scorePostMutation.mutateAsync,
     unscorePost: unscorePostMutation.mutateAsync,
