@@ -212,6 +212,8 @@ export const useFeed = () => {
         })
         if (!response.ok) throw new Error('Failed to fetch suggested posts')
         const result = await response.json()
+        
+        // The API now returns posts with new format including user_type and owner fields
         return result.data || []
       },
       enabled: options?.enabled !== false && !!userId && !!postId,

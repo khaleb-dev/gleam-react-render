@@ -16,6 +16,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { useLinkup } from "@/hooks/useLinkup"
 import { LinkupButton } from "@/components/feed/LinkupButton"
 import { LinkupCount } from "@/components/feed/LinkupCount"
+import { PageFollowersCount } from "@/components/feed/PageFollowersCount"
 import { RichTextDisplay } from "@/components/ui/RichTextDisplay"
 
 export const SingleFeed: React.FC = () => {
@@ -362,6 +363,7 @@ export const SingleFeed: React.FC = () => {
                           }
                         </p>
                         {post.owner.type === 'user' && <LinkupCount userId={post.user_id} className="mb-2" />}
+                        {post.owner.type === 'page' && <PageFollowersCount pageId={post.user_id} className="mb-2" />}
                       </div>
                     </div>
 

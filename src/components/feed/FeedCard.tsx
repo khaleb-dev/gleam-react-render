@@ -19,6 +19,7 @@ import { RichTextDisplay } from "@/components/ui/RichTextDisplay"
 import { MessageButton } from "@/components/messaging/MessageButton"
 import { useLinkup } from "@/hooks/useLinkup"
 import { FeedPost } from "@/types"
+import { PageFollowersCount } from "./PageFollowersCount"
 
 interface FeedCardProps {
   post: FeedPost
@@ -297,6 +298,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
                 <span>{new Date(post.created_at).toLocaleDateString()}</span>
               </div>
               {post.user_type === 'user' && <LinkupCount userId={post.user_id} className="mb-1" />}
+              {post.user_type === 'Page' && <PageFollowersCount pageId={post.user_id} className="mb-1" />}
             </div>
             {/* Menu Dropdown - Show for everyone */}
             <DropdownMenu>
