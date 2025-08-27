@@ -204,3 +204,38 @@ export const TaskStatusValues = {
   CANCELLED: "cancelled" as TaskStatus,
   WAITING: "waiting" as TaskStatus,
 };
+
+export interface FeedPost {
+  _id: string;
+  user_id: string;
+  user_type: 'user' | 'Page';
+  created_by?: string;
+  visibility: string;
+  title: string;
+  description: string;
+  images: string[];
+  videos?: string[];
+  category: string;
+  tags: string[];
+  total_score: number;
+  comments_count: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  __v: number;
+  owner: {
+    profile_avatar?: string;
+    type: 'user' | 'page';
+    // For users
+    first_name?: string;
+    last_name?: string;
+    // For pages
+    name?: string;
+    company_url?: string;
+    website?: string;
+    industry?: string;
+    logo?: string;
+  };
+  has_scored: boolean;
+  people_score_count: number;
+}
