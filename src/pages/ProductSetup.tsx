@@ -50,6 +50,11 @@ const ProductSetup = () => {
   }, [companyId, companyUrl, formData.pageId])
 
   const handleInputChange = (field: string, value: string | boolean | number) => {
+    // Limit description to 200 characters
+    if (field === 'description' && typeof value === 'string') {
+      value = value.slice(0, 200)
+    }
+    
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -189,8 +194,17 @@ const ProductSetup = () => {
                     onChange={(e) => handleInputChange('description', e.target.value)}
                     className="mt-1"
                     rows={4}
+                    maxLength={200}
                     required
                   />
+                  <div className="flex justify-between items-center mt-1">
+                    <p className="text-xs text-muted-foreground">
+                      Brief description of your product
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {200 - formData.description.length} characters left
+                    </p>
+                  </div>
                 </div>
 
                 {/* Website URL */}
