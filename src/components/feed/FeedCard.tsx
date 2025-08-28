@@ -256,7 +256,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
                 <h2 className="text-lg font-semibold mb-2">{post.title}</h2>
                 
                 {/* Product Description */}
-                <div className="text-sm mb-3 text-white/90">
+                <div className="text-sm mb-3 text-white/90 [&_.rich-text-content]:!text-white/90 [&_.rich-text-content_*]:!text-white/90 [&>div]:!text-white/90">
                   <RichTextDisplay text={post.description} showLinkPreview={false} />
                 </div>
                 
