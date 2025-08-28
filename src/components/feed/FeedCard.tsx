@@ -214,7 +214,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
           {allMedia.length > 0 && (
             <div className="relative w-full media-container overflow-hidden rounded-2xl">
               {/* Product Meta Overlay */}
-              <div className="absolute top-4 right-4 z-10 bg-black/70 backdrop-blur-sm rounded-lg px-3 py-2 text-white">
+              <div className="absolute top-4 right-4 z-[5] bg-black/70 backdrop-blur-sm rounded-lg px-3 py-2 text-white">
                 <div className="flex items-center space-x-2">
                   <span className="text-lg font-bold">{post.meta.percentage}%</span>
                   <div className={`w-2 h-2 rounded-full ${post.meta.is_live ? 'bg-green-500' : 'bg-red-500'}`} />
@@ -222,16 +222,29 @@ export const FeedCard: React.FC<FeedCardProps> = ({
                 </div>
               </div>
 
-              {/* Company Info Overlay */}
-              <div className="absolute bottom-4 left-4 z-10 bg-black/70 backdrop-blur-sm rounded-lg px-3 py-2 text-white">
+              {/* Full-width Bottom Overlay with Content */}
+              <div className="absolute bottom-0 left-0 right-0 z-[5] bg-gradient-to-t from-black/80 via-black/60 to-transparent p-4 text-white">
+                {/* Product Title */}
+                <h2 className="text-lg font-semibold mb-2">{post.title}</h2>
+                
+                {/* Product Description */}
+                <div className="text-sm mb-3 text-white/90">
+                  <RichTextDisplay text={post.description} showLinkPreview={false} />
+                </div>
+                
+                {/* Company Info */}
                 <div className="flex items-center space-x-3">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={post.owner.logo} />
                     <AvatarFallback>{post.owner.name?.[0] || 'C'}</AvatarFallback>
                   </Avatar>
-                  <div>
-                    <h3 className="font-medium text-sm text-white">{post.owner.name}</h3>
-                    <p className="text-xs text-white/80">{post.owner.industry}</p>
+                  <div className="flex-1">
+                    <h3 className="font-medium text-sm">{post.owner.name}</h3>
+                    <div className="flex items-center space-x-2 text-xs text-white/80">
+                      <span>{post.owner.industry}</span>
+                      <span>•</span>
+                      <span>{post.people_score_count} followers</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -258,17 +271,6 @@ export const FeedCard: React.FC<FeedCardProps> = ({
               </div>
             </div>
           )}
-
-          {/* Product Info Below Image */}
-          <div className="pt-4 space-y-3">
-            {/* Product Title */}
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{post.title}</h2>
-            
-            {/* Product Description */}
-            <div className="text-gray-600 dark:text-gray-300 text-sm">
-              <RichTextDisplay text={post.description} showLinkPreview={false} />
-            </div>
-          </div>
         </div>
         
         {/* Modals for product posts */}
