@@ -170,17 +170,25 @@ export const FeedCard: React.FC<FeedCardProps> = ({
   }
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Only navigate if not clicking on interactive elements or media
+    // For product posts, allow navigation even from media area
+    if (post.meta?.type === "product") {
+      // Only prevent navigation if clicking on buttons or inputs
+      if ((e.target as HTMLElement).closest('button, a, input, [role="menu"], [role="menuitem"]')) {
+        return
+      }
+      
+      if (post.owner?.company_url) {
+        navigate(`/company/page/${post.owner.company_url}`)
+      }
+      return
+    }
+    
+    // For regular posts, prevent navigation from media container
     if ((e.target as HTMLElement).closest('button, a, input, [role="menu"], [role="menuitem"], .media-container')) {
       return
     }
     
-    // For product posts, redirect to company URL
-    if (post.meta?.type === "product" && post.owner?.company_url) {
-      navigate(`/company/page/${post.owner.company_url}`)
-    } else {
-      navigate(`/feed/${post._id}`)
-    }
+    navigate(`/feed/${post._id}`)
   }
 
   const handleMediaClick = (e: React.MouseEvent) => {
@@ -209,7 +217,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
   if (post.meta?.type === "product") {
     return (
       <>
-        <div className="mb-6 max-w-sm mx-auto cursor-pointer" onClick={handleCardClick}>
+        <div className="mb-6 max-w-md mx-auto cursor-pointer" onClick={handleCardClick}>
           {/* Product Image with Overlay */}
           {allMedia.length > 0 && (
             <div className="relative w-full media-container overflow-hidden rounded-2xl">
@@ -250,7 +258,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
               </div>
               
               <div className="w-full">
-                <div className="w-full h-[400px] flex items-center justify-center bg-black">
+                <div className="w-full h-[450px] flex items-center justify-center bg-black">
                   {allMedia[0].type === 'image' ? (
                     <img
                       src={allMedia[0].url}
