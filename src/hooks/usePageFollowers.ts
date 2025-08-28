@@ -1,22 +1,25 @@
 import { useQuery } from '@tanstack/react-query'
 import { API_BASE_URL } from '@/config/env'
 
-interface PageFollowersResponse {
+interface PageStatsResponse {
   message: string
   data: {
-    followers: any[]
-    followersCount: number
+    posts: number
+    products: number
+    team_members: number
+    followers: number
+    total_score: number
   }
   success: boolean
 }
 
 export const usePageFollowers = (pageId: string, options?: { enabled?: boolean }) => {
   return useQuery({
-    queryKey: ['page-followers', pageId],
+    queryKey: ['page-stats', pageId],
     queryFn: async () => {
-      if (!pageId) return { followers: [], followersCount: 0 }
+      if (!pageId) return { followersCount: 0 }
       
-      const response = await fetch(`${API_BASE_URL}/page/followers/${pageId}`, {
+      const response = await fetch(`${API_BASE_URL}/page/stats/${pageId}`, {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
@@ -26,13 +29,13 @@ export const usePageFollowers = (pageId: string, options?: { enabled?: boolean }
       if (!response.ok) {
         // If endpoint doesn't exist, return zero count
         if (response.status === 404) {
-          return { followers: [], followersCount: 0 }
+          return { followersCount: 0 }
         }
-        throw new Error('Failed to fetch page followers')
+        throw new Error('Failed to fetch page stats')
       }
       
-      const result: PageFollowersResponse = await response.json()
-      return result.data
+      const result: PageStatsResponse = await response.json()
+      return { followersCount: result.data.followers }
     },
     enabled: options?.enabled !== false && !!pageId,
     staleTime: 5 * 60 * 1000, // 5 minutes

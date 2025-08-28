@@ -551,7 +551,7 @@ const CompanyProfile = () => {
                     {/* Score and Followers */}
                     <div className="flex gap-6 text-sm mb-4">
                       <span><strong>{stats?.total_score || 0}</strong> <span className="text-muted-foreground">Score</span></span>
-                      <span><strong>{companyData.followersCount || 0}</strong> <span className="text-muted-foreground">Followers</span></span>
+                      <span><strong>{stats?.followers || 0}</strong> <span className="text-muted-foreground">Followers</span></span>
                     </div>
 
                     {/* Company description and details */}
@@ -634,7 +634,7 @@ const CompanyProfile = () => {
 
                     <div className="flex gap-4 text-sm">
                       <span><strong>{stats?.total_score || 0}</strong> <span className="text-muted-foreground">Score</span></span>
-                      <span><strong>{companyData.followersCount || 0}</strong> <span className="text-muted-foreground">Followers</span></span>
+                      <span><strong>{stats?.followers || 0}</strong> <span className="text-muted-foreground">Followers</span></span>
                     </div>
                   </>
                 )}

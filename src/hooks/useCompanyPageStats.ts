@@ -6,6 +6,7 @@ interface CompanyPageStats {
   posts: number;
   products: number;
   team_members: number;
+  followers: number;
   total_score: number;
 }
 
