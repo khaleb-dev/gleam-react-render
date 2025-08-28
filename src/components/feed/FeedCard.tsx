@@ -49,6 +49,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
   const [commentText, setCommentText] = React.useState("")
   const [currentScore, setCurrentScore] = React.useState(post.total_score)
   const [currentPeopleCount, setCurrentPeopleCount] = React.useState(post.people_score_count)
+  const [hasScored, setHasScored] = React.useState(post.has_scored)
   const [fetchedComments, setFetchedComments] = React.useState<any[]>([])
   const [commentsLoaded, setCommentsLoaded] = React.useState(false)
   const [currentUser, setCurrentUser] = React.useState<any>(null)
@@ -61,7 +62,8 @@ export const FeedCard: React.FC<FeedCardProps> = ({
   React.useEffect(() => {
     setCurrentScore(post.total_score)
     setCurrentPeopleCount(post.people_score_count)
-  }, [post.total_score, post.people_score_count])
+    setHasScored(post.has_scored)
+  }, [post.total_score, post.people_score_count, post.has_scored])
 
   // Combine all media (images and videos) for carousel
   const allMedia = React.useMemo(() => {
@@ -189,9 +191,12 @@ export const FeedCard: React.FC<FeedCardProps> = ({
   // Check if current user is the post owner
   const isOwner = currentUser && currentUser.user_id === post.user_id
 
-  const handleOptimisticUpdate = (scoreChange: number, peopleChange: number) => {
+  const handleOptimisticUpdate = (scoreChange: number, peopleChange: number, hasScored?: boolean) => {
     setCurrentScore(prev => prev + scoreChange)
     setCurrentPeopleCount(prev => prev + peopleChange)
+    if (hasScored !== undefined) {
+      setHasScored(hasScored)
+    }
   }
 
   return (
@@ -456,10 +461,10 @@ export const FeedCard: React.FC<FeedCardProps> = ({
                   e.stopPropagation()
                   setShowScoreModal(true)
                 }}
-                className={`flex items-center space-x-1.5 transition-colors ${post.has_scored ? "text-red-500" : "text-gray-600 dark:text-gray-400 hover:text-red-500"
+                className={`flex items-center space-x-1.5 transition-colors ${hasScored ? "text-red-500" : "text-gray-600 dark:text-gray-400 hover:text-red-500"
                   }`}
               >
-                <Star className={`h-4 w-4 ${post.has_scored ? "fill-red-500 text-red-500" : ""}`} />
+                <Star className={`h-4 w-4 ${hasScored ? "fill-red-500 text-red-500" : ""}`} />
                 <span className="font-medium" style={{ fontSize: '12px' }}>
                   {currentPeopleCount} people • score {formatScore(currentScore)}
                 </span>
@@ -567,7 +572,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
         isOpen={showScoreModal}
         onClose={() => setShowScoreModal(false)}
         postId={post._id}
-        hasScored={post.has_scored}
+        hasScored={hasScored}
         currentUserScore={post.has_scored ? currentScore : 0}
         onOptimisticUpdate={handleOptimisticUpdate}
       />

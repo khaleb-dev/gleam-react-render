@@ -12,7 +12,7 @@ interface ScoreModalProps {
   postId: string
   currentUserScore?: number
   hasScored: boolean
-  onOptimisticUpdate?: (scoreChange: number, peopleChange: number) => void
+  onOptimisticUpdate?: (scoreChange: number, peopleChange: number, hasScored?: boolean) => void
 }
 
 export const ScoreModal: React.FC<ScoreModalProps> = ({
@@ -43,7 +43,7 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
     const peopleChange = hasScored ? 0 : 1
     
     // Optimistic update
-    onOptimisticUpdate?.(scoreChange, peopleChange)
+    onOptimisticUpdate?.(scoreChange, peopleChange, true)
     
     try {
       await scorePost({ postId, payload: { score: userScore[0] } })
@@ -51,7 +51,7 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
     } catch (error) {
       console.error("Failed to submit score:", error)
       // Revert optimistic update on error
-      onOptimisticUpdate?.(-scoreChange, -peopleChange)
+      onOptimisticUpdate?.(-scoreChange, -peopleChange, hasScored)
     } finally {
       setIsSubmitting(false)
     }
@@ -65,7 +65,7 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
     const peopleDecrease = -1
     
     // Optimistic update
-    onOptimisticUpdate?.(scoreDecrease, peopleDecrease)
+    onOptimisticUpdate?.(scoreDecrease, peopleDecrease, false)
     
     try {
       await unscorePost(postId)
@@ -74,7 +74,7 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
     } catch (error) {
       console.error("Failed to remove score:", error)
       // Revert optimistic update on error
-      onOptimisticUpdate?.(-scoreDecrease, -peopleDecrease)
+      onOptimisticUpdate?.(-scoreDecrease, -peopleDecrease, true)
     } finally {
       setIsSubmitting(false)
     }
