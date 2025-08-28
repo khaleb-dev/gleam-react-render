@@ -614,7 +614,10 @@ export const FeedCard: React.FC<FeedCardProps> = ({
 
           {/* Comments Section */}
           {showComments && (
-            <div className="mt-4 pt-4 border-t border-border space-y-4">
+            <div 
+              className="mt-4 pt-4 border-t border-border space-y-4"
+              onClick={(e) => e.stopPropagation()}
+            >
               {/* Comment Input */}
               <form onSubmit={handleCommentSubmit} className="flex items-start space-x-3">
                 <Avatar className="h-8 w-8 flex-shrink-0 border border-primary/20">
