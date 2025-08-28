@@ -57,6 +57,12 @@ export const FeedCard: React.FC<FeedCardProps> = ({
   // Get linkup status for the post user
   const { status: linkupStatus } = useLinkup(post.user_id)
 
+  // Sync state with post prop changes
+  React.useEffect(() => {
+    setCurrentScore(post.total_score)
+    setCurrentPeopleCount(post.people_score_count)
+  }, [post.total_score, post.people_score_count])
+
   // Combine all media (images and videos) for carousel
   const allMedia = React.useMemo(() => {
     const media: Array<{ type: 'image' | 'video', url: string }> = []
