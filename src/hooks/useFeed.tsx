@@ -21,6 +21,10 @@ interface CommentPayload {
   content: string
 }
 
+interface ReplyPayload {
+  content: string
+}
+
 interface ScorePayload {
   score: number
 }
@@ -172,6 +176,25 @@ export const useFeed = () => {
         const result = await response.json()
         return result.data || []
       },
+    })
+  }
+
+  // Get replies for a comment
+  const getCommentReplies = (parentCommentId: string) => {
+    return useQuery({
+      queryKey: ['replies', parentCommentId],
+      queryFn: async () => {
+        const response = await fetch(`${API_BASE_URL}/feed/comments/${parentCommentId}/replies`, {
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        if (!response.ok) throw new Error('Failed to fetch replies')
+        const result = await response.json()
+        return result.data || []
+      },
+      enabled: !!parentCommentId,
     })
   }
 
@@ -378,6 +401,26 @@ export const useFeed = () => {
     },
   })
 
+  // Add reply mutation
+  const addReplyMutation = useMutation({
+    mutationFn: async ({ postId, parentCommentId, payload }: { postId: string; parentCommentId: string; payload: ReplyPayload }) => {
+      const response = await fetch(`${API_BASE_URL}/feed/posts/${postId}/comments/${parentCommentId}/replies`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+      if (!response.ok) throw new Error('Failed to add reply')
+      return response.json()
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['replies', variables.parentCommentId] })
+      queryClient.invalidateQueries({ queryKey: ['comments', variables.postId] })
+    },
+  })
+
   // Get page posts
   const getPagePosts = (pageId: string, page: number = 1, limit: number = 10) => {
     return useQuery({
@@ -419,6 +462,7 @@ export const useFeed = () => {
     getFeedPosts,
     getPost,
     getPostComments,
+    getCommentReplies,
     getPeopleScored,
     getSuggestedPostsByUser,
     getPagePosts,
@@ -428,6 +472,7 @@ export const useFeed = () => {
     likePost: likePostMutation.mutateAsync,
     unlikePost: unlikePostMutation.mutateAsync,
     commentOnPost: commentPostMutation.mutateAsync,
+    addReply: addReplyMutation.mutateAsync,
     deleteComment: deleteCommentMutation.mutateAsync,
     deletePost: deletePostMutation.mutateAsync,
     isLoading: isLoading || createPostMutation.isPending,
