@@ -205,6 +205,88 @@ export const FeedCard: React.FC<FeedCardProps> = ({
     }
   }
 
+  // Special layout for product posts
+  if (post.meta?.type === "product") {
+    return (
+      <>
+        <div className="mb-6 max-w-sm mx-auto cursor-pointer" onClick={handleCardClick}>
+          {/* Product Image with Overlay */}
+          {allMedia.length > 0 && (
+            <div className="relative w-full media-container overflow-hidden rounded-2xl">
+              {/* Product Meta Overlay */}
+              <div className="absolute top-4 right-4 z-10 bg-black/70 backdrop-blur-sm rounded-lg px-3 py-2 text-white">
+                <div className="flex items-center space-x-2">
+                  <span className="text-lg font-bold">{post.meta.percentage}%</span>
+                  <div className={`w-2 h-2 rounded-full ${post.meta.is_live ? 'bg-green-500' : 'bg-red-500'}`} />
+                  <span className="text-xs">{post.meta.is_live ? 'LIVE' : 'NOT LIVE'}</span>
+                </div>
+              </div>
+              
+              <div className="w-full">
+                <div className="w-full h-[400px] flex items-center justify-center bg-black">
+                  {allMedia[0].type === 'image' ? (
+                    <img
+                      src={allMedia[0].url}
+                      alt="Product preview"
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <VideoPlayer
+                      src={allMedia[0].url}
+                      className="w-full h-full"
+                      enableScrollAutoPlay={false}
+                      enablePictureInPicture={false}
+                      autoPlayWithSound={false}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Product Info Below Image */}
+          <div className="pt-4 space-y-3">
+            {/* Product Title */}
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{post.title}</h2>
+            
+            {/* Product Description */}
+            <div className="text-gray-600 dark:text-gray-300 text-sm">
+              <RichTextDisplay text={post.description} showLinkPreview={false} />
+            </div>
+            
+            {/* Company Info */}
+            <div className="flex items-center space-x-3 pt-2">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={post.owner.logo} />
+                <AvatarFallback>{post.owner.name?.[0] || 'C'}</AvatarFallback>
+              </Avatar>
+              <div>
+                <h3 className="font-medium text-sm text-gray-900 dark:text-white">{post.owner.name}</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{post.owner.industry}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Modals for product posts */}
+        <ShareModal
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          post={{ ...post, id: post._id }}
+        />
+        <ScoreModal
+          isOpen={showScoreModal}
+          onClose={() => setShowScoreModal(false)}
+          postId={post._id}
+          hasScored={hasScored}
+          currentUserScore={post.has_scored ? currentScore : 0}
+          onOptimisticUpdate={handleOptimisticUpdate}
+        />
+      </>
+    )
+  }
+
   return (
     <>
       {/* Full Width Card - Instagram Style */}
