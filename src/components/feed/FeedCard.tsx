@@ -20,6 +20,7 @@ import { MessageButton } from "@/components/messaging/MessageButton"
 import { useLinkup } from "@/hooks/useLinkup"
 import { FeedPost } from "@/types"
 import { PageFollowersCount } from "./PageFollowersCount"
+import { FeedComment } from "./FeedComment"
 
 interface FeedCardProps {
   post: FeedPost
@@ -86,7 +87,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
     return media
   }, [post.images, post.videos])
 
-  const { getPostComments } = useFeed()
+  const { getPostComments, commentOnPost, deleteComment, addReply } = useFeed();
   const { loggedInUser } = useAuth()
 
   const commentsQuery = getPostComments(post._id)
@@ -159,6 +160,25 @@ export const FeedCard: React.FC<FeedCardProps> = ({
       setOptimisticComments(prev => [...prev, optimisticComment])
       onComment(commentText.trim())
       setCommentText("")
+    }
+  }
+
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      await deleteComment(commentId)
+      if (onDeleteComment) {
+        onDeleteComment(commentId)
+      }
+    } catch (error) {
+      console.error('Failed to delete comment:', error)
+    }
+  }
+
+  const handleAddReply = async (parentCommentId: string, content: string) => {
+    try {
+      await addReply({ postId: post._id, parentCommentId, payload: { content } });
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -594,12 +614,17 @@ export const FeedCard: React.FC<FeedCardProps> = ({
 
           {/* Comments Section */}
           {showComments && (
-            <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 space-y-3">
+            <div className="mt-4 pt-4 border-t border-border space-y-4">
               {/* Comment Input */}
-              <form onSubmit={handleCommentSubmit} className="flex items-start space-x-2.5">
-                <Avatar className="h-6 w-6 flex-shrink-0">
-                  <AvatarImage src="https://api.dicebear.com/7.x/bottts/svg?seed=currentuser" alt="You" />
-                  <AvatarFallback style={{ fontSize: '12px' }}>YU</AvatarFallback>
+              <form onSubmit={handleCommentSubmit} className="flex items-start space-x-3">
+                <Avatar className="h-8 w-8 flex-shrink-0 border border-primary/20">
+                  <AvatarImage 
+                    src={currentUser?.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=currentuser`} 
+                    alt="You" 
+                  />
+                  <AvatarFallback className="text-xs font-medium">
+                    {currentUser?.first_name?.[0] || 'Y'}{currentUser?.last_name?.[0] || 'U'}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0 flex space-x-2">
                   <input
@@ -607,62 +632,30 @@ export const FeedCard: React.FC<FeedCardProps> = ({
                     placeholder="Write a comment..."
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
-                    className="flex-1 px-2.5 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50"
-                    style={{ fontSize: '12px' }}
+                    className="flex-1 px-3 py-2 bg-card border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
                   />
                   {commentText.trim() && (
-                    <button type="submit" className="text-primary hover:text-primary/80 font-medium" style={{ fontSize: '12px' }}>
+                    <Button type="submit" size="sm" className="text-xs">
+                      <Send className="h-3 w-3 mr-1" />
                       Post
-                    </button>
+                    </Button>
                   )}
                 </div>
               </form>
 
-              {/* Comments List - Show optimistic comments first, then API comments */}
-              {[...optimisticComments, ...fetchedComments].map((comment) => (
-                <div key={comment._id} className="flex items-start space-x-2.5">
-                  <Avatar className="h-6 w-6 flex-shrink-0">
-                    <AvatarImage
-                      src={
-                        typeof comment.user_id === 'object' && comment.user_id?.profile_avatar
-                          ? comment.user_id.profile_avatar
-                          : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(
-                            (typeof comment.user_id === 'object' ? comment.user_id?.first_name : 'User') || 'User'
-                          )}`
-                      }
-                      alt={`${(typeof comment.user_id === 'object' ? comment.user_id?.first_name : 'User') || ''} ${(typeof comment.user_id === 'object' ? comment.user_id?.last_name : '') || ''}`}
-                    />
-                    <AvatarFallback style={{ fontSize: '12px' }}>
-                      {(typeof comment.user_id === 'object' ? comment.user_id?.first_name?.[0] : 'U')}
-                      {(typeof comment.user_id === 'object' ? comment.user_id?.last_name?.[0] : '')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-2.5">
-                      <div className="flex items-center justify-between mb-0.5">
-                        <div className="flex items-center space-x-1">
-                          <p className="font-medium text-gray-900 dark:text-white" style={{ fontSize: '12px' }}>
-                            {(typeof comment.user_id === 'object' ? comment.user_id?.first_name : 'User')} {(typeof comment.user_id === 'object' ? comment.user_id?.last_name : '')}
-                          </p>
-                          <span className="text-gray-400" style={{ fontSize: '12px' }}>•</span>
-                          <p className="text-gray-500 dark:text-gray-400" style={{ fontSize: '12px' }}>
-                            {new Date(comment.created_at).toLocaleDateString()}
-                          </p>
-                        </div>
-                        {currentUser && ((typeof comment.user_id === 'object' ? comment.user_id?._id : comment.user_id) === currentUser.user_id) && (
-                          <button
-                            onClick={() => onDeleteComment?.(comment._id)}
-                            className="text-gray-400 hover:text-red-500 transition-colors"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </button>
-                        )}
-                      </div>
-                      <p className="text-gray-600 dark:text-gray-300" style={{ fontSize: '12px' }}>{comment.content}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
+              {/* Comments List */}
+              <div className="space-y-4">
+                {[...optimisticComments, ...fetchedComments].map((comment) => (
+                  <FeedComment
+                    key={comment._id}
+                    comment={comment}
+                    currentUser={currentUser}
+                    postId={post._id}
+                    onDeleteComment={handleDeleteComment}
+                    onAddReply={handleAddReply}
+                  />
+                ))}
+              </div>
             </div>
           )}
         </div>

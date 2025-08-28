@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MessageCircle, Send, Trash2, Reply, ChevronDown, ChevronUp } from 'lucide-react';
+import { Reply, ChevronDown, ChevronUp, Send, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useFeed } from '@/hooks/useFeed';
 
@@ -34,26 +33,21 @@ interface Comment {
   is_active: boolean;
 }
 
-interface CommentModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  postId: string;
-  currentUser?: {
-    profile_avatar: any;
-    first_name: string;
-    last_name: string;
-    email: string;
-    _id: string;
-  };
-}
-
-const CommentItem: React.FC<{
+interface FeedCommentProps {
   comment: Comment;
   currentUser?: any;
   postId: string;
   onDeleteComment: (commentId: string) => Promise<void>;
   onAddReply: (parentId: string, content: string) => Promise<void>;
-}> = ({ comment, currentUser, postId, onDeleteComment, onAddReply }) => {
+}
+
+export const FeedComment: React.FC<FeedCommentProps> = ({ 
+  comment, 
+  currentUser, 
+  postId, 
+  onDeleteComment, 
+  onAddReply 
+}) => {
   const [isReplying, setIsReplying] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
@@ -107,22 +101,22 @@ const CommentItem: React.FC<{
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {/* Main Comment */}
       <div className="flex space-x-3">
-        <Avatar className="h-10 w-10 flex-shrink-0 border-2 border-primary/10">
+        <Avatar className="h-8 w-8 flex-shrink-0 border border-primary/20">
           <AvatarImage
             src={getUserAvatar(comment.user_id)}
             alt={getUserName(comment.user_id)}
           />
-          <AvatarFallback className="text-sm font-medium">
+          <AvatarFallback className="text-xs font-medium">
             {comment.user_id.first_name[0]}{comment.user_id.last_name[0]}
           </AvatarFallback>
         </Avatar>
         
         <div className="flex-1 min-w-0">
-          <div className="bg-card border border-border rounded-2xl p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
+          <div className="bg-card border border-border rounded-xl p-3 shadow-sm">
+            <div className="flex items-center justify-between mb-1">
               <div className="flex items-center space-x-2">
                 <p className="text-sm font-semibold text-foreground">
                   {getUserName(comment.user_id)}
@@ -136,7 +130,7 @@ const CommentItem: React.FC<{
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
+                  className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
                   onClick={() => onDeleteComment(comment._id)}
                 >
                   <Trash2 className="h-3 w-3" />
@@ -149,13 +143,13 @@ const CommentItem: React.FC<{
           </div>
           
           {/* Action Buttons */}
-          <div className="flex items-center mt-2 ml-4 space-x-4">
+          <div className="flex items-center mt-2 ml-3 space-x-3">
             {currentUser && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsReplying(!isReplying)}
-                className="text-xs text-muted-foreground hover:text-foreground h-7 px-2"
+                className="text-xs text-muted-foreground hover:text-foreground h-6 px-2"
               >
                 <Reply className="h-3 w-3 mr-1" />
                 Reply
@@ -166,17 +160,17 @@ const CommentItem: React.FC<{
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowReplies(!showReplies)}
-                className="text-xs text-muted-foreground hover:text-foreground h-7 px-2"
+                className="text-xs text-muted-foreground hover:text-foreground h-6 px-2"
               >
                 {showReplies ? (
                   <>
                     <ChevronUp className="h-3 w-3 mr-1" />
-                    Hide {replies.length} {replies.length === 1 ? 'reply' : 'replies'}
+                    Hide {replies.length}
                   </>
                 ) : (
                   <>
                     <ChevronDown className="h-3 w-3 mr-1" />
-                    Show {replies.length} {replies.length === 1 ? 'reply' : 'replies'}
+                    Show {replies.length}
                   </>
                 )}
               </Button>
@@ -185,9 +179,9 @@ const CommentItem: React.FC<{
 
           {/* Reply Input */}
           {isReplying && currentUser && (
-            <div className="mt-3 ml-4">
+            <div className="mt-3 ml-3">
               <div className="flex space-x-3">
-                <Avatar className="h-8 w-8 flex-shrink-0">
+                <Avatar className="h-6 w-6 flex-shrink-0">
                   <AvatarImage
                     src={currentUser.profile_avatar || 
                          `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(currentUser.first_name)}`}
@@ -202,7 +196,7 @@ const CommentItem: React.FC<{
                     placeholder={`Reply to ${comment.user_id.first_name}...`}
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
-                    className="min-h-[60px] resize-none text-sm border-border focus:border-primary"
+                    className="min-h-[50px] text-xs resize-none border-border focus:border-primary"
                     disabled={isSubmittingReply}
                   />
                   <div className="flex justify-end space-x-2">
@@ -213,7 +207,7 @@ const CommentItem: React.FC<{
                         setIsReplying(false);
                         setReplyText('');
                       }}
-                      className="h-7 text-xs"
+                      className="h-6 text-xs"
                     >
                       Cancel
                     </Button>
@@ -221,12 +215,12 @@ const CommentItem: React.FC<{
                       onClick={handleReplySubmit}
                       disabled={!replyText.trim() || isSubmittingReply}
                       size="sm"
-                      className="h-7 text-xs"
+                      className="h-6 text-xs"
                     >
                       {isSubmittingReply ? (
-                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                        <div className="animate-spin rounded-full h-2 w-2 border-b-2 border-white mr-1"></div>
                       ) : (
-                        <Send className="h-3 w-3 mr-1" />
+                        <Send className="h-2 w-2 mr-1" />
                       )}
                       {isSubmittingReply ? 'Replying...' : 'Reply'}
                     </Button>
@@ -238,12 +232,12 @@ const CommentItem: React.FC<{
 
           {/* Nested Replies with Curved Connector */}
           {showReplies && replies.length > 0 && (
-            <div className="relative mt-3 ml-8">
+            <div className="relative mt-3 ml-6">
               {/* Curved Connector */}
-              <div className="absolute -left-8 top-0 bottom-0">
-                <svg width="32" height="100%" className="text-border">
+              <div className="absolute -left-6 top-0 bottom-0">
+                <svg width="24" height="100%" className="text-border">
                   <path
-                    d="M 0 0 Q 16 16 16 32 L 16 100%"
+                    d="M 0 0 Q 12 12 12 24 L 12 100%"
                     stroke="currentColor"
                     strokeWidth="1"
                     fill="none"
@@ -256,12 +250,12 @@ const CommentItem: React.FC<{
                 {replies.map((reply: Reply, index) => (
                   <div key={reply._id} className="relative">
                     {/* Individual reply connector */}
-                    <div className="absolute -left-8 top-4">
-                      <div className="w-6 h-px bg-border opacity-30"></div>
+                    <div className="absolute -left-6 top-4">
+                      <div className="w-4 h-px bg-border opacity-30"></div>
                     </div>
                     
                     <div className="flex space-x-3">
-                      <Avatar className="h-8 w-8 flex-shrink-0 border border-primary/10">
+                      <Avatar className="h-6 w-6 flex-shrink-0 border border-primary/10">
                         <AvatarImage
                           src={getUserAvatar(reply.user_id)}
                           alt={getUserName(reply.user_id)}
@@ -272,7 +266,7 @@ const CommentItem: React.FC<{
                       </Avatar>
                       
                       <div className="flex-1 min-w-0">
-                        <div className="bg-muted/50 border border-border/50 rounded-xl p-3">
+                        <div className="bg-muted/50 border border-border/50 rounded-lg p-2">
                           <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center space-x-2">
                               <p className="text-xs font-medium text-foreground">
@@ -287,10 +281,10 @@ const CommentItem: React.FC<{
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
+                                className="h-5 w-5 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
                                 onClick={() => onDeleteComment(reply._id)}
                               >
-                                <Trash2 className="h-2.5 w-2.5" />
+                                <Trash2 className="h-2 w-2" />
                               </Button>
                             )}
                           </div>
@@ -308,148 +302,5 @@ const CommentItem: React.FC<{
         </div>
       </div>
     </div>
-  );
-};
-
-export const CommentModal: React.FC<CommentModalProps> = ({
-  isOpen,
-  onClose,
-  postId,
-  currentUser
-}) => {
-  const [newComment, setNewComment] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { getPostComments, commentOnPost, deleteComment, addReply } = useFeed();
-
-  // Fetch comments
-  const { data: comments = [], isLoading, refetch } = getPostComments(postId);
-
-  const handleSubmitComment = async () => {
-    if (!newComment.trim()) return;
-
-    setIsSubmitting(true);
-    try {
-      await commentOnPost({ postId, payload: { content: newComment.trim() } });
-      setNewComment('');
-      toast.success('Comment added successfully!');
-      refetch();
-    } catch (error) {
-      toast.error('Failed to add comment');
-      console.error('Error adding comment:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleDeleteComment = async (commentId: string) => {
-    try {
-      await deleteComment(commentId);
-      toast.success('Comment deleted successfully!');
-      refetch();
-    } catch (error) {
-      toast.error('Failed to delete comment');
-      console.error('Error deleting comment:', error);
-    }
-  };
-
-  const handleAddReply = async (parentCommentId: string, content: string) => {
-    try {
-      await addReply({ postId, parentCommentId, payload: { content } });
-      refetch();
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-2xl max-h-[85vh] flex flex-col p-0">
-        <DialogHeader className="p-6 pb-0 border-b border-border">
-          <DialogTitle className="flex items-center gap-3 text-lg font-semibold">
-            <div className="p-2 bg-primary/10 rounded-full">
-              <MessageCircle className="h-5 w-5 text-primary" />
-            </div>
-            Comments
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="flex-1 overflow-hidden flex flex-col">
-          {/* Comments List */}
-          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
-            {isLoading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                <p className="text-sm text-muted-foreground mt-3">Loading comments...</p>
-              </div>
-            ) : comments.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="p-4 bg-muted/50 rounded-full w-fit mx-auto mb-4">
-                  <MessageCircle className="h-8 w-8 text-muted-foreground" />
-                </div>
-                <p className="text-base font-medium text-foreground mb-1">No comments yet</p>
-                <p className="text-sm text-muted-foreground">Be the first to share your thoughts!</p>
-              </div>
-            ) : (
-              comments.map((comment: Comment) => (
-                <CommentItem
-                  key={comment._id}
-                  comment={comment}
-                  currentUser={currentUser}
-                  postId={postId}
-                  onDeleteComment={handleDeleteComment}
-                  onAddReply={handleAddReply}
-                />
-              ))
-            )}
-          </div>
-
-          {/* Add Comment Form */}
-          {currentUser && (
-            <div className="border-t border-border p-6">
-              <div className="flex space-x-4">
-                <Avatar className="h-10 w-10 flex-shrink-0 border-2 border-primary/10">
-                  <AvatarImage
-                    src={currentUser.profile_avatar || 
-                         `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(currentUser.first_name)}`}
-                    alt={`${currentUser.first_name} ${currentUser.last_name}`}
-                  />
-                  <AvatarFallback className="text-sm font-medium">
-                    {currentUser.first_name[0]}{currentUser.last_name[0]}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 space-y-3">
-                  <Textarea
-                    placeholder="Write a comment..."
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    className="min-h-[80px] resize-none border-border focus:border-primary"
-                    disabled={isSubmitting}
-                  />
-                  <div className="flex justify-end">
-                    <Button
-                      onClick={handleSubmitComment}
-                      disabled={!newComment.trim() || isSubmitting}
-                      className="px-6"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Posting...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="h-4 w-4 mr-2" />
-                          Post Comment
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
   );
 };
