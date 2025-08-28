@@ -174,7 +174,13 @@ export const FeedCard: React.FC<FeedCardProps> = ({
     if ((e.target as HTMLElement).closest('button, a, input, [role="menu"], [role="menuitem"], .media-container')) {
       return
     }
-    navigate(`/feed/${post._id}`)
+    
+    // For product posts, redirect to company URL
+    if (post.meta?.type === "product" && post.owner?.company_url) {
+      navigate(`/company/page/${post.owner.company_url}`)
+    } else {
+      navigate(`/feed/${post._id}`)
+    }
   }
 
   const handleMediaClick = (e: React.MouseEvent) => {
@@ -372,6 +378,17 @@ export const FeedCard: React.FC<FeedCardProps> = ({
         {/* Media Carousel - Full Width with Increased Height */}
         {allMedia.length > 0 && (
           <div className="relative w-full media-container" onClick={handleMediaClick}>
+            {/* Product Meta Overlay for Product Posts */}
+            {post.meta?.type === "product" && (
+              <div className="absolute top-4 right-4 z-10 bg-black/70 backdrop-blur-sm rounded-lg px-3 py-2 text-white">
+                <div className="flex items-center space-x-2">
+                  <span className="text-lg font-bold">{post.meta.percentage}%</span>
+                  <div className={`w-2 h-2 rounded-full ${post.meta.is_live ? 'bg-green-500' : 'bg-red-500'}`} />
+                  <span className="text-xs">{post.meta.is_live ? 'LIVE' : 'NOT LIVE'}</span>
+                </div>
+              </div>
+            )}
+            
             <div className="w-full overflow-hidden">
               <div
                 className="flex transition-transform duration-300 ease-in-out"
@@ -386,7 +403,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
                     <div
                       key={index}
                       className={`w-full flex-shrink-0 ${isCarousel ? "h-[558px]" : ""
-                        } flex items-center justify-center bg-black`}
+                        } flex items-center justify-center bg-black relative`}
                     >
                       {media.type === 'image' ? (
                         <img

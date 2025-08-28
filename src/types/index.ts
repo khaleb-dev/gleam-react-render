@@ -223,6 +223,14 @@ export interface FeedPost {
   created_at: string;
   updated_at: string;
   __v: number;
+  meta?: {
+    product_id?: string;
+    name?: string;
+    percentage?: number;
+    is_live?: boolean;
+    logo?: string;
+    type?: string;
+  };
   owner: {
     profile_avatar?: string;
     type: 'user' | 'page';
