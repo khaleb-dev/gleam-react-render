@@ -108,13 +108,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
         // Update the user context first
         onComplete(updatedUser);
         
-        // Small delay to ensure context update, then handle step transition
+        // Small delay to ensure context update, then proceed to post step
         setTimeout(() => {
-          if (isFirstTime) {
-            setStep('post');
-          } else {
-            onClose();
-          }
+          setStep('post');
         }, 100);
       } else {
         toast.error(result.message || 'Failed to update profile');
@@ -171,11 +167,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   };
 
   const skipAvatarUpload = () => {
-    if (isFirstTime) {
-      setStep('post');
-    } else {
-      onClose();
-    }
+    // Always show post creation step in onboarding flow
+    setStep('post');
   };
 
   const skipPostCreation = () => {
