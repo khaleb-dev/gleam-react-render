@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Upload, User, PenTool } from 'lucide-react';
+import { Upload, User, PenTool, Image, Video, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { API_BASE_URL } from '@/config/env';
 import { useSingleFileUpload } from '@/hooks/useSingleFileUpload';
@@ -42,6 +42,10 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isCreatingPost, setIsCreatingPost] = useState(false);
 
+  // Post file upload state
+  const [postFile, setPostFile] = useState<File | null>(null);
+  const [postFilePreview, setPostFilePreview] = useState<string | null>(null);
+
   const { uploadFile, isUploading } = useSingleFileUpload();
 
   // Post form data
@@ -68,6 +72,33 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
       setSelectedFile(file);
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
+    }
+  };
+
+  const handlePostFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit for post files
+        toast.error('File size should be less than 10MB');
+        return;
+      }
+
+      if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+        toast.error('Please select an image or video file');
+        return;
+      }
+
+      setPostFile(file);
+      const url = URL.createObjectURL(file);
+      setPostFilePreview(url);
+    }
+  };
+
+  const removePostFile = () => {
+    setPostFile(null);
+    if (postFilePreview) {
+      URL.revokeObjectURL(postFilePreview);
+      setPostFilePreview(null);
     }
   };
 
@@ -131,11 +162,22 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 
     setIsCreatingPost(true);
     try {
+      let uploadedFileUrl = '';
+      
+      // Upload post file if selected
+      if (postFile) {
+        uploadedFileUrl = await uploadFile(postFile);
+        if (!uploadedFileUrl) {
+          toast.error('Failed to upload file');
+          return;
+        }
+      }
+
       const payload: CreatePostPayload = {
         title: postData.title,
         description: postData.description,
-        images: [],
-        videos: [],
+        images: postFile && postFile.type.startsWith('image/') ? [uploadedFileUrl] : [],
+        videos: postFile && postFile.type.startsWith('video/') ? [uploadedFileUrl] : [],
         category: postData.category,
         tags: postData.tags,
         visibility: 'public'
@@ -281,6 +323,70 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                   rows={4}
                 />
               </div>
+
+              {/* File Upload Section */}
+              <div>
+                <Label>Add a photo or video (optional)</Label>
+                {!postFile ? (
+                  <div className="mt-2">
+                    <Label htmlFor="post-file-upload" className="cursor-pointer">
+                      <div className="flex items-center justify-center gap-2 px-4 py-8 border-2 border-dashed border-muted-foreground rounded-lg hover:bg-muted transition-colors">
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2">
+                            <Image className="h-5 w-5" />
+                            <span>Photo</span>
+                          </div>
+                          <span className="text-muted-foreground">or</span>
+                          <div className="flex items-center gap-2">
+                            <Video className="h-5 w-5" />
+                            <span>Video</span>
+                          </div>
+                        </div>
+                      </div>
+                    </Label>
+                    <Input
+                      id="post-file-upload"
+                      type="file"
+                      accept="image/*,video/*"
+                      onChange={handlePostFileSelect}
+                      className="hidden"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      JPG, PNG, GIF, MP4, MOV (max 10MB)
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-2 relative">
+                    <div className="relative border rounded-lg overflow-hidden">
+                      {postFile.type.startsWith('image/') ? (
+                        <img
+                          src={postFilePreview!}
+                          alt="Post preview"
+                          className="w-full h-48 object-cover"
+                        />
+                      ) : (
+                        <video
+                          src={postFilePreview!}
+                          className="w-full h-48 object-cover"
+                          controls
+                        />
+                      )}
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        className="absolute top-2 right-2"
+                        onClick={removePostFile}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {postFile.name} ({(postFile.size / 1024 / 1024).toFixed(1)} MB)
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex gap-2">
@@ -293,10 +399,10 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               </Button>
               <Button
                 onClick={createFirstPost}
-                disabled={isCreatingPost || !postData.title.trim() || !postData.description.trim()}
+                disabled={isCreatingPost || isUploading || !postData.title.trim() || !postData.description.trim()}
                 className="flex-1"
               >
-                {isCreatingPost ? 'Creating...' : 'Create Post'}
+                {(isCreatingPost || isUploading) ? 'Creating...' : 'Create Post'}
               </Button>
             </div>
           </div>
