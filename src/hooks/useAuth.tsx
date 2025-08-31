@@ -100,8 +100,8 @@ export const useAuth = () => {
         const successMessage = typeof response.message === 'string' ? response.message : "Login successful!"
         toast.success(successMessage)
 
-        const { auth_token, user } = response.data
-        console.log("🔐 Login data received:", { hasToken: !!auth_token, hasUser: !!user });
+        const { auth_token, user, first_time } = response.data
+        console.log("🔐 Login data received:", { hasToken: !!auth_token, hasUser: !!user, first_time });
 
         // Ensure user is valid before setting it
         if (user) {
@@ -136,6 +136,17 @@ export const useAuth = () => {
             // Clear any cached verification results to force fresh check
             lastVerifyResult = null;
             lastVerifyAt = 0;
+            
+            // Check if onboarding is needed
+            const needsOnboarding = first_time || !user.profile_avatar;
+            
+            if (needsOnboarding) {
+              // Store onboarding info in sessionStorage to show modal after navigation
+              sessionStorage.setItem('showOnboarding', JSON.stringify({
+                isFirstTime: first_time || false,
+                needsAvatar: !user.profile_avatar
+              }));
+            }
             
             // Navigate to intended page or home
             const urlParams = new URLSearchParams(location.search);
@@ -241,8 +252,8 @@ export const useAuth = () => {
         const successMessage = typeof response.message === 'string' ? response.message : "Google login successful!"
         toast.success(successMessage);
 
-        const { auth_token, user } = response.data;
-        console.log("🔐 Google login data received:", { hasToken: !!auth_token, hasUser: !!user });
+        const { auth_token, user, first_time } = response.data;
+        console.log("🔐 Google login data received:", { hasToken: !!auth_token, hasUser: !!user, first_time });
 
         if (user) {
           console.log("🔐 Setting user in context:", user.user_id);
@@ -272,6 +283,17 @@ export const useAuth = () => {
             // Clear any cached verification results to force fresh check
             lastVerifyResult = null;
             lastVerifyAt = 0;
+            
+            // Check if onboarding is needed
+            const needsOnboarding = first_time || !user.profile_avatar;
+            
+            if (needsOnboarding) {
+              // Store onboarding info in sessionStorage to show modal after navigation
+              sessionStorage.setItem('showOnboarding', JSON.stringify({
+                isFirstTime: first_time || false,
+                needsAvatar: !user.profile_avatar
+              }));
+            }
             
             // Navigate to intended page or home
             const urlParams = new URLSearchParams(location.search);

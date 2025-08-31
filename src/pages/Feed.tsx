@@ -17,6 +17,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { useFeed } from "@/hooks/useFeed"
 import { useDebounce } from "@/hooks/useDebounce"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Search, TrendingUp } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { useSearchParams } from "react-router-dom"
@@ -232,12 +233,16 @@ const Feed = () => {
           <div className="w-full lg:max-w-8xl lg:mx-auto lg:flex lg:gap-6 lg:px-4 lg:items-start">
 
             {/* Left Sidebar - Profile Stats and Top Responders (Only show on large screens) */}
-            <div className="hidden lg:block lg:w-64 lg:flex-shrink-0 lg:pt-4">
-              <div className="space-y-4">
-                <ProfileStatsCard user={user} />
-                <UserPagesCard />
-                <ChallengeCard />
-                <WeeklyTopResponders />
+            <div className="hidden lg:block lg:w-64 lg:flex-shrink-0">
+              <div className="fixed left-4 top-20 bottom-0 w-64">
+                <ScrollArea className="h-full">
+                  <div className="space-y-4 pr-4 py-4">
+                    <ProfileStatsCard user={user} />
+                    <UserPagesCard />
+                    <ChallengeCard />
+                    <WeeklyTopResponders />
+                  </div>
+                </ScrollArea>
               </div>
             </div>
 
@@ -381,18 +386,18 @@ const Feed = () => {
               </div>
             </div>
 
-            {/* Right Sidebar - Only show on large screens with proper sticky positioning */}
-            <div className="hidden lg:block lg:w-[20rem] lg:flex-shrink-0 lg:pt-4">
-              <div className="space-y-4">
-                <FollowingPagesCard />
-                <SuggestedPagesCard />
-                <SuggestedUsers />
-                <TopWeeklyChallengers />
-
-                {/* Make only this card sticky */}
-                <div className="sticky top-20">
-                  <TrendingCategories />
-                </div>
+            {/* Right Sidebar - Only show on large screens with independent scrolling */}
+            <div className="hidden lg:block lg:w-[20rem] lg:flex-shrink-0">
+              <div className="fixed right-4 top-20 bottom-0 w-[20rem]">
+                <ScrollArea className="h-full">
+                  <div className="space-y-4 pr-4 py-4">
+                    <FollowingPagesCard />
+                    <SuggestedPagesCard />
+                    <SuggestedUsers />
+                    <TopWeeklyChallengers />
+                    <TrendingCategories />
+                  </div>
+                </ScrollArea>
               </div>
             </div>
 

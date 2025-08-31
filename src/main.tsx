@@ -9,6 +9,7 @@ import App from './App.tsx'
 import './index.css'
 import { AppProvider } from './context/AppContext'
 import { MessagePopupProvider } from './context/MessagePopupContext'
+import { OnboardingProvider } from './components/onboarding/OnboardingProvider'
 import { GOOGLE_CLIENT_ID } from './config/env'
 
 // Create a client
@@ -20,13 +21,15 @@ createRoot(document.getElementById("root")!).render(
       <QueryClientProvider client={queryClient}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <AppProvider>
-            <MessagePopupProvider>
-              <VideoProvider>
-                <BrowserRouter>
-                  <App />
-                </BrowserRouter>
-              </VideoProvider>
-            </MessagePopupProvider>
+            <OnboardingProvider>
+              <MessagePopupProvider>
+                <VideoProvider>
+                  <BrowserRouter>
+                    <App />
+                  </BrowserRouter>
+                </VideoProvider>
+              </MessagePopupProvider>
+            </OnboardingProvider>
           </AppProvider>
         </ThemeProvider>
       </QueryClientProvider>
