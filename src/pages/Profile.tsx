@@ -48,6 +48,7 @@ import { userApiService } from "@/services/userApi"
 import { API_BASE_URL } from "@/config/env"
 import { useSingleFileUpload } from "@/hooks/useSingleFileUpload"
 import { useNotifications } from "@/hooks/useNotifications"
+import { useAppContext } from "@/context/AppContext"
 import { UserFeedSection } from "@/components/profile/UserFeedSection"
 import { UserPagesSection } from "@/components/profile/UserPagesSection"
 import { useProfileStats } from "@/hooks/useProfileStats"
@@ -57,6 +58,7 @@ import { useLinkup } from "@/hooks/useLinkup"
 const Profile = () => {
   const navigate = useNavigate()
   const { userId } = useParams<{ userId: string }>()
+  const { user: globalUser, updateUserProfile } = useAppContext()
   const [user, setUser] = useState<any>(null)
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -248,6 +250,12 @@ const Profile = () => {
       if (result.success) {
         setUser(result.data)
         setEditedUser(result.data)
+        
+        // Update global context if editing own profile
+        if (!userId || currentUser?.user_id === userId) {
+          updateUserProfile(result.data)
+        }
+        
         setIsEditing(false)
         setSelectedProfileImage(null)
         setSelectedCoverImage(null)
@@ -340,6 +348,12 @@ const Profile = () => {
       if (result.success) {
         setUser(result.data)
         setEditedUser(result.data)
+        
+        // Update global context if editing own profile  
+        if (!userId || currentUser?.user_id === userId) {
+          updateUserProfile(result.data)
+        }
+        
         toast.success(`${type} updated successfully!`)
       } else {
         toast.error(result.message || `Failed to update ${type}`)

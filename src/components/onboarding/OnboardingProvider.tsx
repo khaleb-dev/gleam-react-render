@@ -8,7 +8,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     isFirstTime: boolean; 
     needsAvatar: boolean; 
   } | null>(null);
-  const { user, setUser } = useAppContext();
+  const { user, updateUserProfile } = useAppContext();
 
   useEffect(() => {
     // Check if onboarding should be shown
@@ -28,7 +28,8 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   }, [user]);
 
   const handleOnboardingComplete = (updatedUser: any) => {
-    setUser(updatedUser);
+    // Use updateUserProfile instead of setUser to properly merge updates
+    updateUserProfile(updatedUser);
   };
 
   const handleOnboardingClose = () => {

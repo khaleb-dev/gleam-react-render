@@ -103,14 +103,19 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 
       if (result.success) {
         const updatedUser = { ...user, profile_avatar: uploadedUrl };
-        onComplete(updatedUser);
         toast.success('Profile picture uploaded successfully!');
-
-        if (isFirstTime) {
-          setStep('post');
-        } else {
-          onClose();
-        }
+        
+        // Update the user context first
+        onComplete(updatedUser);
+        
+        // Small delay to ensure context update, then handle step transition
+        setTimeout(() => {
+          if (isFirstTime) {
+            setStep('post');
+          } else {
+            onClose();
+          }
+        }, 100);
       } else {
         toast.error(result.message || 'Failed to update profile');
       }
