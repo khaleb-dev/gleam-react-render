@@ -126,7 +126,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          profile_avatar: uploadedUrl
+          profile_avatar: uploadedUrl,
+          first_time: false
         }),
       });
 
@@ -195,6 +196,18 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
       const result = await response.json();
 
       if (response.ok && result.success) {
+        // Update user's first_time status
+        await fetch(`${API_BASE_URL}/users/edit-profile`, {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            first_time: false
+          }),
+        });
+        
         toast.success('Welcome post created successfully!');
         onClose();
       } else {
@@ -213,7 +226,22 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     setStep('post');
   };
 
-  const skipPostCreation = () => {
+  const skipPostCreation = async () => {
+    // Update user's first_time status even when skipping
+    try {
+      await fetch(`${API_BASE_URL}/users/edit-profile`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          first_time: false
+        }),
+      });
+    } catch (error) {
+      console.error('Error updating first_time status:', error);
+    }
     onClose();
   };
 
