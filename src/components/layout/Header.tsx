@@ -161,9 +161,96 @@ export const Header = () => {
             <SearchBar />
           </div>
 
-          {/* Dashboard Icon */}
+          {/* Mobile Navigation Icons - Feed, Message, Notification, Dashboard */}
+          <div className="lg:hidden flex items-center space-x-4">
+            {!userLoading && user && (
+              <>
+                {/* Feed */}
+                <button
+                  onClick={handleFeedNavigation}
+                  className={`relative flex items-center justify-center w-9 h-9 rounded-full transition-colors ${
+                    location.pathname === '/feed' || location.pathname === '/'
+                      ? 'bg-primary/10 border-2 border-primary'
+                      : 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <Home className={`h-4 w-4 transition-colors ${
+                    location.pathname === '/feed' || location.pathname === '/'
+                      ? 'text-primary'
+                      : 'text-gray-600 dark:text-gray-300'
+                  }`} />
+                </button>
+
+                {/* Messages */}
+                <button
+                  onClick={() => navigate("/messages")}
+                  className={`relative flex items-center justify-center w-9 h-9 rounded-full transition-colors ${
+                    location.pathname === '/messages'
+                      ? 'bg-primary/10 border-2 border-primary'
+                      : 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <MessageCircle className={`h-4 w-4 transition-colors ${
+                    location.pathname === '/messages'
+                      ? 'text-primary'
+                      : 'text-gray-600 dark:text-gray-300'
+                  }`} />
+                  {messageUnreadCount > 0 && (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-xs"
+                    >
+                      {messageUnreadCount > 9 ? "9+" : messageUnreadCount}
+                    </Badge>
+                  )}
+                </button>
+
+                {/* Notifications */}
+                <button
+                  onClick={() => navigate("/notifications")}
+                  className={`relative flex items-center justify-center w-9 h-9 rounded-full transition-colors ${
+                    location.pathname === '/notifications'
+                      ? 'bg-primary/10 border-2 border-primary'
+                      : 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <Bell className={`h-4 w-4 transition-colors ${
+                    location.pathname === '/notifications'
+                      ? 'text-primary'
+                      : 'text-gray-600 dark:text-gray-300'
+                  }`} />
+                  {unreadCount > 0 && (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-xs"
+                    >
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </Badge>
+                  )}
+                </button>
+
+                {/* Dashboard */}
+                <button
+                  onClick={() => navigate("/dashboard")}
+                  className={`relative flex items-center justify-center w-9 h-9 rounded-full transition-colors ${
+                    location.pathname === '/dashboard'
+                      ? 'bg-primary/10 border-2 border-primary'
+                      : 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <LayoutDashboard className={`h-4 w-4 transition-colors ${
+                    location.pathname === '/dashboard'
+                      ? 'text-primary'
+                      : 'text-gray-600 dark:text-gray-300'
+                  }`} />
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Desktop Dashboard Icon */}
           {!userLoading && user && (
-            <div className="flex flex-col items-center group py-1">
+            <div className="hidden lg:flex flex-col items-center group py-1">
               <div className="relative">
                 <button
                   onClick={() => navigate("/dashboard")}
@@ -190,9 +277,9 @@ export const Header = () => {
             </div>
           )}
 
-          {/* Create Micro Job Icon */}
+          {/* Desktop Create Micro Job Icon */}
           {!userLoading && user && (
-            <div className="flex flex-col items-center group py-1">
+            <div className="hidden lg:flex flex-col items-center group py-1">
               <div className="relative">
                 <button
                   onClick={() => navigate("/create-task")}
