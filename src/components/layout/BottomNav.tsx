@@ -66,9 +66,9 @@ export const BottomNav = () => {
               onClick={item.onClick}
               className="flex flex-col items-center justify-center min-w-0 flex-1 py-1 px-2"
             >
-              <div className={`relative flex items-center justify-center w-6 h-6 mb-1 transition-colors ${
+              <div className={`relative flex items-center justify-center w-6 h-6 mb-1 transition-all duration-200 ${
                 isActive 
-                  ? 'text-primary' 
+                  ? 'text-primary border-2 border-primary rounded-full p-1' 
                   : 'text-gray-600 dark:text-gray-300'
               }`}>
                 <IconComponent className="h-5 w-5" />

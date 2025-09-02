@@ -161,6 +161,26 @@ export const Header = () => {
             <SearchBar />
           </div>
 
+          {/* Create Micro Job for Mobile */}
+          {!userLoading && user && (
+            <div className="md:hidden">
+              <button
+                onClick={() => navigate("/create-task")}
+                className={`relative flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
+                  location.pathname === '/create-task'
+                    ? 'bg-primary/10 border-2 border-primary'
+                    : 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
+              >
+                <Plus className={`h-5 w-5 transition-colors ${
+                  location.pathname === '/create-task'
+                    ? 'text-primary'
+                    : 'text-gray-600 dark:text-gray-300'
+                }`} />
+              </button>
+            </div>
+          )}
+
           {/* Desktop Dashboard Icon */}
           {!userLoading && user && (
             <div className="hidden lg:flex flex-col items-center group py-1">
