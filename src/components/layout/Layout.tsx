@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import { useLocation } from "react-router-dom"
 import { Header } from "./Header"
 import { AppFooter } from "./AppFooter"
+import { BottomNav } from "./BottomNav"
 import { useAuthGuard } from "@/hooks/useAuthGuard"
 
 type LayoutProps = {
@@ -24,7 +25,7 @@ export const Layout = ({ children, requireAuth = true, showFooter = true }: Layo
 
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-beembyte-darkBlue">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-beembyte-darkBlue pb-16 md:pb-0">
       {
         isMessageRoute ? null :
           <Header />
@@ -43,6 +44,10 @@ export const Layout = ({ children, requireAuth = true, showFooter = true }: Layo
           {(!requireAuth || isAuthenticated) && children}
         </div>
       </main>
+      
+      {/* Bottom Navigation for Mobile */}
+      {requireAuth && isAuthenticated && !isMessageRoute && <BottomNav />}
+      
       {showFooter && !isMessageRoute && <AppFooter />}
     </div>
   )
