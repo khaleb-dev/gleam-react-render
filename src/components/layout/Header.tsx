@@ -84,7 +84,7 @@ export const Header = () => {
 
   return (
     <header className="sticky top-0 z-10 bg-white dark:bg-beembyte-darkBlue border-b border-gray-200 dark:border-gray-700 shadow-sm">
-      <div className="flex items-center justify-between max-w-7xl mx-auto px-4 h-20 py-4">
+      <div className="flex items-center justify-between max-w-7xl mx-auto px-4 h-12 md:h-20 py-4">
         {/* Left Section - Logo and Search */}
         <div className="flex items-center space-x-4">
           <div className="flex items-center flex-shrink-0 cursor-pointer" onClick={() => navigate("/")}>

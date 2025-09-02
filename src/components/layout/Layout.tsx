@@ -4,6 +4,7 @@ import { Header } from "./Header"
 import { AppFooter } from "./AppFooter"
 import { BottomNav } from "./BottomNav"
 import { useAuthGuard } from "@/hooks/useAuthGuard"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 type LayoutProps = {
   children: ReactNode
@@ -15,6 +16,7 @@ export const Layout = ({ children, requireAuth = true, showFooter = true }: Layo
   // Use our new auth guard hook
   const { isAuthenticated } = useAuthGuard(requireAuth)
   const location = useLocation()
+  const isMobile = useIsMobile()
 
   // Check if current route is a chat route
   const isChatRoute = location.pathname.startsWith("/chat/")
@@ -22,6 +24,9 @@ export const Layout = ({ children, requireAuth = true, showFooter = true }: Layo
   // Check if current route is the feed route
   const isFeedRoute = location.pathname === "/feed" || location.pathname.startsWith("/feed")
   const isMessageRoute = location.pathname === "/messages" || location.pathname.startsWith("/messages")
+  
+  // Check if we're on the messages inbox page (not a specific chat)
+  const isMessagesInboxPage = location.pathname === "/messages"
 
 
   return (
@@ -46,7 +51,10 @@ export const Layout = ({ children, requireAuth = true, showFooter = true }: Layo
       </main>
       
       {/* Bottom Navigation for Mobile */}
-      {requireAuth && isAuthenticated && !isMessageRoute && <BottomNav />}
+      {requireAuth && isAuthenticated && (
+        (!isMessageRoute && <BottomNav />) ||
+        (isMessagesInboxPage && isMobile && <BottomNav />)
+      )}
       
       {showFooter && !isMessageRoute && <AppFooter />}
     </div>
