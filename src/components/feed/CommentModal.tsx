@@ -98,8 +98,8 @@ const CommentItem: React.FC<{
   };
 
   const getUserAvatar = (user: CommentUser) => {
-    return user.profile_avatar || 
-           `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`;
+    return user.profile_avatar ||
+      `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`;
   };
 
   const getUserName = (user: CommentUser) => {
@@ -114,14 +114,15 @@ const CommentItem: React.FC<{
           <AvatarImage
             src={getUserAvatar(comment.user_id)}
             alt={getUserName(comment.user_id)}
+            style={{ objectFit: 'cover' }}
           />
           <AvatarFallback className="text-sm font-medium">
-            {comment.user_id.first_name[0]}{comment.user_id.last_name[0]}
+            {comment.user_id.first_name[0]}
           </AvatarFallback>
         </Avatar>
-        
+
         <div className="flex-1 min-w-0">
-          <div className="bg-card border border-border rounded-2xl p-4 shadow-sm">
+          <div className="bg-card p-4">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
                 <p className="text-sm font-semibold text-foreground">
@@ -147,7 +148,7 @@ const CommentItem: React.FC<{
               {comment.content}
             </p>
           </div>
-          
+
           {/* Action Buttons */}
           <div className="flex items-center mt-2 ml-4 space-x-4">
             {currentUser && (
@@ -155,7 +156,7 @@ const CommentItem: React.FC<{
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsReplying(!isReplying)}
-                className="text-xs text-muted-foreground hover:text-foreground h-7 px-2"
+                className="text-xs text-muted-foreground h-7 px-2"
               >
                 <Reply className="h-3 w-3 mr-1" />
                 Reply
@@ -166,7 +167,7 @@ const CommentItem: React.FC<{
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowReplies(!showReplies)}
-                className="text-xs text-muted-foreground hover:text-foreground h-7 px-2"
+                className="text-xs text-muted-foreground h-7 px-2"
               >
                 {showReplies ? (
                   <>
@@ -189,8 +190,8 @@ const CommentItem: React.FC<{
               <div className="flex space-x-3">
                 <Avatar className="h-8 w-8 flex-shrink-0">
                   <AvatarImage
-                    src={currentUser.profile_avatar || 
-                         `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(currentUser.first_name)}`}
+                    src={currentUser.profile_avatar ||
+                      `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(currentUser.first_name)}`}
                     alt={`${currentUser.first_name} ${currentUser.last_name}`}
                   />
                   <AvatarFallback className="text-xs">
@@ -251,7 +252,7 @@ const CommentItem: React.FC<{
                   />
                 </svg>
               </div>
-              
+
               <div className="space-y-3">
                 {replies.map((reply: Reply, index) => (
                   <div key={reply._id} className="relative">
@@ -259,7 +260,7 @@ const CommentItem: React.FC<{
                     <div className="absolute -left-8 top-4">
                       <div className="w-6 h-px bg-border opacity-30"></div>
                     </div>
-                    
+
                     <div className="flex space-x-3">
                       <Avatar className="h-8 w-8 flex-shrink-0 border border-primary/10">
                         <AvatarImage
@@ -270,9 +271,9 @@ const CommentItem: React.FC<{
                           {reply.user_id.first_name[0]}{reply.user_id.last_name[0]}
                         </AvatarFallback>
                       </Avatar>
-                      
+
                       <div className="flex-1 min-w-0">
-                        <div className="bg-muted/50 border border-border/50 rounded-xl p-3">
+                        <div className="p-3">
                           <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center space-x-2">
                               <p className="text-xs font-medium text-foreground">
@@ -409,8 +410,8 @@ export const CommentModal: React.FC<CommentModalProps> = ({
               <div className="flex space-x-4">
                 <Avatar className="h-10 w-10 flex-shrink-0 border-2 border-primary/10">
                   <AvatarImage
-                    src={currentUser.profile_avatar || 
-                         `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(currentUser.first_name)}`}
+                    src={currentUser.profile_avatar ||
+                      `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(currentUser.first_name)}`}
                     alt={`${currentUser.first_name} ${currentUser.last_name}`}
                   />
                   <AvatarFallback className="text-sm font-medium">

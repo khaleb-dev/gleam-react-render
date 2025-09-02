@@ -4,18 +4,20 @@ import { useAppContext } from '@/context/AppContext';
 
 export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [onboardingData, setOnboardingData] = useState<{ 
-    isFirstTime: boolean; 
-    needsAvatar: boolean; 
+  const [onboardingData, setOnboardingData] = useState<{
+    isFirstTime: boolean;
+    needsAvatar: boolean;
   } | null>(null);
   const { user, updateUserProfile } = useAppContext();
 
   useEffect(() => {
     // Check if onboarding should be shown
     const onboardingInfo = sessionStorage.getItem('showOnboarding');
+
     if (onboardingInfo && user) {
       try {
         const data = JSON.parse(onboardingInfo);
+        console.log('🎯 Parsed onboarding data:', data);
         setOnboardingData(data);
         setShowOnboarding(true);
         // Clear the flag from sessionStorage
@@ -41,13 +43,21 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     <>
       {children}
       {showOnboarding && user && onboardingData && (
-        <OnboardingModal
-          isOpen={showOnboarding}
-          onClose={handleOnboardingClose}
-          user={user}
-          isFirstTime={onboardingData.isFirstTime}
-          onComplete={handleOnboardingComplete}
-        />
+        <>
+          {console.log('🎯 Rendering OnboardingModal with props:', {
+            isOpen: showOnboarding,
+            userHasAvatar: !!user.profile_avatar,
+            isFirstTime: onboardingData.isFirstTime,
+            onboardingData
+          })}
+          <OnboardingModal
+            isOpen={showOnboarding}
+            onClose={handleOnboardingClose}
+            user={user}
+            isFirstTime={onboardingData.isFirstTime}
+            onComplete={handleOnboardingComplete}
+          />
+        </>
       )}
     </>
   );

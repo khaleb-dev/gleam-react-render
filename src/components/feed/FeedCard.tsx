@@ -196,18 +196,18 @@ export const FeedCard: React.FC<FeedCardProps> = ({
       if ((e.target as HTMLElement).closest('button, a, input, [role="menu"], [role="menuitem"]')) {
         return
       }
-      
+
       if (post.owner?.company_url) {
         navigate(`/company/page/${post.owner.company_url}`)
       }
       return
     }
-    
+
     // For regular posts, prevent navigation from media container
     if ((e.target as HTMLElement).closest('button, a, input, [role="menu"], [role="menuitem"], .media-container')) {
       return
     }
-    
+
     navigate(`/feed/${post._id}`)
   }
 
@@ -254,12 +254,12 @@ export const FeedCard: React.FC<FeedCardProps> = ({
               <div className="absolute bottom-0 left-0 right-0 z-[5] bg-gradient-to-t from-black/80 via-black/60 to-transparent p-4 text-white">
                 {/* Product Title */}
                 <h2 className="text-lg font-semibold mb-2">{post.title}</h2>
-                
+
                 {/* Product Description */}
                 <div className="text-sm mb-3 text-white/90 [&_.rich-text-content]:!text-white/90 [&_.rich-text-content_*]:!text-white/90 [&>div]:!text-white/90">
                   <RichTextDisplay text={post.description} showLinkPreview={false} />
                 </div>
-                
+
                 {/* Company Info */}
                 <div className="flex items-center space-x-3">
                   <Avatar className="h-8 w-8">
@@ -276,7 +276,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
                   </div>
                 </div>
               </div>
-              
+
               <div className="w-full">
                 <div className="w-full h-[450px] flex items-center justify-center bg-black">
                   {allMedia[0].type === 'image' ? (
@@ -300,7 +300,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({
             </div>
           )}
         </div>
-        
+
         {/* Modals for product posts */}
         <ShareModal
           isOpen={showShareModal}
@@ -614,19 +614,19 @@ export const FeedCard: React.FC<FeedCardProps> = ({
 
           {/* Comments Section */}
           {showComments && (
-            <div 
+            <div
               className="mt-4 pt-4 border-t border-border space-y-4"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Comment Input */}
               <form onSubmit={handleCommentSubmit} className="flex items-start space-x-3">
                 <Avatar className="h-8 w-8 flex-shrink-0 border border-primary/20">
-                  <AvatarImage 
-                    src={currentUser?.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=currentuser`} 
-                    alt="You" 
+                  <AvatarImage
+                    src={currentUser?.profile_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(currentUser.first_name)}`}
+                    alt="You"
                   />
                   <AvatarFallback className="text-xs font-medium">
-                    {currentUser?.first_name?.[0] || 'Y'}{currentUser?.last_name?.[0] || 'U'}
+                    {currentUser?.first_name?.[0] || 'Y'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0 flex space-x-2">

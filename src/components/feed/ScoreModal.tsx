@@ -36,15 +36,15 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
     if (userScore[0] === 0) return
 
     setIsSubmitting(true)
-    
+
     // Calculate the actual score change
     const newScore = userScore[0]
     const scoreChange = hasScored ? newScore - currentUserScore : newScore
     const peopleChange = hasScored ? 0 : 1
-    
+
     // Optimistic update
     onOptimisticUpdate?.(scoreChange, peopleChange, true)
-    
+
     try {
       await scorePost({ postId, payload: { score: userScore[0] } })
       onClose()
@@ -59,14 +59,14 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
 
   const handleUnscore = async () => {
     setIsSubmitting(true)
-    
+
     // Calculate the actual score change when removing score
     const scoreDecrease = -currentUserScore
     const peopleDecrease = -1
-    
+
     // Optimistic update
     onOptimisticUpdate?.(scoreDecrease, peopleDecrease, false)
-    
+
     try {
       await unscorePost(postId)
       setUserScore([0])
@@ -175,8 +175,9 @@ export const ScoreModal: React.FC<ScoreModalProps> = ({
                 <div className="flex items-center space-x-3">
                   <Avatar className="h-7 w-7">
                     <AvatarImage
-                      src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`}
+                      src={user.profile_avatar ? user.profile_avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`}
                       alt={`${user.first_name} ${user.last_name}`}
+                      style={{ objectFit: 'cover' }}
                     />
                     <AvatarFallback className="text-xs">
                       {user.first_name[0]}

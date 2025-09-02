@@ -36,7 +36,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   isFirstTime,
   onComplete
 }) => {
-  const [step, setStep] = useState<'avatar' | 'post'>('avatar');
+  // Determine initial step: always show avatar if no profile_avatar, otherwise post if first_time
+  const initialStep = !user.profile_avatar ? 'avatar' : 'post';
+  const [step, setStep] = useState<'avatar' | 'post'>(initialStep);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -126,8 +128,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          profile_avatar: uploadedUrl,
-          first_time: false
+          profile_avatar: uploadedUrl
         }),
       });
 
@@ -136,14 +137,18 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
       if (result.success) {
         const updatedUser = { ...user, profile_avatar: uploadedUrl };
         toast.success('Profile picture uploaded successfully!');
-        
+
         // Update the user context first
         onComplete(updatedUser);
-        
-        // Small delay to ensure context update, then proceed to post step
-        setTimeout(() => {
+
+        // Only proceed to post step if it's first time, otherwise close modal
+        if (isFirstTime) {
+          console.log('Moving to post step after avatar upload');
           setStep('post');
-        }, 100);
+        } else {
+          console.log('Closing modal after avatar upload (not first time)');
+          onClose();
+        }
       } else {
         toast.error(result.message || 'Failed to update profile');
       }
@@ -164,7 +169,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     setIsCreatingPost(true);
     try {
       let uploadedFileUrl = '';
-      
+
       // Upload post file if selected
       if (postFile) {
         uploadedFileUrl = await uploadFile(postFile);
@@ -207,7 +212,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
             first_time: false
           }),
         });
-        
+
         toast.success('Welcome post created successfully!');
         onClose();
       } else {
@@ -222,32 +227,24 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   };
 
   const skipAvatarUpload = () => {
-    // Always show post creation step in onboarding flow
-    setStep('post');
+    // Only show post creation step if it's first time, otherwise close modal
+    if (isFirstTime) {
+      console.log('Moving to post step after skip');
+      setStep('post');
+    } else {
+      console.log('Closing modal after skip (not first time)');
+      onClose();
+    }
   };
 
   const skipPostCreation = async () => {
-    // Update user's first_time status even when skipping
-    try {
-      await fetch(`${API_BASE_URL}/users/edit-profile`, {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          first_time: false
-        }),
-      });
-    } catch (error) {
-      console.error('Error updating first_time status:', error);
-    }
+    // Just close the modal without updating first_time status
     onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={() => { }}>
-      <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {step === 'avatar' ? (

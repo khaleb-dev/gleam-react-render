@@ -41,12 +41,12 @@ interface FeedCommentProps {
   onAddReply: (parentId: string, content: string) => Promise<void>;
 }
 
-export const FeedComment: React.FC<FeedCommentProps> = ({ 
-  comment, 
-  currentUser, 
-  postId, 
-  onDeleteComment, 
-  onAddReply 
+export const FeedComment: React.FC<FeedCommentProps> = ({
+  comment,
+  currentUser,
+  postId,
+  onDeleteComment,
+  onAddReply
 }) => {
   const [isReplying, setIsReplying] = useState(false);
   const [replyText, setReplyText] = useState('');
@@ -92,8 +92,8 @@ export const FeedComment: React.FC<FeedCommentProps> = ({
   };
 
   const getUserAvatar = (user: CommentUser) => {
-    return user.profile_avatar || 
-           `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`;
+    return user.profile_avatar ||
+      `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.first_name)}`;
   };
 
   const getUserName = (user: CommentUser) => {
@@ -108,14 +108,15 @@ export const FeedComment: React.FC<FeedCommentProps> = ({
           <AvatarImage
             src={getUserAvatar(comment.user_id)}
             alt={getUserName(comment.user_id)}
+            style={{ objectFit: 'cover' }}
           />
           <AvatarFallback className="text-xs font-medium">
-            {comment.user_id.first_name[0]}{comment.user_id.last_name[0]}
+            {comment.user_id.first_name[0]}
           </AvatarFallback>
         </Avatar>
-        
+
         <div className="flex-1 min-w-0">
-          <div className="bg-card border border-border rounded-xl p-3 shadow-sm">
+          <div className="bg-card">
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center space-x-2">
                 <p className="text-sm font-semibold text-foreground">
@@ -141,7 +142,7 @@ export const FeedComment: React.FC<FeedCommentProps> = ({
               {comment.content}
             </p>
           </div>
-          
+
           {/* Action Buttons */}
           <div className="flex items-center mt-2 ml-3 space-x-3">
             {currentUser && (
@@ -149,7 +150,7 @@ export const FeedComment: React.FC<FeedCommentProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsReplying(!isReplying)}
-                className="text-xs text-muted-foreground hover:text-foreground h-6 px-2"
+                className="text-xs text-muted-foreground h-6 px-2"
               >
                 <Reply className="h-3 w-3 mr-1" />
                 Reply
@@ -160,7 +161,7 @@ export const FeedComment: React.FC<FeedCommentProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowReplies(!showReplies)}
-                className="text-xs text-muted-foreground hover:text-foreground h-6 px-2"
+                className="text-xs text-muted-foreground h-6 px-2"
               >
                 {showReplies ? (
                   <>
@@ -183,9 +184,10 @@ export const FeedComment: React.FC<FeedCommentProps> = ({
               <div className="flex space-x-3">
                 <Avatar className="h-6 w-6 flex-shrink-0">
                   <AvatarImage
-                    src={currentUser.profile_avatar || 
-                         `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(currentUser.first_name)}`}
-                    alt={`${currentUser.first_name} ${currentUser.last_name}`}
+                    src={currentUser.profile_avatar ||
+                      `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(currentUser.first_name)}`}
+                    alt={`${currentUser.first_name}`}
+                    style={{ objectFit: 'cover' }}
                   />
                   <AvatarFallback className="text-xs">
                     {currentUser.first_name[0]}{currentUser.last_name[0]}
@@ -245,7 +247,7 @@ export const FeedComment: React.FC<FeedCommentProps> = ({
                   />
                 </svg>
               </div>
-              
+
               <div className="space-y-3">
                 {replies.map((reply: Reply, index) => (
                   <div key={reply._id} className="relative">
@@ -253,20 +255,21 @@ export const FeedComment: React.FC<FeedCommentProps> = ({
                     <div className="absolute -left-6 top-4">
                       <div className="w-4 h-px bg-border opacity-30"></div>
                     </div>
-                    
+
                     <div className="flex space-x-3">
                       <Avatar className="h-6 w-6 flex-shrink-0 border border-primary/10">
                         <AvatarImage
                           src={getUserAvatar(reply.user_id)}
                           alt={getUserName(reply.user_id)}
+                          style={{ objectFit: 'cover' }}
                         />
                         <AvatarFallback className="text-xs">
                           {reply.user_id.first_name[0]}{reply.user_id.last_name[0]}
                         </AvatarFallback>
                       </Avatar>
-                      
+
                       <div className="flex-1 min-w-0">
-                        <div className="bg-muted/50 border border-border/50 rounded-lg p-2">
+                        <div className="p-2">
                           <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center space-x-2">
                               <p className="text-xs font-medium text-foreground">

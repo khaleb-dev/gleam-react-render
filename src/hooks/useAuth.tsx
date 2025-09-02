@@ -100,8 +100,8 @@ export const useAuth = () => {
         const successMessage = typeof response.message === 'string' ? response.message : "Login successful!"
         toast.success(successMessage)
 
-        const { auth_token, user, first_time } = response.data
-        console.log("🔐 Login data received:", { hasToken: !!auth_token, hasUser: !!user, first_time });
+        const { auth_token, user } = response.data
+        console.log("🔐 Login data received:", { hasToken: !!auth_token, hasUser: !!user });
 
         // Ensure user is valid before setting it
         if (user) {
@@ -129,25 +129,25 @@ export const useAuth = () => {
 
           // Notify other tabs of auth change
           notifyAuthChange();
-          
+
           // Force immediate auth state verification to prevent stale state
           setTimeout(async () => {
             console.log("🔐 Auth successful, verifying state and navigating...");
             // Clear any cached verification results to force fresh check
             lastVerifyResult = null;
             lastVerifyAt = 0;
-            
+
             // Check if onboarding is needed
-            const needsOnboarding = first_time || !user.profile_avatar;
-            
+            const needsOnboarding = user.first_time || !user.profile_avatar;
+
             if (needsOnboarding) {
               // Store onboarding info in sessionStorage to show modal after navigation
               sessionStorage.setItem('showOnboarding', JSON.stringify({
-                isFirstTime: first_time || false,
+                isFirstTime: user.first_time,
                 needsAvatar: !user.profile_avatar
               }));
             }
-            
+
             // Navigate to intended page or home
             const urlParams = new URLSearchParams(location.search);
             const returnTo = urlParams.get('returnTo');
@@ -263,7 +263,7 @@ export const useAuth = () => {
           if (user.user_id && user.role) {
             try {
               socketService.connect(user.user_id, user.role);
-              
+
               socket.on("connect_error", (error) => {
                 console.error("Socket connection error:", error);
                 toast.error("Could not establish live connection. Some features may be limited.");
@@ -276,17 +276,17 @@ export const useAuth = () => {
 
           // Notify other tabs of auth change
           notifyAuthChange();
-          
+
           // Force immediate auth state verification to prevent stale state
           setTimeout(async () => {
             console.log("🔐 Google Auth successful, verifying state and navigating...");
             // Clear any cached verification results to force fresh check
             lastVerifyResult = null;
             lastVerifyAt = 0;
-            
+
             // Check if onboarding is needed
             const needsOnboarding = first_time || !user.profile_avatar;
-            
+
             if (needsOnboarding) {
               // Store onboarding info in sessionStorage to show modal after navigation
               sessionStorage.setItem('showOnboarding', JSON.stringify({
@@ -294,7 +294,7 @@ export const useAuth = () => {
                 needsAvatar: !user.profile_avatar
               }));
             }
-            
+
             // Navigate to intended page or home
             const urlParams = new URLSearchParams(location.search);
             const returnTo = urlParams.get('returnTo');
@@ -325,7 +325,7 @@ export const useAuth = () => {
     if (isLoggingOutRef.current) {
       return;
     }
-    
+
     console.log("Manual logout initiated");
     isLoggingOutRef.current = true;
 
@@ -357,10 +357,10 @@ export const useAuth = () => {
 
     // Clear user state and navigate
     setUser(null)
-    
+
     // Notify other tabs of auth change
     notifyAuthChange();
-    
+
     // Reset logout flag after a delay
     setTimeout(() => {
       isLoggingOutRef.current = false;
@@ -395,7 +395,7 @@ export const useAuth = () => {
     verifyInFlightPromise = (async () => {
       try {
         const response = await authApi.verifyAuthToken()
-        
+
         // If the local abort controller was aborted, treat as no-op
         if (verifyTokenAbortController.current?.signal.aborted) {
           return { success: false };

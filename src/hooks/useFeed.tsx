@@ -36,6 +36,7 @@ interface ApiResponse {
 }
 
 interface ScoreData {
+  profile_avatar: any
   _id: string
   first_name: string
   last_name: string
@@ -70,9 +71,9 @@ const getAuthToken = () => {
 // Helper function to transform API post to component format (not used but kept for future reference)
 const transformPost = (apiPost: FeedPost) => {
   const timeAgo = new Date(apiPost.created_at).toLocaleDateString()
-  
-  const ownerName = apiPost.owner.type === 'page' 
-    ? apiPost.owner.name || '' 
+
+  const ownerName = apiPost.owner.type === 'page'
+    ? apiPost.owner.name || ''
     : `${apiPost.owner.first_name || ''} ${apiPost.owner.last_name || ''}`.trim()
 
   return {
@@ -87,7 +88,7 @@ const transformPost = (apiPost: FeedPost) => {
     timeAgo: timeAgo,
     user: {
       name: ownerName,
-      avatar: apiPost.owner.type === 'page' 
+      avatar: apiPost.owner.type === 'page'
         ? apiPost.owner.logo || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(ownerName)}`
         : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(ownerName)}`,
       rating: 4.5,
@@ -111,11 +112,11 @@ export const useFeed = () => {
           page: page.toString(),
           limit: limit.toString(),
         })
-        
+
         if (filters?.hashtag) {
           params.append('hashtag', filters.hashtag)
         }
-        
+
         if (filters?.search) {
           params.append('search', filters.search)
         }
@@ -130,7 +131,7 @@ export const useFeed = () => {
         const apiResponse: ApiResponse = await response.json()
 
         // Sort posts by created_at in descending order to ensure consistent ordering
-        const sortedPosts = apiResponse.data.sort((a, b) => 
+        const sortedPosts = apiResponse.data.sort((a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         )
 
@@ -235,7 +236,7 @@ export const useFeed = () => {
         })
         if (!response.ok) throw new Error('Failed to fetch suggested posts')
         const result = await response.json()
-        
+
         // The API now returns posts with new format including user_type and owner fields
         return result.data || []
       },
@@ -427,7 +428,7 @@ export const useFeed = () => {
       queryKey: ['page-posts', pageId, page, limit],
       queryFn: async () => {
         if (!pageId) return { posts: [], message: '', success: false };
-        
+
         const params = new URLSearchParams({
           page: page.toString(),
           limit: limit.toString(),
@@ -439,12 +440,12 @@ export const useFeed = () => {
             'Content-Type': 'application/json',
           },
         });
-        
+
         if (!response.ok) throw new Error('Failed to fetch page posts');
         const apiResponse: ApiResponse = await response.json();
 
         // Sort posts by created_at in descending order
-        const sortedPosts = apiResponse.data.sort((a, b) => 
+        const sortedPosts = apiResponse.data.sort((a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
 

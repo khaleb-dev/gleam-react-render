@@ -3,7 +3,7 @@
 import { useNavigate, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { LogOut, Bell, MessageCircle, UserIcon, Home, LayoutDashboard, ClipboardList, Hash } from "lucide-react"
+import { LogOut, Bell, MessageCircle, UserIcon, Home, Plus, ClipboardList, Hash, LayoutDashboard } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -78,13 +78,13 @@ export const Header = () => {
   const menuItems = [
     { label: "Explore", path: "/feed", icon: Home, onClick: handleFeedNavigation },
     { label: "Discover", path: "/discover", icon: Hash, onClick: () => navigate("/discover") },
-    { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard, onClick: () => navigate("/dashboard") },
-    { label: "Task History", path: "/task-history", icon: ClipboardList, onClick: () => navigate("/task-history") },
+    { label: "Notifications", path: "/notifications", icon: Bell, onClick: () => navigate("/notifications") },
+    { label: "Messages", path: "/messages", icon: MessageCircle, onClick: () => navigate("/messages") },
   ]
 
   return (
     <header className="sticky top-0 z-10 bg-white dark:bg-beembyte-darkBlue border-b border-gray-200 dark:border-gray-700 shadow-sm">
-      <div className="flex items-center justify-between max-w-7xl mx-auto px-4 h-14">
+      <div className="flex items-center justify-between max-w-7xl mx-auto px-4 h-20 py-4">
         {/* Left Section - Logo and Search */}
         <div className="flex items-center space-x-4">
           <div className="flex items-center flex-shrink-0 cursor-pointer" onClick={() => navigate("/")}>
@@ -105,17 +105,50 @@ export const Header = () => {
         </div>
 
         {/* Center Section - Navigation Items (Hidden on mobile) */}
-        <div className="hidden lg:flex items-center space-x-4">
+        <div className="hidden lg:flex items-center space-x-6 py-2">
           {menuItems.map((item) => {
             const IconComponent = item.icon;
+            const isActive = location.pathname === item.path || 
+              (item.path === '/feed' && location.pathname === '/');
+            
+            // Show unread badges for notifications and messages
+            let badgeCount = 0;
+            if (item.path === '/notifications') badgeCount = unreadCount;
+            if (item.path === '/messages') badgeCount = messageUnreadCount;
+            
             return (
               <button
                 key={item.path}
                 onClick={item.onClick}
-                className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
+                className="flex flex-col items-center justify-center group py-1"
                 title={item.label}
               >
-                <IconComponent className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                <div className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
+                  isActive 
+                    ? 'bg-primary/10 border-2 border-primary' 
+                    : 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}>
+                  <IconComponent className={`h-5 w-5 transition-colors ${
+                    isActive 
+                      ? 'text-primary' 
+                      : 'text-gray-600 dark:text-gray-300 group-hover:text-primary'
+                  }`} />
+                  {badgeCount > 0 && (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                    >
+                      {badgeCount > 9 ? "9+" : badgeCount}
+                    </Badge>
+                  )}
+                </div>
+                <span className={`text-xs mt-1 transition-colors ${
+                  isActive 
+                    ? 'text-primary font-medium' 
+                    : 'text-gray-500 dark:text-gray-400 group-hover:text-primary'
+                }`}>
+                  {item.label}
+                </span>
               </button>
             );
           })}
@@ -128,43 +161,61 @@ export const Header = () => {
             <SearchBar />
           </div>
 
-          {/* Messages Icon */}
+          {/* Dashboard Icon */}
           {!userLoading && user && (
-            <div className="relative">
-              <button
-                onClick={() => navigate("/messages")}
-                className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
-              >
-                <MessageCircle className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-                {messageUnreadCount > 0 && (
-                  <Badge
-                    variant="destructive"
-                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                  >
-                    {messageUnreadCount > 9 ? "9+" : messageUnreadCount}
-                  </Badge>
-                )}
-              </button>
+            <div className="flex flex-col items-center group py-1">
+              <div className="relative">
+                <button
+                  onClick={() => navigate("/dashboard")}
+                  className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
+                    location.pathname === '/dashboard'
+                      ? 'bg-primary/10 border-2 border-primary'
+                      : 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <LayoutDashboard className={`h-5 w-5 transition-colors ${
+                    location.pathname === '/dashboard'
+                      ? 'text-primary'
+                      : 'text-gray-600 dark:text-gray-300 group-hover:text-primary'
+                  }`} />
+                </button>
+              </div>
+              <span className={`text-xs mt-1 transition-colors ${
+                location.pathname === '/dashboard'
+                  ? 'text-primary font-medium'
+                  : 'text-gray-500 dark:text-gray-400 group-hover:text-primary'
+              }`}>
+                Dashboard
+              </span>
             </div>
           )}
 
-          {/* Notifications Icon */}
+          {/* Create Micro Job Icon */}
           {!userLoading && user && (
-            <div className="relative">
-              <button
-                onClick={() => navigate("/notifications")}
-                className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
-              >
-                <Bell className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-                {unreadCount > 0 && (
-                  <Badge
-                    variant="destructive"
-                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                  >
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </Badge>
-                )}
-              </button>
+            <div className="flex flex-col items-center group py-1">
+              <div className="relative">
+                <button
+                  onClick={() => navigate("/create-task")}
+                  className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
+                    location.pathname === '/create-task'
+                      ? 'bg-primary/10 border-2 border-primary'
+                      : 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <Plus className={`h-5 w-5 transition-colors ${
+                    location.pathname === '/create-task'
+                      ? 'text-primary'
+                      : 'text-gray-600 dark:text-gray-300 group-hover:text-primary'
+                  }`} />
+                </button>
+              </div>
+              <span className={`text-xs mt-1 transition-colors ${
+                location.pathname === '/create-task'
+                  ? 'text-primary font-medium'
+                  : 'text-gray-500 dark:text-gray-400 group-hover:text-primary'
+              }`}>
+                Create Micro Job
+              </span>
             </div>
           )}
 
@@ -235,8 +286,8 @@ export const Header = () => {
                   </Avatar>
                 )}
               </SheetTrigger>
-              <SheetContent side="right" className="w-[250px]">
-                <div className="py-6">
+              <SheetContent side="right" className="w-[250px] overflow-y-auto">
+                <div className="py-6 h-full">
                   <div className="flex items-center mb-6">
                     <img
                       src="/lovable-uploads/1c57582a-5db7-4f2b-a553-936b472ba1a2.png"
@@ -272,47 +323,46 @@ export const Header = () => {
                   )}
 
                   <nav className="flex flex-col space-y-4">
-                    {menuItems.map((item) => (
-                      <button
-                        key={item.path}
-                        className="text-gray-600 hover:text-primary text-left py-2 text-sm"
-                        onClick={item.onClick}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
+                    {menuItems.map((item) => {
+                      let badgeCount = 0;
+                      if (item.path === '/notifications') badgeCount = unreadCount;
+                      if (item.path === '/messages') badgeCount = messageUnreadCount;
+                      
+                      return (
+                        <button
+                          key={item.path}
+                          className="text-gray-600 hover:text-primary text-left py-2 text-sm flex items-center gap-2"
+                          onClick={item.onClick}
+                        >
+                          <item.icon className="h-4 w-4" />
+                          {item.label}
+                          {badgeCount > 0 && (
+                            <Badge
+                              variant="destructive"
+                              className="h-4 w-4 flex items-center justify-center p-0 text-xs"
+                            >
+                              {badgeCount > 9 ? "9+" : badgeCount}
+                            </Badge>
+                          )}
+                        </button>
+                      );
+                    })}
 
                     {!userLoading && user && (
                       <>
                         <button
                           className="text-gray-600 hover:text-primary text-left py-2 text-sm flex items-center gap-2"
-                          onClick={() => navigate("/messages")}
+                          onClick={() => navigate("/dashboard")}
                         >
-                          <MessageCircle className="h-4 w-4" />
-                          Messages
-                          {messageUnreadCount > 0 && (
-                            <Badge
-                              variant="destructive"
-                              className="h-4 w-4 flex items-center justify-center p-0 text-xs"
-                            >
-                              {messageUnreadCount > 9 ? "9+" : messageUnreadCount}
-                            </Badge>
-                          )}
+                          <LayoutDashboard className="h-4 w-4" />
+                          Dashboard
                         </button>
                         <button
                           className="text-gray-600 hover:text-primary text-left py-2 text-sm flex items-center gap-2"
-                          onClick={() => navigate("/notifications")}
+                          onClick={() => navigate("/create-task")}
                         >
-                          <Bell className="h-4 w-4" />
-                          Notifications
-                          {unreadCount > 0 && (
-                            <Badge
-                              variant="destructive"
-                              className="h-4 w-4 flex items-center justify-center p-0 text-xs"
-                            >
-                              {unreadCount > 9 ? "9+" : unreadCount}
-                            </Badge>
-                          )}
+                          <Plus className="h-4 w-4" />
+                          Create Micro Job
                         </button>
                         <button
                           className="text-gray-600 hover:text-primary text-left py-2 text-sm"
